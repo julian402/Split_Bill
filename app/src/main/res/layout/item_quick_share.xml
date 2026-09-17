@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
+    android:minHeight="56dp"
     android:orientation="horizontal"
-    android:paddingStart="8dp"
-    android:paddingEnd="8dp">
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
 
     <EditText
         android:id="@+id/etPersonName"
@@ -15,19 +16,24 @@
         android:layout_weight="1"
         android:autofillHints="name"
         android:background="@null"
-        android:inputType="textPersonName"
+        android:inputType="textPersonName|textCapWords"
         android:minHeight="48dp"
-        android:textSize="15sp"
+        android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
         tools:text="Persona 1" />
 
     <EditText
         android:id="@+id/etPersonValue"
         android:layout_width="96dp"
-        android:layout_height="wrap_content"
+        android:layout_height="44dp"
         android:autofillHints="none"
+        android:background="@drawable/bg_input"
         android:hint="@string/hintValueExact"
         android:inputType="numberDecimal"
-        android:minHeight="48dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:textAlignment="viewEnd"
+        android:textColor="@color/colorTextPrimary"
+        android:textColorHint="@color/colorTextSecondary"
         android:textSize="14sp"
         android:visibility="gone"
         tools:visibility="visible" />
@@ -40,8 +46,7 @@
         android:paddingStart="8dp"
         android:paddingEnd="0dp"
         android:textAlignment="viewEnd"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.SplitBill.Amount"
+        android:textColor="@color/colorPrimary"
         tools:text="$ 66.000,00" />
 </LinearLayout>

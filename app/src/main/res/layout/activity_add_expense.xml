@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorSurface"
     android:orientation="vertical"
     tools:context=".ui.expense.AddExpenseActivity">
 
-    <TextView
-        android:id="@+id/tvTitle"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:padding="16dp"
-        android:text="@string/tvTitleAddExpense"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/cdBack"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/tvTitleAddExpense" />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/pbLoading"
-        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
@@ -37,72 +32,87 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
 
-            <EditText
-                android:id="@+id/etDescription"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="name"
-                android:hint="@string/etDescription"
-                android:inputType="text"
-                android:minHeight="48dp" />
-
-            <EditText
-                android:id="@+id/etAmount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:autofillHints="none"
                 android:hint="@string/etAmount"
-                android:inputType="numberDecimal"
-                android:minHeight="48dp" />
+                app:prefixText="@string/prefixCurrency">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="none"
+                    android:fontFamily="sans-serif-medium"
+                    android:inputType="numberDecimal"
+                    android:textSize="24sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="@string/etDescription">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="name"
+                    android:inputType="textCapSentences" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
                 android:text="@string/tvPayerLabel"
-                android:textColor="@color/colorTextSecondary"
-                android:textSize="14sp" />
+                android:textAppearance="@style/TextAppearance.SplitBill.Section" />
 
             <Spinner
                 android:id="@+id/spPayer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp" />
+                style="@style/Widget.SplitBill.Spinner" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
                 android:text="@string/tvSplitTypeLabel"
-                android:textColor="@color/colorTextSecondary"
-                android:textSize="14sp" />
+                android:textAppearance="@style/TextAppearance.SplitBill.Section" />
 
             <Spinner
                 android:id="@+id/spSplitType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp" />
+                style="@style/Widget.SplitBill.Spinner" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
                 android:text="@string/tvParticipantsLabel"
-                android:textColor="@color/colorTextSecondary"
-                android:textSize="14sp" />
+                android:textAppearance="@style/TextAppearance.SplitBill.Section" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvParticipants"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@color/white"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="4"
-                tools:listitem="@layout/item_participant" />
+                android:layout_height="wrap_content">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvParticipants"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    tools:itemCount="4"
+                    tools:listitem="@layout/item_participant" />
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
 
@@ -110,7 +120,11 @@
         android:id="@+id/btnSaveExpense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/colorSave"
-        android:text="@string/btnSaveExpense" />
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/btnSaveExpense"
+        app:icon="@drawable/ic_save"
+        app:iconGravity="textStart" />
 </LinearLayout>

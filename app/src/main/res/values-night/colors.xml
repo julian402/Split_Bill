@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta de la aplicación (modo oscuro): mismos nombres que values/colors.xml -->
+    <color name="colorPrimary">#FFA5B4FC</color>
+    <color name="colorOnPrimary">#FF1E1B4B</color>
+    <color name="colorPrimaryContainer">#FF312E81</color>
+    <color name="colorOnPrimaryContainer">#FFE0E7FF</color>
+    <color name="colorAccent">#FFFBBF24</color>
+
+    <color name="colorHeroStart">#FF4338CA</color>
+    <color name="colorHeroEnd">#FF6D28D9</color>
+
+    <color name="colorBackground">#FF0F1115</color>
+    <color name="colorCard">#FF1A1D24</color>
+    <color name="colorStroke">#FF2A2E37</color>
+    <color name="colorTextPrimary">#FFF3F4F6</color>
+    <color name="colorTextSecondary">#FF9CA3AF</color>
+
+    <color name="colorCreditor">#FF34D399</color>
+    <color name="colorCreditorContainer">#FF064E3B</color>
+    <color name="colorDebtor">#FFF87171</color>
+    <color name="colorDebtorContainer">#FF7F1D1D</color>
+    <color name="colorSettledBalance">#FF9CA3AF</color>
+    <color name="colorSettledContainer">#FF2A2E37</color>
+
+    <color name="colorAvatar1">#FF312E81</color>
+    <color name="colorAvatar2">#FF064E3B</color>
+    <color name="colorAvatar3">#FF78350F</color>
+    <color name="colorAvatar4">#FF831843</color>
+    <color name="colorAvatar5">#FF0C4A6E</color>
+    <color name="colorOnAvatar">#FFF3F4F6</color>
+</resources>

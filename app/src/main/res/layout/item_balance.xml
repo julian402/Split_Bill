@@ -1,41 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:gravity="center_vertical"
     android:layout_marginTop="6dp"
-    android:orientation="horizontal"
-    android:padding="12dp">
+    android:layout_marginBottom="6dp">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
 
         <TextView
-            android:id="@+id/tvBalanceName"
-            android:layout_width="match_parent"
+            android:id="@+id/tvBalanceInitials"
+            style="@style/Widget.SplitBill.Avatar"
+            tools:text="DA" />
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            tools:text="Diomar Arias" />
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvBalanceName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
+                tools:text="Diomar Arias" />
+
+            <TextView
+                android:id="@+id/tvBalanceState"
+                style="@style/Widget.SplitBill.Pill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                tools:text="Le deben" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/tvBalanceState"
-            android:layout_width="match_parent"
+            android:id="@+id/tvBalanceAmount"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            tools:text="Le deben" />
+            android:layout_marginStart="8dp"
+            android:textAppearance="@style/TextAppearance.SplitBill.Amount"
+            tools:text="$ 33.000,00" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvBalanceAmount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        tools:text="$ 33.000,00" />
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

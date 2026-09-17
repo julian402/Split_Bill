@@ -1,31 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:gravity="center_vertical"
     android:layout_marginTop="6dp"
-    android:orientation="horizontal"
-    android:padding="12dp">
+    android:layout_marginBottom="6dp">
 
-    <TextView
-        android:id="@+id/tvTransferDescription"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        tools:text="Sofía Reyes le paga a Diomar Arias" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvTransferAmount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingStart="8dp"
-        android:paddingEnd="0dp"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        tools:text="$ 33.000,00" />
-</LinearLayout>
+        <ImageView
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_icon_circle"
+            android:importantForAccessibility="no"
+            android:padding="11dp"
+            android:src="@drawable/ic_arrow_forward"
+            app:tint="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/tvTransferDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
+            android:textSize="15sp"
+            tools:text="Sofía Reyes le paga a Diomar Arias" />
+
+        <TextView
+            android:id="@+id/tvTransferAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textAppearance="@style/TextAppearance.SplitBill.Amount"
+            android:textColor="@color/colorPrimary"
+            tools:text="$ 33.000,00" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

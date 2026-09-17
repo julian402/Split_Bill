@@ -10,6 +10,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.appbar.MaterialToolbar;
+
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.SplitBillApplication;
 import ue.edu.co.splitbill.di.ServiceLocator;
@@ -34,6 +36,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(getLayoutResourceId());
         applyWindowInsets();
+        initToolbar();
         initObjects();
         initListeners();
     }
@@ -58,6 +61,18 @@ public abstract class BaseActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+
+    /** Si la pantalla tiene barra superior, su flecha regresa a la pantalla anterior. */
+    private void initToolbar() {
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(this::goBack);
+        }
+    }
+
+    private void goBack(View view) {
+        getOnBackPressedDispatcher().onBackPressed();
     }
 
     protected ServiceLocator getServiceLocator() {

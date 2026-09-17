@@ -210,14 +210,14 @@ public class AddExpenseActivity extends BaseActivity {
         this.userRepository = getServiceLocator().getUserRepository();
 
         //Spinner de pagadores: se apoya en el toString() de User, que devuelve el nombre
-        this.payerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-        this.payerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        this.payerAdapter = new ArrayAdapter<>(this, R.layout.item_spinner);
+        this.payerAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         this.spPayer.setAdapter(this.payerAdapter);
 
         //Spinner de tipos de division: el orden del arreglo coincide con el del enum SplitType
         ArrayAdapter<CharSequence> splitTypeAdapter = ArrayAdapter.createFromResource(
-                this, R.array.splitTypes, android.R.layout.simple_spinner_item);
-        splitTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                this, R.array.splitTypes, R.layout.item_spinner);
+        splitTypeAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         this.spSplitType.setAdapter(splitTypeAdapter);
 
         this.participantAdapter = new ParticipantAdapter();

@@ -9,6 +9,8 @@
     <string name="btnMembers">Integrantes</string>
     <string name="btnQuickSplit">Cuenta rápida</string>
     <string name="tvEmptyExpenses">Aún no hay gastos registrados. Agrega el primero.</string>
+    <string name="tvAppGreeting">SplitBill</string>
+    <string name="tvSectionExpenses">Movimientos</string>
 
     <!-- Pantalla de integrantes -->
     <string name="tvTitleMembers">Integrantes del grupo</string>
@@ -16,8 +18,9 @@
     <string name="etMemberPhone">Teléfono (opcional)</string>
     <string name="btnSaveMember">Guardar</string>
     <string name="btnClear">Limpiar</string>
-    <string name="btnDeleteMember">Eliminar</string>
     <string name="tvEmptyMembers">Aún no hay integrantes. Agrega al menos dos.</string>
+    <string name="tvSectionNewMember">Nuevo integrante</string>
+    <string name="tvSectionMemberList">En el grupo</string>
     <string name="msgMemberSaved">Integrante registrado</string>
     <string name="msgMemberDeleted">Integrante eliminado</string>
 
@@ -39,13 +42,12 @@
     <string name="tvTitleQuickSplit">Cuenta rápida</string>
     <string name="tvQuickIntro">Divide una cuenta al momento, sin registrar integrantes ni quién pagó.</string>
     <string name="etQuickTotal">Total de la cuenta</string>
-    <string name="etTipPercentage">Propina %</string>
+    <string name="etTipPercentage">Propina</string>
     <string name="tvTotalWithTip">Total con propina: %1$s</string>
     <string name="tvPeopleLabel">Entre cuántos</string>
-    <string name="btnMinus">−</string>
-    <string name="btnPlus">+</string>
     <string name="btnCalculate">Calcular</string>
     <string name="tvQuickResultLabel">Le corresponde a cada uno</string>
+    <string name="tvQuickTotalSection">La cuenta</string>
     <string name="btnSaveAsExpense">Guardar como gasto del grupo</string>
     <string name="hintPersonName">Persona %1$d</string>
     <string name="msgCalculateFirst">Primero calcula la división</string>
@@ -59,6 +61,7 @@
     <string name="tvTransfersLabel">Transferencias sugeridas</string>
     <string name="tvAllSettled">El grupo está a paz y salvo.</string>
     <string name="tvTransferSummary">%1$d transferencia(s) en lugar de %2$d</string>
+    <string name="tvSettlementHeroLabel">Plan de pagos</string>
 
     <!-- Textos compartidos -->
     <string name="tvPaidBy">Pagó %1$s</string>
@@ -67,6 +70,12 @@
     <string name="tvDebtor">Debe</string>
     <string name="tvSettled">Al día</string>
     <string name="msgUnexpectedError">No fue posible completar la operación</string>
+    <string name="cdBack">Volver</string>
+    <string name="cdDelete">Eliminar</string>
+    <string name="cdRemovePerson">Quitar una persona</string>
+    <string name="cdAddPerson">Agregar una persona</string>
+    <string name="prefixCurrency">$</string>
+    <string name="suffixPercentage">%</string>
 
     <!-- Tipos de división: el orden debe coincidir con el enum SplitType -->
     <string-array name="splitTypes">

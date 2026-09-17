@@ -14,6 +14,7 @@ import java.util.List;
 
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.entity.User;
+import ue.edu.co.splitbill.ui.Avatar;
 
 /**
  * Pinta la lista de integrantes del grupo.
@@ -60,18 +61,21 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberView
 
     class MemberViewHolder extends RecyclerView.ViewHolder {
 
+        private final TextView tvMemberInitials;
         private final TextView tvMemberNames;
         private final TextView tvMemberPhone;
         private final Button btnDeleteMember;
 
         MemberViewHolder(View itemView) {
             super(itemView);
+            this.tvMemberInitials = itemView.findViewById(R.id.tvMemberInitials);
             this.tvMemberNames = itemView.findViewById(R.id.tvMemberNames);
             this.tvMemberPhone = itemView.findViewById(R.id.tvMemberPhone);
             this.btnDeleteMember = itemView.findViewById(R.id.btnDeleteMember);
         }
 
         void bind(final User user) {
+            Avatar.bind(this.tvMemberInitials, user.getNames());
             this.tvMemberNames.setText(user.getNames());
             boolean hasPhone = user.getPhone() != null && !user.getPhone().trim().isEmpty();
             this.tvMemberPhone.setVisibility(hasPhone ? View.VISIBLE : View.GONE);

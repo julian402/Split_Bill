@@ -1,8 +1,28 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Tema base: Material 3. Los colores salen de colors.xml, que cambia solo en modo oscuro -->
     <style name="Base.Theme.SplitBill" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
+        <item name="colorSecondary">@color/colorPrimary</item>
+        <item name="colorSecondaryContainer">@color/colorPrimaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnPrimaryContainer</item>
+        <item name="colorTertiary">@color/colorAccent</item>
+        <item name="colorError">@color/colorDebtor</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="colorSurface">@color/colorCard</item>
+        <item name="colorSurfaceContainer">@color/colorCard</item>
+        <item name="colorSurfaceContainerHigh">@color/colorCard</item>
+        <item name="colorOnSurface">@color/colorTextPrimary</item>
+        <item name="colorOnSurfaceVariant">@color/colorTextSecondary</item>
+        <item name="colorOutline">@color/colorStroke</item>
+        <item name="colorOutlineVariant">@color/colorStroke</item>
+
+        <item name="materialButtonStyle">@style/Widget.SplitBill.Button</item>
+        <item name="textInputStyle">@style/Widget.SplitBill.TextInputLayout</item>
+        <item name="materialCardViewStyle">@style/Widget.SplitBill.Card</item>
+        <item name="toolbarStyle">@style/Widget.SplitBill.Toolbar</item>
     </style>
 
     <style name="Theme.SplitBill" parent="Base.Theme.SplitBill" />

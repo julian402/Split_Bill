@@ -3,25 +3,40 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Paleta de la aplicación -->
-    <color name="colorPrimary">#FF00695C</color>
-    <color name="colorPrimaryDark">#FF004D40</color>
-    <color name="colorAccent">#FFFF8F00</color>
+    <!-- Paleta de la aplicación (modo claro). El modo oscuro está en values-night/colors.xml -->
+    <color name="colorPrimary">#FF4F46E5</color>
+    <color name="colorOnPrimary">#FFFFFFFF</color>
+    <color name="colorPrimaryContainer">#FFE0E7FF</color>
+    <color name="colorOnPrimaryContainer">#FF1E1B4B</color>
+    <color name="colorAccent">#FFF59E0B</color>
 
-    <!-- Colores de acción, con la misma convención de los proyectos anteriores -->
-    <color name="colorSave">#FF2E7D32</color>
-    <color name="colorList">#FF1565C0</color>
-    <color name="colorDelete">#FFC62828</color>
-    <color name="colorSearch">#FF6A1B9A</color>
-    <color name="colorClear">#FF546E7A</color>
-    <color name="colorUpdate">#FFEF6C00</color>
+    <!-- Degradado de las tarjetas destacadas -->
+    <color name="colorHeroStart">#FF4F46E5</color>
+    <color name="colorHeroEnd">#FF7C3AED</color>
+    <color name="colorOnHero">#FFFFFFFF</color>
+    <color name="colorOnHeroSecondary">#CCFFFFFF</color>
+    <color name="colorHeroButton">#33FFFFFF</color>
+
+    <!-- Fondos y bordes -->
+    <color name="colorBackground">#FFF5F6FA</color>
+    <color name="colorCard">#FFFFFFFF</color>
+    <color name="colorStroke">#FFE5E7EB</color>
+    <color name="colorTextPrimary">#FF111827</color>
+    <color name="colorTextSecondary">#FF6B7280</color>
 
     <!-- Colores de saldo -->
-    <color name="colorCreditor">#FF2E7D32</color>
-    <color name="colorDebtor">#FFC62828</color>
-    <color name="colorSettledBalance">#FF546E7A</color>
+    <color name="colorCreditor">#FF059669</color>
+    <color name="colorCreditorContainer">#FFD1FAE5</color>
+    <color name="colorDebtor">#FFDC2626</color>
+    <color name="colorDebtorContainer">#FFFEE2E2</color>
+    <color name="colorSettledBalance">#FF6B7280</color>
+    <color name="colorSettledContainer">#FFF3F4F6</color>
 
-    <!-- Fondos -->
-    <color name="colorSurface">#FFF5F5F5</color>
-    <color name="colorTextSecondary">#FF616161</color>
+    <!-- Fondos de los avatares con iniciales -->
+    <color name="colorAvatar1">#FFE0E7FF</color>
+    <color name="colorAvatar2">#FFD1FAE5</color>
+    <color name="colorAvatar3">#FFFEF3C7</color>
+    <color name="colorAvatar4">#FFFCE7F3</color>
+    <color name="colorAvatar5">#FFE0F2FE</color>
+    <color name="colorOnAvatar">#FF1F2937</color>
 </resources>

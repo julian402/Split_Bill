@@ -1,92 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorSurface"
     android:orientation="vertical"
     tools:context=".ui.group.MembersActivity">
 
-    <TextView
-        android:id="@+id/tvTitle"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:padding="16dp"
-        android:text="@string/tvTitleMembers"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/cdBack"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/tvTitleMembers" />
 
-    <EditText
-        android:id="@+id/etMemberNames"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="16dp"
-        android:autofillHints="name"
-        android:hint="@string/etMemberNames"
-        android:inputType="textPersonName"
-        android:minHeight="48dp" />
-
-    <EditText
-        android:id="@+id/etMemberPhone"
+    <!-- Formulario de alta -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:autofillHints="phone"
-        android:hint="@string/etMemberPhone"
-        android:inputType="phone"
-        android:minHeight="48dp" />
+        android:layout_marginEnd="16dp">
 
-    <LinearLayout
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tvSectionNewMember"
+                android:textAppearance="@style/TextAppearance.SplitBill.Section" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="@string/etMemberNames">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMemberNames"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="name"
+                    android:inputType="textPersonName|textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/etMemberPhone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMemberPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="phone"
+                    android:inputType="phone" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnClear"
+                    style="@style/Widget.SplitBill.Button.Tonal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:text="@string/btnClear" />
+
+                <Button
+                    android:id="@+id/btnSaveMember"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="@string/btnSaveMember"
+                    app:icon="@drawable/ic_person_add" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp">
+        android:paddingStart="20dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="4dp"
+        android:text="@string/tvSectionMemberList"
+        android:textAppearance="@style/TextAppearance.SplitBill.Section" />
 
-        <Button
-            android:id="@+id/btnSaveMember"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/colorSave"
-            android:text="@string/btnSaveMember" />
-
-        <Button
-            android:id="@+id/btnClear"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/colorClear"
-            android:text="@string/btnClear" />
-    </LinearLayout>
-
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/pbLoading"
-        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:indeterminate="true"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:trackCornerRadius="4dp" />
 
     <TextView
         android:id="@+id/tvEmptyMembers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp"
+        android:drawablePadding="12dp"
+        android:padding="32dp"
         android:text="@string/tvEmptyMembers"
         android:textAlignment="center"
         android:textColor="@color/colorTextSecondary"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:drawableTint="@color/colorStroke"
+        app:drawableTopCompat="@drawable/ic_group" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMembers"

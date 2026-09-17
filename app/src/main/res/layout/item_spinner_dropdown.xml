@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cada opción del menú desplegable de las listas de selección -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:ellipsize="end"
+    android:gravity="center_vertical"
+    android:maxLines="1"
+    android:minHeight="52dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
+    android:fontFamily="sans-serif" />

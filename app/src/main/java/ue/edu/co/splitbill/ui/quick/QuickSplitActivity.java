@@ -235,8 +235,8 @@ public class QuickSplitActivity extends BaseActivity {
 
         //Spinner de tipos de division: el mismo arreglo que usa la pantalla de gastos
         ArrayAdapter<CharSequence> splitTypeAdapter = ArrayAdapter.createFromResource(
-                this, R.array.splitTypes, android.R.layout.simple_spinner_item);
-        splitTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                this, R.array.splitTypes, R.layout.item_spinner);
+        splitTypeAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         this.spSplitType.setAdapter(splitTypeAdapter);
 
         this.quickShareAdapter = new QuickShareAdapter();

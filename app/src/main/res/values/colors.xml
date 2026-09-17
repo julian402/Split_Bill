@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Paleta de la aplicación -->
+    <color name="colorPrimary">#FF00695C</color>
+    <color name="colorPrimaryDark">#FF004D40</color>
+    <color name="colorAccent">#FFFF8F00</color>
+
+    <!-- Colores de acción, con la misma convención de los proyectos anteriores -->
+    <color name="colorSave">#FF2E7D32</color>
+    <color name="colorList">#FF1565C0</color>
+    <color name="colorDelete">#FFC62828</color>
+    <color name="colorSearch">#FF6A1B9A</color>
+    <color name="colorClear">#FF546E7A</color>
+    <color name="colorUpdate">#FFEF6C00</color>
+
+    <!-- Colores de saldo -->
+    <color name="colorCreditor">#FF2E7D32</color>
+    <color name="colorDebtor">#FFC62828</color>
+    <color name="colorSettledBalance">#FF546E7A</color>
+
+    <!-- Fondos -->
+    <color name="colorSurface">#FFF5F5F5</color>
+    <color name="colorTextSecondary">#FF616161</color>
+</resources>

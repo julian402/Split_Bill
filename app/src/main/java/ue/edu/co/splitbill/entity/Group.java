@@ -1,0 +1,116 @@
+package ue.edu.co.splitbill.entity;
+
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
+import java.util.Date;
+import java.util.UUID;
+
+import ue.edu.co.splitbill.manager.DatabaseContract;
+
+/**
+ * Grupo de gastos.
+ *
+ * En esta entrega la aplicacion trabaja siempre con el grupo sembrado por defecto al crear la base
+ * de datos. La tabla existe desde ahora para que la pantalla de varios grupos no obligue a migrar
+ * el esquema mas adelante.
+ */
+@Entity(tableName = DatabaseContract.Groups.TABLE_NAME)
+public class Group {
+
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = DatabaseContract.Groups.COLUMN_ID)
+    private String id;
+
+    @ColumnInfo(name = DatabaseContract.Groups.COLUMN_NAME)
+    private String name;
+
+    @ColumnInfo(name = DatabaseContract.Groups.COLUMN_CURRENCY)
+    private String currency;
+
+    @ColumnInfo(name = DatabaseContract.Groups.COLUMN_CREATED_AT)
+    private Date createdAt;
+
+    @ColumnInfo(name = DatabaseContract.Groups.COLUMN_STATUS)
+    private int status;
+
+    /** Constructor vacio: es el que usa Room para reconstruir la fila. */
+    public Group() {
+        this.id = UUID.randomUUID().toString();
+        this.createdAt = new Date();
+        this.currency = DatabaseContract.DEFAULT_GROUP_CURRENCY;
+        this.status = DatabaseContract.STATUS_ACTIVE;
+    }
+
+    @Ignore
+    public Group(String name, String currency) {
+        this();
+        this.name = name;
+        this.currency = currency;
+    }
+
+    public void validar() {
+        if (this.name == null || this.name.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre del grupo es obligatorio");
+        }
+    }
+
+    public boolean isActive() {
+        return this.status == DatabaseContract.STATUS_ACTIVE;
+    }
+
+    @NonNull
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(@NonNull String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCurrency() {
+        return this.currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public Date getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public int getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Group{");
+        sb.append("id=").append(id);
+        sb.append(", name=").append(name);
+        sb.append(", currency=").append(currency);
+        sb.append('}');
+        return sb.toString();
+    }
+}

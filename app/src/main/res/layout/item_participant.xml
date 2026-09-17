@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
+
+    <CheckBox
+        android:id="@+id/cbParticipant"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:minHeight="48dp"
+        tools:text="Julián Corredor" />
+
+    <EditText
+        android:id="@+id/etParticipantValue"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:autofillHints="none"
+        android:hint="@string/hintValueExact"
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+</LinearLayout>

@@ -1,0 +1,77 @@
+<resources>
+    <string name="app_name">SplitBill</string>
+
+    <!-- Pantalla principal -->
+    <string name="tvTitleMain">Gastos del grupo</string>
+    <string name="tvTotalLabel">Total del grupo</string>
+    <string name="btnAddExpense">Agregar gasto</string>
+    <string name="btnSettle">Liquidar</string>
+    <string name="btnMembers">Integrantes</string>
+    <string name="btnQuickSplit">Cuenta rápida</string>
+    <string name="tvEmptyExpenses">Aún no hay gastos registrados. Agrega el primero.</string>
+
+    <!-- Pantalla de integrantes -->
+    <string name="tvTitleMembers">Integrantes del grupo</string>
+    <string name="etMemberNames">Nombre del integrante</string>
+    <string name="etMemberPhone">Teléfono (opcional)</string>
+    <string name="btnSaveMember">Guardar</string>
+    <string name="btnClear">Limpiar</string>
+    <string name="btnDeleteMember">Eliminar</string>
+    <string name="tvEmptyMembers">Aún no hay integrantes. Agrega al menos dos.</string>
+    <string name="msgMemberSaved">Integrante registrado</string>
+    <string name="msgMemberDeleted">Integrante eliminado</string>
+
+    <!-- Pantalla de registrar gasto -->
+    <string name="tvTitleAddExpense">Nuevo gasto</string>
+    <string name="etDescription">Descripción del gasto</string>
+    <string name="etAmount">Monto total</string>
+    <string name="tvPayerLabel">Quién pagó</string>
+    <string name="tvSplitTypeLabel">Cómo se divide</string>
+    <string name="tvParticipantsLabel">Participantes</string>
+    <string name="btnSaveExpense">Guardar gasto</string>
+    <string name="msgExpenseSaved">Gasto registrado</string>
+    <string name="msgNeedTwoMembers">Primero agrega al menos dos integrantes</string>
+    <string name="msgNeedOneParticipant">Selecciona al menos un participante</string>
+    <string name="hintValueExact">Monto</string>
+    <string name="hintValuePercentage">Porcentaje</string>
+
+    <!-- Pantalla de cuenta rápida -->
+    <string name="tvTitleQuickSplit">Cuenta rápida</string>
+    <string name="tvQuickIntro">Divide una cuenta al momento, sin registrar integrantes ni quién pagó.</string>
+    <string name="etQuickTotal">Total de la cuenta</string>
+    <string name="etTipPercentage">Propina %</string>
+    <string name="tvTotalWithTip">Total con propina: %1$s</string>
+    <string name="tvPeopleLabel">Entre cuántos</string>
+    <string name="btnMinus">−</string>
+    <string name="btnPlus">+</string>
+    <string name="btnCalculate">Calcular</string>
+    <string name="tvQuickResultLabel">Le corresponde a cada uno</string>
+    <string name="btnSaveAsExpense">Guardar como gasto del grupo</string>
+    <string name="hintPersonName">Persona %1$d</string>
+    <string name="msgCalculateFirst">Primero calcula la división</string>
+    <string name="msgMinPeople">Debe ser al menos una persona</string>
+    <string name="msgMaxPeople">Máximo %1$d personas en la cuenta rápida</string>
+    <string name="quickExpenseDescription">Cuenta rápida</string>
+
+    <!-- Pantalla de liquidación -->
+    <string name="tvTitleSettlement">Liquidación</string>
+    <string name="tvBalancesLabel">Saldo de cada integrante</string>
+    <string name="tvTransfersLabel">Transferencias sugeridas</string>
+    <string name="tvAllSettled">El grupo está a paz y salvo.</string>
+    <string name="tvTransferSummary">%1$d transferencia(s) en lugar de %2$d</string>
+
+    <!-- Textos compartidos -->
+    <string name="tvPaidBy">Pagó %1$s</string>
+    <string name="tvOwes">%1$s le paga a %2$s</string>
+    <string name="tvCreditor">Le deben</string>
+    <string name="tvDebtor">Debe</string>
+    <string name="tvSettled">Al día</string>
+    <string name="msgUnexpectedError">No fue posible completar la operación</string>
+
+    <!-- Tipos de división: el orden debe coincidir con el enum SplitType -->
+    <string-array name="splitTypes">
+        <item>Partes iguales</item>
+        <item>Montos exactos</item>
+        <item>Porcentajes</item>
+    </string-array>
+</resources>

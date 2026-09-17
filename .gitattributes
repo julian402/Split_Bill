@@ -1,0 +1,16 @@
+# Normaliza los finales de linea para que el proyecto funcione igual en Windows, macOS y Linux
+* text=auto
+
+# gradlew es un script de shell: si se guarda con CRLF no arranca fuera de Windows
+gradlew text eol=lf
+*.sh text eol=lf
+
+# Los scripts de Windows si van con CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binarios que git no debe tocar
+*.jar binary
+*.webp binary
+*.png binary
+*.keep binary

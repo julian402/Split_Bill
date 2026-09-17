@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
+
+    <EditText
+        android:id="@+id/etPersonName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:autofillHints="name"
+        android:background="@null"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        android:textSize="15sp"
+        tools:text="Persona 1" />
+
+    <EditText
+        android:id="@+id/etPersonValue"
+        android:layout_width="96dp"
+        android:layout_height="wrap_content"
+        android:autofillHints="none"
+        android:hint="@string/hintValueExact"
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/tvPersonAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="110dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="0dp"
+        android:textAlignment="viewEnd"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:text="$ 66.000,00" />
+</LinearLayout>

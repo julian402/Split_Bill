@@ -153,7 +153,7 @@ public class ExpenseRepository extends BaseRepository {
             public Expense call() {
                 Expense expense = database.expenseDao().findById(expenseId);
                 if (expense == null) {
-                    throw new IllegalArgumentException("No se encontro el gasto");
+                    throw new IllegalArgumentException("No se encontró el gasto");
                 }
                 return expense;
             }
@@ -188,7 +188,7 @@ public class ExpenseRepository extends BaseRepository {
             public Integer call() {
                 int rowsAffected = database.expenseDao().softDelete(expenseId);
                 if (rowsAffected == 0) {
-                    throw new IllegalArgumentException("No se encontro el gasto");
+                    throw new IllegalArgumentException("No se encontró el gasto");
                 }
                 syncManager.requestSync();
                 return rowsAffected;

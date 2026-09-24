@@ -78,7 +78,7 @@ public class User {
             throw new IllegalArgumentException("El nombre es demasiado corto");
         }
         if ((this.email == null) != (this.passwordHash == null)) {
-            throw new IllegalArgumentException("Una cuenta debe tener email y contrasena");
+            throw new IllegalArgumentException("Una cuenta debe tener email y contraseña");
         }
     }
 

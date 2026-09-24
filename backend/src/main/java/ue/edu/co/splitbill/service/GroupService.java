@@ -174,7 +174,7 @@ public class GroupService {
         Group group = requireMembership(groupId, userId);
         requireOwner(group, userId);
         if (group.isOwnedBy(memberId)) {
-            throw new IllegalArgumentException("El dueno no puede retirarse de su propio grupo");
+            throw new IllegalArgumentException("El dueño no puede retirarse de su propio grupo");
         }
         GroupMember membership = this.groupMemberRepository.findById(new GroupMemberId(groupId, memberId))
                 .filter(GroupMember::isActive)
@@ -199,7 +199,7 @@ public class GroupService {
 
     private void requireOwner(Group group, UUID userId) {
         if (!group.isOwnedBy(userId)) {
-            throw new ForbiddenException("Solo el dueno del grupo puede hacer esta accion");
+            throw new ForbiddenException("Solo el dueño del grupo puede hacer esta acción");
         }
     }
 

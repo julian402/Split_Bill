@@ -17,7 +17,7 @@ public final class Transfer {
             throw new IllegalArgumentException("La transferencia necesita origen y destino");
         }
         if (fromUserId.equals(toUserId)) {
-            throw new IllegalArgumentException("Una persona no puede transferirse dinero a si misma");
+            throw new IllegalArgumentException("Una persona no puede transferirse dinero a sí misma");
         }
         if (amount == null || !amount.isPositive()) {
             throw new IllegalArgumentException("La transferencia debe tener un monto positivo");

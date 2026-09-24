@@ -19,7 +19,7 @@ import ue.edu.co.splitbill.service.UserService;
 
 @RestController
 @RequestMapping("/api/users")
-@Tag(name = "Usuarios", description = "Perfil del usuario que inicio sesion.")
+@Tag(name = "Usuarios", description = "Perfil del usuario que inició sesión.")
 public class UserController {
 
     private final UserService userService;

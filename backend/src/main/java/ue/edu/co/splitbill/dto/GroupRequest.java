@@ -19,6 +19,6 @@ public record GroupRequest(
         @Size(max = 100, message = "El nombre del grupo es demasiado largo")
         String name,
 
-        @Pattern(regexp = "[A-Z]{3}", message = "La moneda debe ser un codigo de tres letras, por ejemplo COP")
+        @Pattern(regexp = "[A-Z]{3}", message = "La moneda debe ser un código de tres letras, por ejemplo COP")
         String currency) {
 }

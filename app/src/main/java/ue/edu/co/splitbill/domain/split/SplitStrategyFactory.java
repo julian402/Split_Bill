@@ -33,7 +33,7 @@ public final class SplitStrategyFactory {
 
     public static SplitStrategy create(SplitType type) {
         if (type == null) {
-            throw new IllegalArgumentException("Debe indicar un tipo de division");
+            throw new IllegalArgumentException("Debe indicar un tipo de división");
         }
         SplitStrategy strategy = STRATEGIES.get(type);
         if (strategy == null) {

@@ -188,7 +188,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
             try {
                 values.put(user.getId(), new BigDecimal(typed.trim()));
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("El valor de " + user.getNames() + " no es un numero");
+                throw new IllegalArgumentException("El valor de " + user.getNames() + " no es un número");
             }
         }
         return values;

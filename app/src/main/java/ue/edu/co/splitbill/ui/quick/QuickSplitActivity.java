@@ -171,7 +171,7 @@ public class QuickSplitActivity extends BaseActivity {
         try {
             return new BigDecimal(typed);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("La propina no es un numero valido");
+            throw new IllegalArgumentException("La propina no es un número válido");
         }
     }
 

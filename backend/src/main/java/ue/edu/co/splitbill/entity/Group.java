@@ -61,10 +61,10 @@ public class Group {
             throw new IllegalArgumentException("El nombre del grupo es obligatorio");
         }
         if (this.currency == null || !this.currency.matches("[A-Z]{3}")) {
-            throw new IllegalArgumentException("La moneda debe ser un codigo de tres letras, por ejemplo COP");
+            throw new IllegalArgumentException("La moneda debe ser un código de tres letras, por ejemplo COP");
         }
         if (this.ownerId == null) {
-            throw new IllegalArgumentException("El grupo debe tener un dueno");
+            throw new IllegalArgumentException("El grupo debe tener un dueño");
         }
     }
 

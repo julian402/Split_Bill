@@ -9,6 +9,6 @@ public record UpdateUserRequest(
         @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
         String names,
 
-        @Size(max = 30, message = "El telefono es demasiado largo")
+        @Size(max = 30, message = "El teléfono es demasiado largo")
         String phone) {
 }

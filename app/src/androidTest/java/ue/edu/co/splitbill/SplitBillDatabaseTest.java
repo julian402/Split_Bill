@@ -252,6 +252,6 @@ public class SplitBillDatabaseTest {
                 return balance;
             }
         }
-        throw new AssertionError("No se encontro el saldo de " + user.getNames());
+        throw new AssertionError("No se encontró el saldo de " + user.getNames());
     }
 }

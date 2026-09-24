@@ -63,7 +63,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleDataIntegrity(DataIntegrityViolationException e) {
         LOG.warn("ERROR AL GUARDAR: restriccion de la base de datos", e);
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
-                "La operacion entra en conflicto con los datos existentes");
+                "La operación entra en conflicto con los datos existentes");
     }
 
     /** Cualquier otro error: se registra completo en el log y al cliente no se le muestra el detalle. */
@@ -71,7 +71,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleUnexpected(Exception e) {
         LOG.error("ERROR INESPERADO", e);
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Ocurrio un error inesperado en el servidor");
+                "Ocurrió un error inesperado en el servidor");
     }
 
     /**
@@ -86,7 +86,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             errors.putIfAbsent(fieldError.getField(), fieldError.getDefaultMessage());
         }
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
-                "Hay campos invalidos en la solicitud");
+                "Hay campos inválidos en la solicitud");
         problem.setProperty("errors", errors);
         return ResponseEntity.badRequest().body(problem);
     }

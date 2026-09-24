@@ -47,12 +47,12 @@ public final class Money implements Comparable<Money>, Serializable {
 
     public static Money of(String amount) {
         if (amount == null || amount.trim().isEmpty()) {
-            throw new IllegalArgumentException("El monto no puede estar vacio");
+            throw new IllegalArgumentException("El monto no puede estar vacío");
         }
         try {
             return of(new BigDecimal(amount.trim()));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("El monto " + amount + " no es un numero valido");
+            throw new IllegalArgumentException("El monto " + amount + " no es un número válido");
         }
     }
 

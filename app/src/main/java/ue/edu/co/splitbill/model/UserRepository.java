@@ -59,7 +59,7 @@ public class UserRepository extends BaseRepository {
             public User call() {
                 User user = database.userDao().findById(userId);
                 if (user == null) {
-                    throw new IllegalArgumentException("No se encontro el integrante");
+                    throw new IllegalArgumentException("No se encontró el integrante");
                 }
                 return user;
             }
@@ -84,7 +84,7 @@ public class UserRepository extends BaseRepository {
             public Integer call() {
                 int rowsAffected = database.userDao().softDelete(userId);
                 if (rowsAffected == 0) {
-                    throw new IllegalArgumentException("No se encontro el integrante");
+                    throw new IllegalArgumentException("No se encontró el integrante");
                 }
                 syncManager.requestSync();
                 return rowsAffected;

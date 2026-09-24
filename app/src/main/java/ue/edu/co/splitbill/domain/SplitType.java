@@ -24,7 +24,7 @@ public enum SplitType {
     public static SplitType fromPosition(int position) {
         SplitType[] values = values();
         if (position < 0 || position >= values.length) {
-            throw new IllegalArgumentException("Posicion de tipo de division invalida: " + position);
+            throw new IllegalArgumentException("Posición de tipo de división inválida: " + position);
         }
         return values[position];
     }

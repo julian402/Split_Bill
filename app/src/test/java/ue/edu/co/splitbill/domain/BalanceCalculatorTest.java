@@ -95,6 +95,6 @@ public class BalanceCalculatorTest {
                 return balance;
             }
         }
-        throw new AssertionError("No se encontro el saldo de " + userId);
+        throw new AssertionError("No se encontró el saldo de " + userId);
     }
 }

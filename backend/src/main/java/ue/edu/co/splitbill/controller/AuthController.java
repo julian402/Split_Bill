@@ -19,7 +19,7 @@ import ue.edu.co.splitbill.service.AuthService;
 
 @RestController
 @RequestMapping("/api/auth")
-@Tag(name = "Autenticacion", description = "Registro e inicio de sesion. No requieren token.")
+@Tag(name = "Autenticación", description = "Registro e inicio de sesión. No requieren token.")
 @SecurityRequirements
 public class AuthController {
 
@@ -37,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Iniciar sesion", description = "Devuelve un token que dura 24 horas.")
+    @Operation(summary = "Iniciar sesión", description = "Devuelve un token que dura 24 horas.")
     public TokenResponse login(@Valid @RequestBody LoginRequest request) {
         return this.authService.login(request);
     }

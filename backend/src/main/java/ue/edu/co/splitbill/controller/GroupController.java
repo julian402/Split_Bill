@@ -47,7 +47,7 @@ public class GroupController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Crear un grupo", description = "Quien lo crea queda como dueno e integrante.")
+    @Operation(summary = "Crear un grupo", description = "Quien lo crea queda como dueño e integrante.")
     public GroupResponse create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody GroupRequest request) {
         return this.groupService.create(CurrentUser.id(jwt), request);
     }
@@ -59,7 +59,7 @@ public class GroupController {
     }
 
     @PutMapping("/{groupId}")
-    @Operation(summary = "Editar un grupo", description = "Solo el dueno.")
+    @Operation(summary = "Editar un grupo", description = "Solo el dueño.")
     public GroupResponse update(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId,
                                 @Valid @RequestBody GroupRequest request) {
         return this.groupService.update(CurrentUser.id(jwt), groupId, request);
@@ -67,14 +67,14 @@ public class GroupController {
 
     @DeleteMapping("/{groupId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Borrar un grupo", description = "Solo el dueno. Borrado logico.")
+    @Operation(summary = "Borrar un grupo", description = "Solo el dueño. Borrado lógico.")
     public void delete(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId) {
         this.groupService.delete(CurrentUser.id(jwt), groupId);
     }
 
     @GetMapping("/{groupId}/members")
     @Operation(summary = "Listar integrantes",
-            description = "Con includeRemoved=true tambien trae a los retirados (active=false).")
+            description = "Con includeRemoved=true también trae a los retirados (active=false).")
     public List<UserResponse> listMembers(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId,
                                           @RequestParam(defaultValue = "false") boolean includeRemoved) {
         return this.groupService.listMembers(CurrentUser.id(jwt), groupId, includeRemoved);
@@ -91,7 +91,7 @@ public class GroupController {
 
     @DeleteMapping("/{groupId}/members/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Retirar integrante", description = "Solo el dueno. Sus gastos anteriores se conservan.")
+    @Operation(summary = "Retirar integrante", description = "Solo el dueño. Sus gastos anteriores se conservan.")
     public void removeMember(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId,
                              @PathVariable UUID userId) {
         this.groupService.removeMember(CurrentUser.id(jwt), groupId, userId);

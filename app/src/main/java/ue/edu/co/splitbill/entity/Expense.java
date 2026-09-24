@@ -95,16 +95,16 @@ public class Expense {
      */
     public void validar() {
         if (this.description == null || this.description.trim().isEmpty()) {
-            throw new IllegalArgumentException("La descripcion del gasto es obligatoria");
+            throw new IllegalArgumentException("La descripción del gasto es obligatoria");
         }
         if (this.payerId == null || this.payerId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Debe indicar quien pago el gasto");
+            throw new IllegalArgumentException("Debe indicar quién pagó el gasto");
         }
         if (this.amountCents <= 0) {
             throw new IllegalArgumentException("El monto del gasto debe ser mayor que cero");
         }
         if (this.splitType == null) {
-            throw new IllegalArgumentException("Debe indicar como se divide el gasto");
+            throw new IllegalArgumentException("Debe indicar cómo se divide el gasto");
         }
     }
 

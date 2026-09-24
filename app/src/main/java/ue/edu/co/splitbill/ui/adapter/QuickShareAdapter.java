@@ -98,7 +98,7 @@ public class QuickShareAdapter extends RecyclerView.Adapter<QuickShareAdapter.Qu
                 values.put(id, new BigDecimal(typed.trim()));
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException(
-                        "El valor de " + nameOrDefault(id, i) + " no es un numero");
+                        "El valor de " + nameOrDefault(id, i) + " no es un número");
             }
         }
         return values;

@@ -92,8 +92,8 @@ public abstract class BaseRepository {
             return e.getMessage();
         }
         if (e instanceof IOException) {
-            return "No hay conexion con el servidor. Revisa tu internet e intenta de nuevo";
+            return "No hay conexión con el servidor. Revisa tu internet e intenta de nuevo";
         }
-        return "No fue posible completar la operacion";
+        return "No fue posible completar la operación";
     }
 }

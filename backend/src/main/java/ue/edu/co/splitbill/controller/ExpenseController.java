@@ -37,7 +37,7 @@ public class ExpenseController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar gastos del grupo", description = "Del mas reciente al mas antiguo.")
+    @Operation(summary = "Listar gastos del grupo", description = "Del más reciente al más antiguo.")
     public List<ExpenseResponse> list(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId) {
         return this.expenseService.list(CurrentUser.id(jwt), groupId);
     }
@@ -67,7 +67,7 @@ public class ExpenseController {
 
     @DeleteMapping("/{expenseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Borrar un gasto", description = "Borrado logico.")
+    @Operation(summary = "Borrar un gasto", description = "Borrado lógico.")
     public void delete(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId, @PathVariable UUID expenseId) {
         this.expenseService.delete(CurrentUser.id(jwt), groupId, expenseId);
     }

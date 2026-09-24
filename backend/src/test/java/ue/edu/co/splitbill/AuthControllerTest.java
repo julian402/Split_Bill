@@ -45,8 +45,8 @@ class AuthControllerTest extends ApiTestSupport {
                         """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.names").exists())
-                .andExpect(jsonPath("$.errors.email").value("El email no es valido"))
-                .andExpect(jsonPath("$.errors.password").value("La contrasena debe tener entre 8 y 72 caracteres"));
+                .andExpect(jsonPath("$.errors.email").value("El email no es válido"))
+                .andExpect(jsonPath("$.errors.password").value("La contraseña debe tener entre 8 y 72 caracteres"));
     }
 
     @Test
@@ -67,12 +67,12 @@ class AuthControllerTest extends ApiTestSupport {
                         {"email": "%s", "password": "otra-clave-999"}
                         """.formatted(user.email())))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.detail").value("Email o contrasena incorrectos"));
+                .andExpect(jsonPath("$.detail").value("Email o contraseña incorrectos"));
         this.mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
                         {"email": "nadie@test.com", "password": "clave-segura-123"}
                         """))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.detail").value("Email o contrasena incorrectos"));
+                .andExpect(jsonPath("$.detail").value("Email o contraseña incorrectos"));
     }
 
     @Test

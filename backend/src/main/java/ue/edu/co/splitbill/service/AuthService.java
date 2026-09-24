@@ -20,7 +20,7 @@ import ue.edu.co.splitbill.security.JwtService;
 @Service
 public class AuthService {
 
-    private static final String INVALID_CREDENTIALS = "Email o contrasena incorrectos";
+    private static final String INVALID_CREDENTIALS = "Email o contraseña incorrectos";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

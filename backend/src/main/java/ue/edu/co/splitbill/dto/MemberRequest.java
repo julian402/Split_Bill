@@ -17,6 +17,6 @@ public record MemberRequest(
         @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
         String names,
 
-        @Email(message = "El email no es valido")
+        @Email(message = "El email no es válido")
         String email) {
 }

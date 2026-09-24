@@ -74,6 +74,6 @@ public final class ApiClient {
                 Log.e(TAG, "ERROR AL LEER EL MENSAJE DE ERROR DEL SERVIDOR", e);
             }
         }
-        return "El servidor respondio con el codigo " + response.code();
+        return "El servidor respondió con el código " + response.code();
     }
 }

@@ -23,17 +23,17 @@ import ue.edu.co.splitbill.entity.SplitType;
 public record ExpenseRequest(
         UUID id,
 
-        @NotNull(message = "Debe indicar quien pago el gasto")
+        @NotNull(message = "Debe indicar quién pagó el gasto")
         UUID payerId,
 
-        @NotBlank(message = "La descripcion del gasto es obligatoria")
-        @Size(max = 150, message = "La descripcion es demasiado larga")
+        @NotBlank(message = "La descripción del gasto es obligatoria")
+        @Size(max = 150, message = "La descripción es demasiado larga")
         String description,
 
         @Positive(message = "El monto del gasto debe ser mayor que cero")
         long amountCents,
 
-        @NotNull(message = "Debe indicar como se divide el gasto")
+        @NotNull(message = "Debe indicar cómo se divide el gasto")
         SplitType splitType,
 
         Instant date,

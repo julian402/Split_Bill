@@ -59,7 +59,7 @@ public class SessionRepository extends BaseRepository {
             public String call() throws IOException {
                 validateEmail(email);
                 if (password == null || password.isEmpty()) {
-                    throw new IllegalArgumentException("Escribe tu contrasena");
+                    throw new IllegalArgumentException("Escribe tu contraseña");
                 }
                 TokenResponse response = ApiClient.execute(api.login(new LoginRequest(email.trim(), password)));
                 return startSession(response);
@@ -77,7 +77,7 @@ public class SessionRepository extends BaseRepository {
                 }
                 validateEmail(email);
                 if (password == null || password.length() < MIN_PASSWORD_LENGTH) {
-                    throw new IllegalArgumentException("La contrasena debe tener al menos 8 caracteres");
+                    throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres");
                 }
                 String cleanPhone = phone == null || phone.trim().isEmpty() ? null : phone.trim();
                 TokenResponse response = ApiClient.execute(api.register(
@@ -186,7 +186,7 @@ public class SessionRepository extends BaseRepository {
 
     private static void validateEmail(String email) {
         if (email == null || !email.trim().matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
-            throw new IllegalArgumentException("Escribe un email valido");
+            throw new IllegalArgumentException("Escribe un email válido");
         }
     }
 }

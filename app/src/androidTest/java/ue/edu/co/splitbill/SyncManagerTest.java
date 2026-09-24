@@ -129,7 +129,7 @@ public class SyncManagerTest {
 
     @Test
     public void aServerFailureKeepsTheQueueForTheNextTry() {
-        enqueue(500, "{\"status\":500,\"detail\":\"Ocurrio un error inesperado en el servidor\"}");
+        enqueue(500, "{\"status\":500,\"detail\":\"Ocurrió un error inesperado en el servidor\"}");
 
         SyncResult result = this.syncManager.syncNow();
 

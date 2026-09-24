@@ -47,13 +47,37 @@ varios grupos y pruebas Espresso. Documentación en [`docs/`](docs/).
 | `GroupsActivity` | Tus grupos con su total: crear, renombrar (quien lo creó) y cambiar de grupo |
 | `MembersActivity` | Alta, listado y baja de integrantes; "Agregar desde contactos" y "¿Ya estabas en la lista?" |
 | `ContactsActivity` | Elegir varios integrantes de la agenda, con buscador; marca los que ya están |
-| `ExpenseDetailActivity` | Detalle de un gasto: quién pagó, cuándo, cómo se dividió y cuánto le toca a cada uno (con porcentaje si se dividió así). Desde aquí se puede eliminar |
+| `ExpenseDetailActivity` | Detalle de un gasto: quién pagó, cuándo, cómo se dividió y cuánto le toca a cada uno (con porcentaje si se dividió así) y si ya se subió al servidor. Desde aquí se edita o elimina |
 | `AddExpenseActivity` | Registrar o editar un gasto: descripción, monto (o escanearlo), pagador, tipo de división y participantes |
 | `ScanReceiptActivity` | Foto (cámara o galería) de una factura → propone el total y deja escoger otro valor |
 | `SettlementActivity` | Saldo de cada integrante y transferencias mínimas para saldar |
 | `QuickSplitActivity` | **Cuenta rápida**: divide una cuenta al momento con propina, sin registrar integrantes ni pagador; el total se puede escanear |
 
 ## Arquitectura
+
+### Vista general
+
+```
+┌──────────────────── App Android (Java 11) ────────────────────┐          ┌────── Backend (Java 17) ──────┐
+│                                                               │          │                               │
+│  Activities ──► Repositorios ──► Room (SQLite en el celular)  │          │  Spring Boot 4.1 (REST)       │
+│  (ui/)          (model/)            ▲                         │  HTTP +  │  Spring Security: JWT + BCrypt│
+│                                     │ sync_status             │  JSON    │  JPA + Flyway                 │
+│                                  SyncManager ── Retrofit ─────┼─────────►│  PostgreSQL 17 (Docker)       │
+│                                  (+ WorkManager)              │  token   │  Swagger UI                   │
+│                                                               │          │                               │
+│  CameraX + ML Kit · Contactos · PermissionManager             │          └───────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
+```
+
+- **Offline-first.** Las pantallas nunca esperan al servidor: leen y escriben en Room, y el
+  `SyncManager` sube y baja los cambios por detrás. Sin internet, la app funciona igual.
+- **El dominio es Java puro.** El dinero, la división, los saldos, la liquidación y la lectura de
+  facturas no dependen de Android, y se prueban con JUnit sin celular.
+- **El servidor valida, pero no calcula.** El backend comprueba que las partes de un gasto sumen el
+  monto y que todos sean integrantes del grupo. Repartir y liquidar lo hace la app.
+
+### Paquetes de la app
 
 ```
 ue.edu.co.splitbill
@@ -63,7 +87,7 @@ ue.edu.co.splitbill
 │   ├── BalanceCalculator     Saldo neto = lo pagado − lo adeudado
 │   ├── DebtSimplifier        Algoritmo voraz de liquidación
 │   └── ReceiptParser         Encuentra el total en el texto de una factura
-├── entity/     Entidades de Room
+├── entity/     Entidades de Room: User, Group, GroupMember, Expense, ExpenseShare
 ├── manager/    SplitBillDatabase, DatabaseContract (todo el SQL), Converters
 ├── dao/        @Dao con las consultas y sus proyecciones
 ├── model/      Repositorios sobre BaseRepository; ReceiptScanner (ML Kit)
@@ -71,11 +95,41 @@ ue.edu.co.splitbill
 ├── di/         ServiceLocator y AppExecutors (io, network, mainThread)
 ├── network/    ApiService (Retrofit), AuthInterceptor, DTO y ApiMapper
 ├── session/    SessionManager y KeystoreTokenStore (token cifrado con AES-GCM)
-├── sync/       SyncManager (push + pull) y NetworkMonitor
+├── sync/       SyncManager (push + pull), SyncWorker + SyncScheduler (WorkManager), NetworkMonitor
 └── ui/         Activities sobre BaseActivity (auth, group, expense, settle, quick, contacts, scan)
 ```
 
-Tres decisiones que vale la pena conocer antes de tocar el código:
+El backend (`backend/`) sigue la estructura clásica de Spring: `controller` → `service` → `repository`
+→ `entity`, con DTO de entrada y salida y un manejador global de errores (ProblemDetail). Ver
+[`backend/README.md`](backend/README.md).
+
+### Patrones que se usan
+
+| Patrón | Dónde | Para qué |
+|---|---|---|
+| **Método plantilla** | `BaseActivity`, `BaseRepository` | El padre fija los pasos: layout, `initObjects()`, `initListeners()` en las pantallas; otro hilo, resultado y errores en los repositorios. Cada hija llena solo su parte |
+| **Estrategia + fábrica** | `SplitStrategy`, `SplitStrategyFactory` | Las tres formas de dividir se intercambian sin que la pantalla las conozca |
+| **Repositorio** | `model/` | Las pantallas piden datos sin conocer Room, la red ni los hilos |
+| **Inyección de dependencias manual** | `ServiceLocator` | Cada pieza se crea una vez. Las pruebas Espresso inyectan una base de datos en memoria y un servidor falso |
+| **Bandeja de salida** | `sync_status` + `SyncManager` | La base local guarda su propia cola de cambios por enviar |
+| **Observador** | `SyncListener`, `DataCallback` | El `SyncManager` y los repositorios avisan a la pantalla cuando terminan |
+
+### Modelo de datos
+
+Room (en el celular) y PostgreSQL (en el servidor) usan los mismos nombres de tablas y columnas, con
+prefijo de tres letras y borrado lógico:
+
+| Tabla | Guarda |
+|---|---|
+| `users` | Las personas. Sin email = integrante sin cuenta, agregado por nombre o desde los contactos |
+| `groups` | Los grupos, con su dueño |
+| `group_members` | Quién está en cada grupo. Una persona puede estar en varios |
+| `expenses` | Los gastos: quién pagó, monto **en centavos**, tipo de división y fecha |
+| `expense_shares` | Cuánto le toca a cada participante de un gasto. Suman exactamente el monto |
+
+El detalle de cada columna, la seguridad y las pruebas está en el [manual técnico](docs/manual-tecnico.md).
+
+### Decisiones que vale la pena conocer antes de tocar el código
 
 **El dinero nunca es `double`.** `Money` guarda una cantidad entera de centavos. En punto flotante
 `0.1 + 0.2` no da `0.3`, y en una app que reparte plata entre personas ese error se acumula hasta ser
@@ -87,8 +141,16 @@ le pide una a `SplitStrategyFactory` según lo que el usuario escogió en el Spi
 forma de dividir no obliga a tocar ninguna pantalla.
 
 **Las llaves primarias son UUID generados en el dispositivo**, no enteros autoincrementales. Es lo que
-hará viable el funcionamiento sin conexión: una fila creada en el celular ya nace con su identificador
-definitivo y el servidor la aceptará tal cual, sin reconciliar ids locales contra remotos.
+hace posible trabajar sin conexión: una fila creada en el celular ya nace con su identificador
+definitivo y el servidor la acepta tal cual, sin reconciliar ids locales contra remotos. Si un envío
+se corta y se repite, el servidor reconoce el id y no duplica el gasto.
+
+**Las migraciones se escriben a mano.** La base local va en la versión 3, y cada cambio de esquema
+tiene su `Migration` con una prueba (`MigrationTest`). No se usa `fallbackToDestructiveMigration`,
+porque perder los gastos de un usuario al actualizar la app no es una opción.
+
+**El token nunca queda en texto plano.** El JWT se guarda cifrado con AES-GCM, con una llave del
+Android Keystore (`KeystoreTokenStore`). Al cerrar sesión se borran los datos del celular.
 
 ## El algoritmo de liquidación
 
@@ -111,24 +173,31 @@ Resultado   3 transferencias en lugar de 9
 
 ## Sincronización sin conexión
 
-Las pantallas **siempre** leen y escriben en Room. Cada fila guarda su `sync_status`
-(`PENDING_CREATE`, `PENDING_DELETE`, `SYNCED`), y esa es la cola de cambios por enviar. El
+Las pantallas **siempre** leen y escriben en Room. Cada fila guarda su `sync_status` (`SYNCED`,
+`PENDING_CREATE`, `PENDING_UPDATE`, `PENDING_DELETE`), y esa es la cola de cambios por enviar. El
 `SyncManager` trabaja por detrás:
 
-1. **Push**: sube la cola en orden (grupo → integrantes → gastos). Cada fila viaja con su UUID, así
-   que reintentar nunca duplica nada en el servidor.
-2. **Pull**: trae lo que otros integrantes cambiaron. Nunca pisa un cambio local pendiente.
+1. **Push**: sube la cola de **todos** los grupos, en orden de dependencias: grupos (crear o
+   renombrar) → integrantes (cada uno a su grupo) → gastos (crear, editar o borrar). Cada fila viaja
+   con su UUID, así que reintentar nunca duplica nada en el servidor.
+2. **Pull**: trae la lista de grupos (aparecen los nuevos y se ocultan los que ya no están), y los
+   integrantes y gastos del grupo actual. Nunca pisa un cambio local pendiente.
 
-Se sincroniza al abrir la pantalla principal, después de cada cambio, al tocar el botón de
-sincronizar y **cada vez que vuelve la conexión** (`NetworkMonitor`). Además, cada cambio deja
+| Respuesta del servidor | Qué hace la app |
+|---|---|
+| 2xx | Marca la fila como `SYNCED` |
+| 4xx (el servidor rechazó el cambio) | Lo descarta, trae la versión del servidor y le avisa al usuario |
+| 5xx o sin red | Deja el cambio en la cola para el próximo intento |
+| 401 (token vencido) | Vuelve al login sin perder los cambios pendientes |
+
+Se sincroniza al abrir la pantalla principal o la de grupos, después de cada cambio, al tocar el botón
+de sincronizar y **cada vez que vuelve la conexión** (`NetworkMonitor`). Además, cada cambio deja
 programado un `SyncWorker` con **WorkManager**: si no hay red o el servidor no responde, Android lo
 reintenta solo y lo sube **aunque la app esté cerrada**.
 
 La primera sincronización trae todos los gastos del grupo; las siguientes piden solo los que
 cambiaron (`?updatedSince=`, con la hora del servidor y un minuto de margen), incluidos los que
-otro integrante borró. Si el servidor rechaza un
-cambio (por ejemplo, partes que no suman el total), el cambio se descarta y se le avisa al usuario.
-Si el token vence, la app vuelve al login sin cerrarse.
+otro integrante borró.
 
 Al pasar de la versión 1 a la 2 de la base de datos (`MIGRATION_1_2`) no se pierde nada: al iniciar
 sesión, los gastos que ya había en el celular se suben a la cuenta. La versión 3 (`MIGRATION_2_3`)

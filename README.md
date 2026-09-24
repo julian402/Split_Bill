@@ -25,6 +25,9 @@ funciona igual sin conexión, y los cambios se suben solos cuando vuelve la red.
 escaneo del total de una factura con la cámara (CameraX + ML Kit), integrantes desde los contactos,
 varios grupos y pruebas Espresso. Documentación en [`docs/`](docs/).
 
+> **¿Primera vez?** Sigue la guía [Cómo correr todo](#cómo-correr-todo-guía-para-el-equipo): backend, app,
+> cámara, contactos y pruebas, paso a paso.
+
 | | |
 |---|---|
 | Lenguaje | Java 11 |
@@ -148,43 +151,129 @@ internet y la foto no se guarda. `ReceiptParser` (dominio, con pruebas JUnit) bu
 teléfonos, porcentajes y lo que el cliente entregó (`EFECTIVO`, `CAMBIO`), y entiende `$ 45.900`,
 `45.900,00` y `45,900.00`. El escáner solo llena el campo del monto: no toca la división.
 
-## Cómo compilar
+## Cómo correr todo (guía para el equipo)
 
-Requiere Android Studio y un dispositivo o emulador con API 26 o superior.
+Pasos para probar la app completa en tu computador: backend, app, cámara, contactos y pruebas. Se
+hace una sola vez; después basta con los pasos 2 y 4.
+
+### 1. Lo que necesitas instalado
+
+| Programa | Para qué |
+|---|---|
+| **Git** | Clonar el repositorio |
+| **JDK 17** | Correr el backend (Android Studio trae su propio JDK para la app) |
+| **Docker Desktop** | La base de datos PostgreSQL del backend. **Tiene que estar abierto** antes de levantar el backend |
+| **Android Studio** (reciente) | Compilar y correr la app. Con un emulador de API 26 o superior, o tu celular |
+
+No hace falta instalar Maven ni PostgreSQL: el proyecto trae `mvnw` y la base corre en Docker.
 
 ```bash
-./gradlew :app:assembleDebug        # compilar
-./gradlew :app:installDebug         # instalar
-./gradlew :app:testDebugUnitTest    # pruebas del dominio, sin emulador
-./gradlew :app:connectedDebugAndroidTest   # SQLite, migraciones, sincronización y Espresso, con emulador
+git clone https://github.com/julian402/Split_Bill.git
+cd Split_Bill
 ```
 
-Para usar la app hay que tener el backend corriendo en el mismo computador (ver
-[`backend/README.md`](backend/README.md)). Por defecto la app lo busca en `10.0.2.2:8080`, que es
-el computador visto **desde el emulador**. Esa dirección no existe en un celular real.
+### 2. Levantar el backend
 
-**En un celular físico** (o para usar la misma dirección en todos los dispositivos), agregar a
-`local.properties` (no se sube a git):
+En una terminal, dentro de `backend/`:
 
+```bash
+cd backend
+docker compose up -d          # PostgreSQL en el puerto 5432 (la primera vez descarga la imagen)
+./mvnw spring-boot:run        # API en http://localhost:8080
 ```
+
+- En Windows con PowerShell o CMD: `.\mvnw.cmd spring-boot:run` (en Git Bash sirve `./mvnw`).
+- Está listo cuando la consola dice `Started SplitBillApiApplication`. **No cierres esa terminal**:
+  si la cierras, el backend se apaga y la app muestra "Sin conexión".
+- Para comprobarlo, abre http://localhost:8080/swagger-ui.html en el navegador.
+- El archivo `.env` es opcional: sin él se usan los valores de desarrollo (usuario y clave `splitbill`).
+  Para cambiarlos, copia `.env.example` como `.env`.
+- Cada computador tiene **su propia base de datos**. Las cuentas que creó otra persona no existen en
+  la tuya: regístrate desde la app.
+
+### 3. Configurar la app (una sola vez)
+
+1. Abre la carpeta `Split_Bill` en Android Studio y espera a que termine el **Gradle Sync**. Crea el
+   archivo `local.properties` con la ruta de tu SDK.
+2. Agrega estas líneas al final de `local.properties`. El archivo no se sube a git, así que cada quien
+   pone las suyas:
+
+```properties
+# La app busca el backend en localhost, y Gradle ejecuta "adb reverse" antes de cada compilación
 splitbill.apiBaseUrl=http://localhost:8080/
 splitbill.adbReversePort=8080
+
+# Solo si el proyecto está dentro de OneDrive: saca las compilaciones fuera de la carpeta sincronizada
+splitbill.buildDir=C:/Temp/splitbill-build
 ```
 
-La primera línea hace que la app busque el backend en `localhost`. La segunda hace que Gradle ejecute
-`adb reverse tcp:8080 tcp:8080` en **todos los dispositivos conectados** antes de cada compilación
-(también al darle Run en Android Studio). Así el `localhost:8080` del celular o del emulador llega al
-backend del PC por la conexión de depuración, sin IP ni firewall. El celular tiene que estar conectado
-por USB o por depuración inalámbrica.
+3. Haz clic en **Sync Now**. Si agregaste `splitbill.buildDir`, borra la carpeta `app\build` vieja.
 
-> **Proyecto dentro de OneDrive:** la sincronización bloquea los archivos de `app\build` mientras Gradle
-> compila, y falla con `Unable to delete directory` o en `dexBuilderDebug`. No es un error del código.
-> Solución: agregar a `local.properties` la línea `splitbill.buildDir=C:/Temp/splitbill-build`,
-> sincronizar Gradle (**Sync Now**) y borrar la carpeta `app\build` vieja. Las salidas quedan fuera de OneDrive.
+Qué hace cada línea:
+- **`splitbill.apiBaseUrl`**: la dirección del backend que usa la app. Sin ella la app usa
+  `10.0.2.2:8080`, que es el computador visto desde el emulador, pero no sirve en un celular real.
+- **`splitbill.adbReversePort`**: en cada Run, Gradle ejecuta `adb reverse tcp:8080 tcp:8080` en todos
+  los dispositivos conectados. Así el `localhost:8080` del celular o del emulador llega a tu backend,
+  sin configurar IP ni firewall.
+- **`splitbill.buildDir`**: OneDrive bloquea `app\build` mientras Gradle compila, y el error se ve como
+  `Unable to delete directory` o una falla en `dexBuilderDebug`. No es un error del código.
 
-Las pruebas de interfaz (Espresso) arrancan la app con `SplitBillTestRunner`: base de datos y token en
-memoria y un servidor falso, así no borran los datos del emulador ni necesitan el backend. Conviene
-desactivar las animaciones del emulador (Opciones de desarrollador → escalas de animación en 0).
+### 4. Correr la app
+
+1. Con el backend encendido (paso 2), elige el emulador o tu celular y dale **Run ▶** en Android Studio.
+   - **Celular físico**: activa la depuración USB (o la inalámbrica) y conéctalo. Tiene que aparecer en
+     la lista de dispositivos.
+2. En la app, **Crear cuenta** con tu nombre, email y una clave de al menos 8 caracteres. Quedas dentro
+   de "Mi grupo".
+3. Recorrido sugerido para probar todo lo de la entrega 4:
+   1. **Grupos**: toca el nombre del grupo (arriba) → *Nuevo grupo* → "Viaje".
+   2. **Contactos**: *Integrantes* → *Agregar desde contactos* → permitir → marca 2 o 3 → *Agregar*.
+      Si usas el emulador, primero crea unos contactos en la app Contactos.
+   3. **Escanear factura**: *Agregar gasto* → ícono de cámara en el monto.
+      - En un celular real, toma la foto de una factura.
+      - En el emulador la cámara muestra una sala virtual, así que usa **Galería**. Para tener una
+        factura ahí, arrastra una imagen a la ventana del emulador, o usa
+        `adb push factura.png /sdcard/Pictures/`.
+   4. **Porcentajes**: registra otro gasto por porcentajes. Tócalo en la lista para ver el detalle, y
+      prueba *Editar*.
+   5. **Liquidar**: el plan de pagos con el mínimo de transferencias.
+   6. **Sin conexión**: detén el backend (Ctrl+C en su terminal), agrega un gasto (sale "Sin conexión ·
+      1 cambio pendiente"), vuelve a levantar el backend y toca ⟳. El gasto se sube solo. El modo avión
+      **no** sirve para esta prueba, porque `adb reverse` va por el cable o la depuración y no por la red.
+
+### 5. Correr las pruebas
+
+```bash
+# App (desde la raíz del proyecto)
+./gradlew :app:testDebugUnitTest            # 57 pruebas del dominio, sin emulador
+./gradlew :app:connectedDebugAndroidTest    # 31 pruebas con emulador: Room, migraciones, sincronización y Espresso
+
+# Backend (desde backend/, con Docker abierto)
+./mvnw test                                 # 29 pruebas contra un PostgreSQL temporal
+```
+
+- **Antes** de `connectedDebugAndroidTest`, desactiva las animaciones del emulador (Opciones de
+  desarrollador → las tres "escalas de animación" en *Desactivada*). Al terminar, vuelve a activarlas.
+- `connectedDebugAndroidTest` **desinstala la app al terminar**. Después hay que volver a darle Run e
+  iniciar sesión. Si tienes el celular y el emulador conectados a la vez, las pruebas corren en los dos:
+  desconecta el celular, o exporta `ANDROID_SERIAL=emulator-5554` antes de correrlas.
+- Las pruebas Espresso no usan tu backend ni tus datos: arrancan la app con una base de datos en
+  memoria y un servidor falso (`SplitBillTestRunner`).
+- Si todas las pruebas de interfaz fallan con `RootViewWithoutFocusException` y la pantalla sale en
+  blanco, reinicia el emulador (Cold Boot) y vuelve a correrlas.
+
+### Problemas comunes
+
+| Síntoma | Causa y solución |
+|---|---|
+| La app dice "Sin conexión" o "No hay conexión con el servidor" | El backend no está corriendo (paso 2), o falta `adb reverse`: dale Run de nuevo, o ejecuta `adb reverse tcp:8080 tcp:8080` |
+| `./mvnw spring-boot:run` falla con `Connection refused` a 5432 | Docker Desktop cerrado, o faltó `docker compose up -d` |
+| El puerto 8080 o el 5432 ya está en uso | Otro backend u otro PostgreSQL abierto: ciérralo, o cambia el puerto |
+| `Unable to delete directory` o `dexBuilderDebug` al compilar | Proyecto dentro de OneDrive: agrega `splitbill.buildDir` (paso 3) |
+| Android Studio no encuentra el APK después de cambiar `buildDir` | *File → Sync Project with Gradle Files* |
+| El celular no aparece en Android Studio | Reconecta el cable, o vuelve a emparejar la depuración inalámbrica (*Pair devices using Wi-Fi*) |
+| Se negó el permiso de cámara o contactos y ya no lo pregunta | En la app toca **Abrir ajustes** → Permisos, o en el celular: Ajustes → Apps → SplitBill → Permisos |
+| "Email o contraseña incorrectos" con una cuenta de otro compañero | Cada computador tiene su propia base de datos: crea tu cuenta |
 
 ## Documentación
 

@@ -137,9 +137,10 @@ el computador visto **desde el emulador**. Esa dirección no existe en un celula
    celular se reconecta.
 3. Volver a instalar la app.
 
-> Si el proyecto está dentro de una carpeta sincronizada con OneDrive, compilar desde la terminal puede
-> fallar con `Unable to delete directory ...\app\build\...`. Es un bloqueo de archivos de OneDrive, no un
-> error del código: desde Android Studio compila sin problema.
+> **Proyecto dentro de OneDrive:** la sincronización bloquea los archivos de `appuild` mientras Gradle
+> compila, y falla con `Unable to delete directory` o en `dexBuilderDebug`. No es un error del código.
+> Solución: agregar a `local.properties` la línea `splitbill.buildDir=C:/Temp/splitbill-build`,
+> sincronizar Gradle (**Sync Now**) y borrar la carpeta `appuild` vieja. Las salidas quedan fuera de OneDrive.
 
 ## Pendiente
 

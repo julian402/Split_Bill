@@ -149,4 +149,17 @@
     <string name="dlgDiscardTitle">¿Descartar los cambios?</string>
     <string name="dlgDiscardMessage">Lo que escribiste en este formulario se perderá.</string>
     <string name="btnDiscard">Descartar</string>
+
+    <!-- Soy yo: juntar un integrante sin cuenta con la cuenta propia -->
+    <string name="btnClaimMember">¿Ya estabas en la lista? Busca tu nombre</string>
+    <string name="dlgPickClaimTitle">¿Cuál eres tú?</string>
+    <string name="tvYou">Tú</string>
+    <string name="dlgClaimTitle">¿Eres %1$s?</string>
+    <string name="dlgClaimMessage">Los gastos y las partes de %1$s pasarán a tu cuenta y quedará un solo integrante con tu nombre. Los totales no cambian. Necesitas conexión.</string>
+    <string name="btnClaimConfirm">Sí, soy yo</string>
+    <string name="msgClaimDone">Listo: lo de %1$s ahora está en tu cuenta</string>
+    <string name="dlgSuggestClaimTitle">¿Ya estabas en la lista?</string>
+    <string name="dlgSuggestClaimMessage">Si antes de crear tu cuenta te habías agregado como integrante, búscate en Integrantes con «¿Ya estabas en la lista?» para no aparecer dos veces.</string>
+    <string name="btnSeeMembers">Ver integrantes</string>
+    <string name="btnNotNow">Ahora no</string>
 </resources>

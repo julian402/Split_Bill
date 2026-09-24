@@ -1,11 +1,16 @@
 package ue.edu.co.splitbill.model;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
+import ue.edu.co.splitbill.network.ApiClient;
+import ue.edu.co.splitbill.network.ApiService;
+import ue.edu.co.splitbill.session.SessionManager;
+import ue.edu.co.splitbill.sync.SyncResult;
 import ue.edu.co.splitbill.sync.SyncManager;
 
 /**
@@ -19,11 +24,43 @@ public class UserRepository extends BaseRepository {
     private static final String TAG = "UserRepository";
 
     private final SyncManager syncManager;
+    private final ApiService api;
+    private final SessionManager sessionManager;
 
     /** @param syncManager se le avisa despues de cada cambio para que lo suba al servidor cuando pueda */
-    public UserRepository(SplitBillDatabase database, AppExecutors executors, SyncManager syncManager) {
+    public UserRepository(SplitBillDatabase database, AppExecutors executors, SyncManager syncManager,
+                          ApiService api, SessionManager sessionManager) {
         super(database, executors);
         this.syncManager = syncManager;
+        this.api = api;
+        this.sessionManager = sessionManager;
+    }
+
+    /** Id de quien inicio sesion, para no ofrecerle "Soy yo" sobre si mismo. */
+    public String getCurrentUserId() {
+        return this.sessionManager.getUserId();
+    }
+
+    /**
+     * "Soy yo": el integrante sin cuenta es la persona que inicio sesion. El servidor pasa sus gastos y
+     * partes a la cuenta; luego se sincroniza para traer el resultado.
+     *
+     * Es de las pocas operaciones que necesitan conexion, porque cambia gastos de todo el grupo. Antes
+     * se sube lo pendiente, para que el servidor junte todo, incluido lo registrado sin conexion.
+     */
+    public void claimMember(final String memberId, DataCallback<Boolean> callback) {
+        runNetwork(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws IOException {
+                SyncResult before = syncManager.syncNow();
+                if (!before.isSynced()) {
+                    throw new IOException("No se pudo sincronizar antes de juntar los integrantes");
+                }
+                ApiClient.execute(api.claimMember(sessionManager.getCurrentGroupId(), memberId));
+                syncManager.syncNow();
+                return true;
+            }
+        }, callback);
     }
 
     @Override

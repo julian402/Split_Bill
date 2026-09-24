@@ -92,7 +92,8 @@ public class ServiceLocator {
 
     public synchronized UserRepository getUserRepository() {
         if (this.userRepository == null) {
-            this.userRepository = new UserRepository(getDatabase(), getExecutors(), getSyncManager());
+            this.userRepository = new UserRepository(getDatabase(), getExecutors(), getSyncManager(),
+                    getApiService(), getSessionManager());
         }
         return this.userRepository;
     }

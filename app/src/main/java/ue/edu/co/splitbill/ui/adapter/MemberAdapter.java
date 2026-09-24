@@ -28,9 +28,11 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberView
 
     private final List<User> members = new ArrayList<>();
     private final OnMemberDeleteListener deleteListener;
+    private final String currentUserId;
 
-    public MemberAdapter(OnMemberDeleteListener deleteListener) {
+    public MemberAdapter(OnMemberDeleteListener deleteListener, String currentUserId) {
         this.deleteListener = deleteListener;
+        this.currentUserId = currentUserId;
     }
 
     public void setMembers(List<User> members) {
@@ -76,10 +78,15 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberView
 
         void bind(final User user) {
             Avatar.bind(this.tvMemberInitials, user.getNames());
-            this.tvMemberNames.setText(user.getNames());
+            boolean isMe = user.getId().equals(currentUserId);
+            //quien inicio sesion aparece marcado como "Tu" y no se puede borrar a si mismo desde aqui
+            this.tvMemberNames.setText(isMe
+                    ? user.getNames() + " (" + itemView.getContext().getString(R.string.tvYou) + ")"
+                    : user.getNames());
             boolean hasPhone = user.getPhone() != null && !user.getPhone().trim().isEmpty();
             this.tvMemberPhone.setVisibility(hasPhone ? View.VISIBLE : View.GONE);
             this.tvMemberPhone.setText(user.getPhone());
+            this.btnDeleteMember.setVisibility(isMe ? View.GONE : View.VISIBLE);
             this.btnDeleteMember.setOnClickListener(view -> deleteListener.onMemberDelete(user));
         }
     }

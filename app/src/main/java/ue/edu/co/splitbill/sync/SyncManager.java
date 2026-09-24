@@ -102,7 +102,7 @@ public class SyncManager {
      * Un ciclo completo de sincronizacion, en el hilo que lo llame. Es publico para las pruebas; la
      * app usa requestSync().
      */
-    public SyncResult syncNow() {
+    public synchronized SyncResult syncNow() {
         String groupId = this.sessionManager.getCurrentGroupId();
         if (this.sessionManager.getToken() == null || groupId == null) {
             return new SyncResult(SyncResult.State.SESSION_EXPIRED, countPending(), null);

@@ -137,6 +137,54 @@ class ExpenseControllerTest extends ApiTestSupport {
                 .andExpect(status().isNotFound());
     }
 
+    /** "Soy yo": Julian dice que el integrante "Juan" es el. Todo lo de Juan pasa a Julian. */
+    @Test
+    void claimingAMemberMovesTheirExpensesAndMergesTheirShares() throws Exception {
+        //Juan pago un almuerzo que se repartio entre Julian y Juan
+        String almuerzo = JsonPath.read(body(doPost(this.julian, expensesPath(), expenseJson(null, this.juan,
+                "Almuerzo", 1_000_000L, "EQUAL", share(this.julian.id(), 500_000L), share(this.juan, 500_000L)))
+                .andExpect(status().isCreated())), "$.id");
+        //Diomar pago un taxi que se repartio entre Diomar y Juan
+        String taxi = JsonPath.read(body(doPost(this.julian, expensesPath(), expenseJson(null, this.diomar,
+                "Taxi", 300_000L, "EXACT", share(this.diomar, 100_000L), share(this.juan, 200_000L)))
+                .andExpect(status().isCreated())), "$.id");
+
+        doPost(this.julian, "/api/groups/" + this.groupId + "/members/" + this.juan + "/claim", "")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(this.julian.id().toString()));
+
+        //el almuerzo ahora lo pago Julian, y su parte y la de Juan se sumaron en una sola
+        doGet(this.julian, expensesPath() + "/" + almuerzo)
+                .andExpect(jsonPath("$.payerId").value(this.julian.id().toString()))
+                .andExpect(jsonPath("$.amountCents").value(1_000_000))
+                .andExpect(jsonPath("$.shares", hasSize(1)))
+                .andExpect(jsonPath("$.shares[0].amountCents").value(1_000_000));
+        //en el taxi la parte de Juan paso a Julian
+        doGet(this.julian, expensesPath() + "/" + taxi)
+                .andExpect(jsonPath("$.shares[?(@.userId == '" + this.julian.id() + "')].amountCents").value(200_000));
+        //Juan ya no aparece como integrante
+        doGet(this.julian, "/api/groups/" + this.groupId + "/members")
+                .andExpect(jsonPath("$[?(@.id == '" + this.juan + "')]", hasSize(0)));
+    }
+
+    @Test
+    void aMemberWithTheirOwnAccountCannotBeClaimed() throws Exception {
+        TestUser sofiaAccount = register("Sofia Reyes");
+        doPost(this.julian, "/api/groups/" + this.groupId + "/members", """
+                {"email": "%s"}
+                """.formatted(sofiaAccount.email())).andExpect(status().isCreated());
+
+        doPost(this.julian, "/api/groups/" + this.groupId + "/members/" + sofiaAccount.id() + "/claim", "")
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void anOutsiderCannotClaimMembers() throws Exception {
+        TestUser outsider = register("Extrano");
+        doPost(outsider, "/api/groups/" + this.groupId + "/members/" + this.juan + "/claim", "")
+                .andExpect(status().isNotFound());
+    }
+
     private String expensesPath() {
         return "/api/groups/" + this.groupId + "/expenses";
     }

@@ -10,6 +10,9 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import ue.edu.co.splitbill.R;
@@ -42,12 +45,16 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
     private Button btnSaveMember;
     private Button btnClear;
     private Button btnContinueExpense;
+    private Button btnClaimMember;
     private TextView tvEmptyMembers;
     private RecyclerView rvMembers;
 
     private MemberAdapter memberAdapter;
     private UserRepository userRepository;
     private User user;
+
+    /** Integrantes agregados por nombre (sin cuenta): entre ellos puede estar quien inicio sesion. */
+    private final List<User> claimableMembers = new ArrayList<>();
 
     @Override
     protected int getLayoutResourceId() {
@@ -59,6 +66,7 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
         this.btnSaveMember.setOnClickListener(this::addMemberDB);
         this.btnClear.setOnClickListener(this::clearFieldsDB);
         this.btnContinueExpense.setOnClickListener(this::continueToExpense);
+        this.btnClaimMember.setOnClickListener(this::pickMemberToClaim);
 
         //si escribio un nombre y no lo guardo, se pregunta antes de salir
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -113,6 +121,16 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
                 boolean canContinue = getIntent().getBooleanExtra(EXTRA_CONTINUE_TO_EXPENSE, false)
                         && data.size() >= MIN_MEMBERS;
                 btnContinueExpense.setVisibility(canContinue ? View.VISIBLE : View.GONE);
+
+                claimableMembers.clear();
+                String currentUserId = userRepository.getCurrentUserId();
+                for (User member : data) {
+                    boolean withoutAccount = member.getEmail() == null || member.getEmail().trim().isEmpty();
+                    if (withoutAccount && !member.getId().equals(currentUserId)) {
+                        claimableMembers.add(member);
+                    }
+                }
+                btnClaimMember.setVisibility(claimableMembers.isEmpty() ? View.GONE : View.VISIBLE);
             }
         });
     }
@@ -124,6 +142,38 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
         intent.removeExtra(EXTRA_CONTINUE_TO_EXPENSE);
         startActivity(intent);
         finish();
+    }
+
+    /** Primer paso de "Soy yo": elegir cual de los integrantes sin cuenta es la persona. */
+    private void pickMemberToClaim(View view) {
+        String[] names = new String[this.claimableMembers.size()];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = this.claimableMembers.get(i).getNames();
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dlgPickClaimTitle)
+                .setItems(names, (dialog, which) -> confirmClaim(this.claimableMembers.get(which)))
+                .setNegativeButton(R.string.btnCancel, null)
+                .show();
+    }
+
+    /** Segundo paso: se confirma, porque mueve gastos de todo el grupo. */
+    private void confirmClaim(final User user) {
+        confirm(getString(R.string.dlgClaimTitle, user.getNames()),
+                getString(R.string.dlgClaimMessage, user.getNames()),
+                R.string.btnClaimConfirm,
+                () -> claimMemberAPI(user));
+    }
+
+    private void claimMemberAPI(final User user) {
+        showLoading();
+        this.userRepository.claimMember(user.getId(), new UiCallback<Boolean>() {
+            @Override
+            protected void onData(Boolean data) {
+                showToast(getString(R.string.msgClaimDone, user.getNames()));
+                listMembersDB();
+            }
+        });
     }
 
     /** Un toque en la papelera no borra de una vez: primero se confirma. */
@@ -163,11 +213,12 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
         this.btnSaveMember = findViewById(R.id.btnSaveMember);
         this.btnClear = findViewById(R.id.btnClear);
         this.btnContinueExpense = findViewById(R.id.btnContinueExpense);
+        this.btnClaimMember = findViewById(R.id.btnClaimMember);
         this.tvEmptyMembers = findViewById(R.id.tvEmptyMembers);
         this.rvMembers = findViewById(R.id.rvMembers);
 
         this.userRepository = getServiceLocator().getUserRepository();
-        this.memberAdapter = new MemberAdapter(this);
+        this.memberAdapter = new MemberAdapter(this, this.userRepository.getCurrentUserId());
         this.rvMembers.setLayoutManager(new LinearLayoutManager(this));
         this.rvMembers.setAdapter(this.memberAdapter);
     }

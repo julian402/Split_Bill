@@ -84,6 +84,20 @@ public class MainActivity extends BaseActivity
         //y se traen los cambios que otros integrantes hayan hecho en el servidor
         this.syncManager.addListener(this);
         this.syncManager.requestSync();
+        suggestClaimOnce();
+    }
+
+    /**
+     * Despues de subir a la cuenta los datos que habia en el celular, se pregunta una sola vez si la
+     * persona estaba en la lista de integrantes, para que no quede duplicada.
+     */
+    private void suggestClaimOnce() {
+        if (!getServiceLocator().getSessionManager().shouldSuggestClaim()) {
+            return;
+        }
+        getServiceLocator().getSessionManager().setSuggestClaim(false);
+        confirm(getString(R.string.dlgSuggestClaimTitle), getString(R.string.dlgSuggestClaimMessage),
+                R.string.btnSeeMembers, R.string.btnNotNow, () -> openMembers(null));
     }
 
     @Override

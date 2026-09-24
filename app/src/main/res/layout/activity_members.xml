@@ -104,6 +104,17 @@
         app:icon="@drawable/ic_arrow_forward"
         app:iconGravity="end" />
 
+    <!-- Solo aparece si hay integrantes agregados por nombre: permite decir "ese soy yo" -->
+    <Button
+        android:id="@+id/btnClaimMember"
+        style="@style/Widget.SplitBill.Button.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/btnClaimMember"
+        android:visibility="gone" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

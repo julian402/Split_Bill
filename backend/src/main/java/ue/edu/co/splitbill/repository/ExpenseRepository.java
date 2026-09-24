@@ -16,4 +16,8 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
      */
     @EntityGraph(attributePaths = "shares")
     List<Expense> findByGroupIdAndStatusOrderByDateDesc(UUID groupId, short status);
+
+    /** Todos los gastos del grupo, tambien los borrados, con sus partes. Lo usa "Soy yo". */
+    @EntityGraph(attributePaths = "shares")
+    List<Expense> findByGroupId(UUID groupId);
 }

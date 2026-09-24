@@ -23,6 +23,7 @@ public class SessionManager {
     private static final String PREF_USER_NAMES = "user_names";
     private static final String PREF_USER_EMAIL = "user_email";
     private static final String PREF_GROUP_ID = "group_id";
+    private static final String PREF_SUGGEST_CLAIM = "suggest_claim";
 
     private final SharedPreferences preferences;
     private final TokenStore tokenStore;
@@ -91,5 +92,17 @@ public class SessionManager {
 
     public synchronized void setCurrentGroupId(String groupId) {
         this.preferences.edit().putString(PREF_GROUP_ID, groupId).apply();
+    }
+
+    /**
+     * Se enciende cuando la persona subio a su cuenta integrantes que ya tenia en el celular: puede que
+     * uno de ellos sea ella misma. La pantalla principal lo pregunta una sola vez.
+     */
+    public synchronized void setSuggestClaim(boolean suggest) {
+        this.preferences.edit().putBoolean(PREF_SUGGEST_CLAIM, suggest).apply();
+    }
+
+    public synchronized boolean shouldSuggestClaim() {
+        return this.preferences.getBoolean(PREF_SUGGEST_CLAIM, false);
     }
 }

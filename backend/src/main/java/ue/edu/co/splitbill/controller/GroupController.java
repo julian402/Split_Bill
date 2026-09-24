@@ -89,6 +89,15 @@ public class GroupController {
         return this.groupService.addMember(CurrentUser.id(jwt), groupId, request);
     }
 
+    @PostMapping("/{groupId}/members/{memberId}/claim")
+    @Operation(summary = "Soy yo",
+            description = "Junta a un integrante sin cuenta con la cuenta que inició sesión: sus gastos y "
+                    + "partes pasan a la cuenta y el integrante queda retirado.")
+    public UserResponse claimMember(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId,
+                                    @PathVariable UUID memberId) {
+        return this.groupService.claimMember(CurrentUser.id(jwt), groupId, memberId);
+    }
+
     @DeleteMapping("/{groupId}/members/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Retirar integrante", description = "Solo el dueño. Sus gastos anteriores se conservan.")

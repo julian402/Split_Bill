@@ -45,6 +45,9 @@ public interface ApiService {
     @POST("api/groups/{groupId}/members")
     Call<UserDto> addMember(@Path("groupId") String groupId, @Body MemberRequest member);
 
+    @POST("api/groups/{groupId}/members/{memberId}/claim")
+    Call<UserDto> claimMember(@Path("groupId") String groupId, @Path("memberId") String memberId);
+
     @DELETE("api/groups/{groupId}/members/{userId}")
     Call<Void> removeMember(@Path("groupId") String groupId, @Path("userId") String userId);
 

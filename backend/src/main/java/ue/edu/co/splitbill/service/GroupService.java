@@ -16,6 +16,8 @@ import ue.edu.co.splitbill.dto.GroupResponse;
 import ue.edu.co.splitbill.dto.MemberRequest;
 import ue.edu.co.splitbill.dto.UserResponse;
 import ue.edu.co.splitbill.entity.DatabaseContract;
+import ue.edu.co.splitbill.entity.Expense;
+import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
 import ue.edu.co.splitbill.entity.GroupMemberId;
@@ -23,6 +25,7 @@ import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.exception.ConflictException;
 import ue.edu.co.splitbill.exception.ForbiddenException;
 import ue.edu.co.splitbill.exception.NotFoundException;
+import ue.edu.co.splitbill.repository.ExpenseRepository;
 import ue.edu.co.splitbill.repository.GroupMemberRepository;
 import ue.edu.co.splitbill.repository.GroupRepository;
 import ue.edu.co.splitbill.repository.UserRepository;
@@ -42,12 +45,14 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final ExpenseRepository expenseRepository;
 
     public GroupService(GroupRepository groupRepository, GroupMemberRepository groupMemberRepository,
-                        UserRepository userRepository) {
+                        UserRepository userRepository, ExpenseRepository expenseRepository) {
         this.groupRepository = groupRepository;
         this.groupMemberRepository = groupMemberRepository;
         this.userRepository = userRepository;
+        this.expenseRepository = expenseRepository;
     }
 
     @Transactional(readOnly = true)
@@ -180,6 +185,56 @@ public class GroupService {
                 .filter(GroupMember::isActive)
                 .orElseThrow(() -> new NotFoundException("La persona no es integrante del grupo"));
         membership.setStatus(DatabaseContract.STATUS_INACTIVE);
+    }
+
+    /**
+     * "Soy yo": la persona que inicio sesion dice que un integrante agregado por nombre es ella misma.
+     *
+     * Pasa cuando alguien uso la app antes de tener cuenta y se agrego como integrante: queda dos veces
+     * en el grupo (el integrante sin cuenta y su cuenta). Aqui se juntan: los gastos que pago el
+     * integrante pasan a la cuenta, sus partes tambien (si los dos tenian parte en el mismo gasto, se
+     * suman) y el integrante queda retirado del grupo. Los totales y los saldos no cambian, solo de
+     * quien son.
+     */
+    @Transactional
+    public UserResponse claimMember(UUID userId, UUID groupId, UUID memberId) {
+        requireMembership(groupId, userId);
+        if (userId.equals(memberId)) {
+            throw new IllegalArgumentException("Ya eres tú");
+        }
+        GroupMember membership = this.groupMemberRepository.findById(new GroupMemberId(groupId, memberId))
+                .filter(GroupMember::isActive)
+                .orElseThrow(() -> new NotFoundException("La persona no es integrante del grupo"));
+        User member = this.userRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException("La persona no es integrante del grupo"));
+        if (member.hasAccount()) {
+            throw new ConflictException("Esa persona ya tiene su propia cuenta");
+        }
+
+        for (Expense expense : this.expenseRepository.findByGroupId(groupId)) {
+            if (expense.getPayerId().equals(memberId)) {
+                expense.setPayerId(userId);
+            }
+            ExpenseShare memberShare = null;
+            ExpenseShare userShare = null;
+            for (ExpenseShare share : expense.getShares()) {
+                if (share.getUserId().equals(memberId)) {
+                    memberShare = share;
+                } else if (share.getUserId().equals(userId)) {
+                    userShare = share;
+                }
+            }
+            if (memberShare != null && userShare != null) {
+                //los dos tenian parte: se suman en la de la cuenta y la del integrante desaparece
+                userShare.setAmountCents(userShare.getAmountCents() + memberShare.getAmountCents());
+                expense.getShares().remove(memberShare);
+            } else if (memberShare != null) {
+                memberShare.setUserId(userId);
+            }
+        }
+        membership.setStatus(DatabaseContract.STATUS_INACTIVE);
+        return UserResponse.from(this.userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado")));
     }
 
     /**

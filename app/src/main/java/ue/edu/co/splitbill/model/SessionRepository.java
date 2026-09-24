@@ -164,6 +164,8 @@ public class SessionRepository extends BaseRepository {
                     database.groupDao().deleteById(seededId);
                 }
             });
+            //entre los integrantes que subio puede estar ella misma: se le sugiere "Soy yo"
+            this.sessionManager.setSuggestClaim(true);
             return newId;
         }
         if (hasSeededGroup) {

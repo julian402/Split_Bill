@@ -133,10 +133,15 @@ public abstract class BaseActivity extends AppCompatActivity {
      * cerrar sesion). Si el usuario acepta, se ejecuta la accion; si cancela, no pasa nada.
      */
     protected void confirm(String title, String message, int positiveButtonResourceId, final Runnable action) {
+        confirm(title, message, positiveButtonResourceId, R.string.btnCancel, action);
+    }
+
+    protected void confirm(String title, String message, int positiveButtonResourceId,
+                           int negativeButtonResourceId, final Runnable action) {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(title)
                 .setMessage(message)
-                .setNegativeButton(R.string.btnCancel, null)
+                .setNegativeButton(negativeButtonResourceId, null)
                 .setPositiveButton(positiveButtonResourceId, (dialog, which) -> action.run())
                 .show();
     }

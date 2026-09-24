@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Saldo de un integrante: avatar, nombre, etiqueta (Le deben / Debe / Saldo en cero), cuantas transferencias le tocan y el monto -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
     android:layout_marginTop="6dp"
+    android:layout_marginEnd="16dp"
     android:layout_marginBottom="6dp">
 
     <LinearLayout
@@ -16,7 +19,10 @@
         <TextView
             android:id="@+id/tvBalanceInitials"
             style="@style/Widget.SplitBill.Avatar"
-            tools:text="DA" />
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:textSize="20sp"
+            tools:text="A" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -25,30 +31,50 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvBalanceName"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
-                tools:text="Diomar Arias" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvBalanceName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
+                    android:textSize="17sp"
+                    tools:text="Andres" />
+
+                <TextView
+                    android:id="@+id/tvBalanceState"
+                    style="@style/Widget.SplitBill.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    tools:text="Le deben" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/tvBalanceState"
-                style="@style/Widget.SplitBill.Pill"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvBalanceSubtitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                tools:text="Le deben" />
+                android:layout_marginTop="4dp"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle"
+                tools:text="Recibe 1 transferencia" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvBalanceAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textAppearance="@style/TextAppearance.SplitBill.Amount"
-            tools:text="$ 33.000,00" />
+            android:layout_marginStart="10dp"
+            android:maxLines="1"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            tools:text="$ 283.344,00" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

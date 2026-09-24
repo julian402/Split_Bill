@@ -1,32 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<!-- Fila de un gasto o pago: icono de la categoria, descripcion, quien pago, fecha, monto y como se dividio -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/itemExpense"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="6dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginBottom="6dp">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <!-- Encabezado del dia ("Hoy", "Ayer"): solo en la pantalla de actividad -->
+    <TextView
+        android:id="@+id/tvDayHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingStart="24dp"
+        android:paddingTop="18dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="6dp"
+        android:textAppearance="@style/TextAppearance.SplitBill.Section"
+        android:visibility="gone"
+        tools:text="Hoy"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/rowExpense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingTop="14dp"
-        android:paddingEnd="4dp"
+        android:paddingEnd="16dp"
         android:paddingBottom="14dp">
 
         <ImageView
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/bg_icon_circle"
-            android:importantForAccessibility="no"
-            android:padding="11dp"
-            android:src="@drawable/ic_receipt"
-            app:tint="@color/colorPrimary" />
+            android:id="@+id/ivCategory"
+            style="@style/Widget.SplitBill.IconCircle"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:padding="14dp"
+            android:contentDescription="@null"
+            tools:src="@drawable/ic_cart" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -42,7 +56,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
-                tools:text="Almuerzo" />
+                tools:text="Supermercado" />
 
             <TextView
                 android:id="@+id/tvPayer"
@@ -52,32 +66,49 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle"
-                tools:text="Pagó Julián" />
+                tools:text="Pagó Andres · Viaje a Cartagena" />
 
             <TextView
-                android:id="@+id/tvSplitType"
-                style="@style/Widget.SplitBill.Pill"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvDate"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:textColor="@color/colorOnPrimaryContainer"
-                tools:text="Partes iguales" />
+                android:layout_marginTop="2dp"
+                android:maxLines="1"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="12sp"
+                tools:text="Hoy, 14:30" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvAmount"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textAppearance="@style/TextAppearance.SplitBill.Amount"
-            tools:text="$ 60.000,00" />
+            android:gravity="end"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnDeleteExpense"
-            style="@style/Widget.SplitBill.Button.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/cdDelete"
-            app:icon="@drawable/ic_delete" />
+            <TextView
+                android:id="@+id/tvAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.SplitBill.Amount"
+                tools:text="$ 36.688,00" />
+
+            <TextView
+                android:id="@+id/tvSplitType"
+                style="@style/Widget.SplitBill.Chip.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                tools:text="Partes iguales" />
+        </LinearLayout>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+
+    <View
+        android:id="@+id/vDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="82dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/colorStroke" />
+</LinearLayout>

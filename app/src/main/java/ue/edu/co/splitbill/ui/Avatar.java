@@ -1,6 +1,8 @@
 package ue.edu.co.splitbill.ui;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.drawable.GradientDrawable;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -26,6 +28,15 @@ public final class Avatar {
             R.color.colorAvatar5
     };
 
+    /** Color de la letra de cada fondo, en el mismo orden: el mismo tono, mas oscuro. */
+    private static final int[] TEXT_COLORS = {
+            R.color.colorOnAvatar1,
+            R.color.colorOnAvatar2,
+            R.color.colorOnAvatar3,
+            R.color.colorOnAvatar4,
+            R.color.colorOnAvatar5
+    };
+
     private Avatar() {
         //Clase de utilidades: no se instancia
     }
@@ -33,9 +44,33 @@ public final class Avatar {
     /** Pinta en el TextView las iniciales del nombre sobre su color. */
     public static void bind(TextView tvAvatar, String names) {
         tvAvatar.setText(getInitials(names));
-        int colorResourceId = BACKGROUND_COLORS[colorIndex(names)];
-        int color = ContextCompat.getColor(tvAvatar.getContext(), colorResourceId);
+        int index = colorIndex(names);
+        int color = ContextCompat.getColor(tvAvatar.getContext(), BACKGROUND_COLORS[index]);
         ViewCompat.setBackgroundTintList(tvAvatar, ColorStateList.valueOf(color));
+        tvAvatar.setTextColor(ContextCompat.getColor(tvAvatar.getContext(), TEXT_COLORS[index]));
+    }
+
+    /**
+     * Avatar pequeno con un aro del color de la tarjeta, para montarlos uno sobre otro. Se usa un
+     * GradientDrawable porque un tinte pintaria tambien el aro.
+     */
+    public static void bindOutlined(TextView tvAvatar, String names) {
+        int index = colorIndex(names);
+        tvAvatar.setText(getInitials(names).substring(0, 1));
+        tvAvatar.setTextColor(ContextCompat.getColor(tvAvatar.getContext(), TEXT_COLORS[index]));
+        outline(tvAvatar, BACKGROUND_COLORS[index]);
+    }
+
+    /** Circulo del color indicado con aro del color de la tarjeta. */
+    public static void outline(TextView tvAvatar, int fillColorResourceId) {
+        Context context = tvAvatar.getContext();
+        GradientDrawable circle = new GradientDrawable();
+        circle.setShape(GradientDrawable.OVAL);
+        circle.setColor(ContextCompat.getColor(context, fillColorResourceId));
+        circle.setStroke(Math.round(2 * context.getResources().getDisplayMetrics().density),
+                ContextCompat.getColor(context, R.color.colorCard));
+        ViewCompat.setBackgroundTintList(tvAvatar, null);
+        tvAvatar.setBackground(circle);
     }
 
     /** "Julián Corredor" devuelve "JC"; "Sofía" devuelve "S". */

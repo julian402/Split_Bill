@@ -9,10 +9,10 @@ import android.widget.EditText;
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.model.SessionRepository;
 import ue.edu.co.splitbill.ui.BaseActivity;
-import ue.edu.co.splitbill.ui.group.MainActivity;
+import ue.edu.co.splitbill.ui.home.HomeActivity;
 
 /**
- * Primera pantalla de la aplicacion. Si ya hay una sesion abierta, pasa directo a MainActivity.
+ * Primera pantalla de la aplicacion. Si ya hay una sesion abierta, pasa directo al inicio (HomeActivity).
  */
 public class LoginActivity extends BaseActivity {
 
@@ -92,7 +92,7 @@ public class LoginActivity extends BaseActivity {
 
     /** Se limpia la pila para que "atras" desde la pantalla principal cierre la app y no vuelva al login. */
     private void openMain() {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, HomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

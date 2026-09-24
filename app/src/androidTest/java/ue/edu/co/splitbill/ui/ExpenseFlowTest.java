@@ -5,6 +5,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
@@ -24,7 +25,7 @@ import org.junit.runner.RunWith;
 
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.domain.Money;
-import ue.edu.co.splitbill.ui.group.MainActivity;
+import ue.edu.co.splitbill.ui.group.GroupDetailActivity;
 
 /**
  * Registrar, ver, editar y borrar gastos, de punta a punta por la interfaz.
@@ -42,8 +43,8 @@ public class ExpenseFlowTest extends UiTestSupport {
 
     @Test
     public void anExpenseWithoutAmountIsNotSaved() {
-        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
-            onView(withId(R.id.btnAddExpense)).perform(click());
+        try (ActivityScenario<GroupDetailActivity> ignored = ActivityScenario.launch(GroupDetailActivity.class)) {
+            onView(withId(R.id.btnNavAdd)).perform(click());
             onView(withId(R.id.etDescription)).perform(replaceText("Cena"), closeSoftKeyboard());
             onView(withId(R.id.btnSaveExpense)).perform(click());
 
@@ -54,8 +55,8 @@ public class ExpenseFlowTest extends UiTestSupport {
 
     @Test
     public void percentagesThatDoNotAddUpTo100AreNotSaved() {
-        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
-            onView(withId(R.id.btnAddExpense)).perform(click());
+        try (ActivityScenario<GroupDetailActivity> ignored = ActivityScenario.launch(GroupDetailActivity.class)) {
+            onView(withId(R.id.btnNavAdd)).perform(click());
             onView(withId(R.id.etDescription)).perform(replaceText("Cena"));
             onView(withId(R.id.etAmount)).perform(replaceText("90000"), closeSoftKeyboard());
             onView(withId(R.id.spSplitType)).perform(click());
@@ -76,13 +77,13 @@ public class ExpenseFlowTest extends UiTestSupport {
 
     @Test
     public void aValidExpenseShowsUpInTheListAndTheTotal() {
-        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
-            onView(withId(R.id.btnAddExpense)).perform(click());
+        try (ActivityScenario<GroupDetailActivity> ignored = ActivityScenario.launch(GroupDetailActivity.class)) {
+            onView(withId(R.id.btnNavAdd)).perform(click());
             onView(withId(R.id.etDescription)).perform(replaceText("Cena"));
             onView(withId(R.id.etAmount)).perform(replaceText("90000"), closeSoftKeyboard());
             onView(withId(R.id.btnSaveExpense)).perform(click());
 
-            //de vuelta en la pantalla principal
+            //de vuelta en el grupo
             onView(withText("Cena")).check(matches(isDisplayed()));
             onView(withId(R.id.tvTotal)).check(matches(withText(Money.ofCents(9_000_000L).format())));
             assertEquals(1, this.database.expenseDao().countAll());
@@ -92,7 +93,7 @@ public class ExpenseFlowTest extends UiTestSupport {
     @Test
     public void anExpenseIsEditedFromItsDetail() {
         givenExpense("Almuerzo", this.julian, 6_000_000L, this.julian, 3_000_000L, this.diomar, 3_000_000L);
-        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
+        try (ActivityScenario<GroupDetailActivity> ignored = ActivityScenario.launch(GroupDetailActivity.class)) {
             onView(withId(R.id.rvExpenses)).perform(actionOnItemAtPosition(0, click()));
             onView(withId(R.id.tvDetailDescription)).check(matches(withText("Almuerzo")));
 
@@ -106,17 +107,17 @@ public class ExpenseFlowTest extends UiTestSupport {
         }
     }
 
+    /** Desde el rediseno se borra desde el detalle del gasto, siempre con confirmacion. */
     @Test
     public void deletingAsksFirstAndCancelKeepsTheExpense() {
         givenExpense("Almuerzo", this.julian, 6_000_000L, this.julian, 3_000_000L, this.diomar, 3_000_000L);
-        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
-            onView(withId(R.id.rvExpenses)).perform(actionOnItemAtPosition(0,
-                    UiActions.clickChild(R.id.btnDeleteExpense)));
+        try (ActivityScenario<GroupDetailActivity> ignored = ActivityScenario.launch(GroupDetailActivity.class)) {
+            onView(withId(R.id.rvExpenses)).perform(actionOnItemAtPosition(0, click()));
+            onView(withId(R.id.btnDeleteExpense)).perform(scrollTo(), click());
             onView(withText("Cancelar")).inRoot(isDialog()).perform(click());
-            onView(withText("Almuerzo")).check(matches(isDisplayed()));
+            onView(withId(R.id.tvDetailDescription)).check(matches(withText("Almuerzo")));
 
-            onView(withId(R.id.rvExpenses)).perform(actionOnItemAtPosition(0,
-                    UiActions.clickChild(R.id.btnDeleteExpense)));
+            onView(withId(R.id.btnDeleteExpense)).perform(scrollTo(), click());
             onView(withText("Eliminar")).inRoot(isDialog()).perform(click());
             onView(withText("Almuerzo")).check(doesNotExist());
             onView(withId(R.id.tvEmptyExpenses)).check(matches(isDisplayed()));

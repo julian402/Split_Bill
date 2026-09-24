@@ -8,7 +8,7 @@ import android.widget.EditText;
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.model.SessionRepository;
 import ue.edu.co.splitbill.ui.BaseActivity;
-import ue.edu.co.splitbill.ui.group.MainActivity;
+import ue.edu.co.splitbill.ui.home.HomeActivity;
 
 /**
  * Crear una cuenta. Al registrarse el servidor devuelve el token, asi que la persona queda con la
@@ -88,7 +88,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void openMain() {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, HomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

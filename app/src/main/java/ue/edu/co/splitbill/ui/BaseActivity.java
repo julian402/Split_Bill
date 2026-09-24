@@ -2,16 +2,20 @@ package ue.edu.co.splitbill.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import ue.edu.co.splitbill.R;
@@ -19,6 +23,12 @@ import ue.edu.co.splitbill.SplitBillApplication;
 import ue.edu.co.splitbill.di.ServiceLocator;
 import ue.edu.co.splitbill.model.DataCallback;
 import ue.edu.co.splitbill.ui.auth.LoginActivity;
+import ue.edu.co.splitbill.ui.expense.AddExpenseActivity;
+import ue.edu.co.splitbill.ui.feed.ActivityFeedActivity;
+import ue.edu.co.splitbill.ui.group.GroupFormActivity;
+import ue.edu.co.splitbill.ui.group.GroupsActivity;
+import ue.edu.co.splitbill.ui.home.HomeActivity;
+import ue.edu.co.splitbill.ui.profile.ProfileActivity;
 
 /**
  * Base de todas las pantallas de la aplicacion.
@@ -33,8 +43,17 @@ import ue.edu.co.splitbill.ui.auth.LoginActivity;
  *
  * Desde la entrega 3 tambien protege las pantallas: si no hay sesion (o el token vencio), manda al
  * login. Las pantallas de login y registro lo desactivan sobrescribiendo requiresSession().
+ *
+ * Desde el rediseno maneja la barra inferior (Inicio, Grupos, +, Actividad, Perfil): la pantalla que
+ * la incluye en su layout devuelve su pestana en getNavItem() y BaseActivity hace el resto.
  */
 public abstract class BaseActivity extends AppCompatActivity {
+
+    /** Un gasto no se puede repartir si no hay al menos dos integrantes. */
+    protected static final int MIN_MEMBERS = 2;
+
+    /** Sin pestana marcada: la pantalla muestra la barra pero no es una de las cuatro principales. */
+    protected static final int NAV_NONE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +67,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         setContentView(getLayoutResourceId());
         applyWindowInsets();
         initToolbar();
+        initBottomNav();
         initObjects();
         initListeners();
     }
@@ -88,25 +108,107 @@ public abstract class BaseActivity extends AppCompatActivity {
     /** Enlaza los botones con sus metodos. */
     protected abstract void initListeners();
 
-    /** Evita que el contenido quede debajo de la barra de estado o de la de navegacion. */
+    /**
+     * Evita que el contenido quede debajo de la barra de estado o de la de navegacion. Si la pantalla
+     * tiene barra inferior, el margen de abajo se lo lleva la barra, para que su fondo blanco llegue
+     * hasta el borde del celular.
+     */
     private void applyWindowInsets() {
         View root = findViewById(R.id.main);
         if (root == null) {
             return;
         }
+        final View navBar = findViewById(R.id.navBar);
+        final int navBarPadding = navBar == null ? 0 : navBar.getPaddingBottom();
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            if (navBar == null) {
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            } else {
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+                navBar.setPadding(navBar.getPaddingLeft(), navBar.getPaddingTop(), navBar.getPaddingRight(),
+                        navBarPadding + systemBars.bottom);
+            }
             return insets;
         });
     }
 
-    /** Si la pantalla tiene barra superior, su flecha regresa a la pantalla anterior. */
+    /** Si el encabezado de la pantalla tiene boton de atras, regresa a la pantalla anterior. */
     private void initToolbar() {
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            toolbar.setNavigationOnClickListener(this::goBack);
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(this::goBack);
         }
+    }
+
+    /**
+     * Pestana de la barra inferior que corresponde a esta pantalla: R.id.navHome, R.id.navGroups,
+     * R.id.navActivity o R.id.navProfile. NAV_NONE si la barra no marca ninguna.
+     */
+    protected int getNavItem() {
+        return NAV_NONE;
+    }
+
+    /** Enlaza las cuatro pestanas y el boton + si el layout incluye view_bottom_nav. */
+    private void initBottomNav() {
+        if (findViewById(R.id.bottomNav) == null) {
+            return;
+        }
+        bindNavItem(R.id.navHome, R.id.navHomeIcon, R.id.navHomeLabel, HomeActivity.class);
+        bindNavItem(R.id.navGroups, R.id.navGroupsIcon, R.id.navGroupsLabel, GroupsActivity.class);
+        bindNavItem(R.id.navActivity, R.id.navActivityIcon, R.id.navActivityLabel, ActivityFeedActivity.class);
+        bindNavItem(R.id.navProfile, R.id.navProfileIcon, R.id.navProfileLabel, ProfileActivity.class);
+        findViewById(R.id.btnNavAdd).setOnClickListener(this::openAddExpense);
+    }
+
+    private void bindNavItem(int itemId, int iconId, int labelId, final Class<?> target) {
+        final boolean selected = getNavItem() == itemId;
+        ImageView icon = findViewById(iconId);
+        TextView label = findViewById(labelId);
+        int color = ContextCompat.getColor(this, selected ? R.color.colorPrimary : R.color.colorTextSecondary);
+        icon.setImageTintList(ColorStateList.valueOf(color));
+        icon.setBackgroundResource(selected ? R.drawable.bg_nav_selected : 0);
+        label.setTextColor(color);
+        label.setTypeface(null, selected ? Typeface.BOLD : Typeface.NORMAL);
+        View item = findViewById(itemId);
+        item.setSelected(selected);
+        //desde una pantalla interna (un grupo, por ejemplo) la pestana marcada lleva a su lista
+        item.setOnClickListener(view -> {
+            if (!getClass().equals(target)) {
+                openTab(target);
+            }
+        });
+    }
+
+    /**
+     * Cambia de pestana sin apilar pantallas: si la pestana ya estaba abierta, se vuelve a ella y se
+     * cierran las que tenia encima (CLEAR_TOP); si no, se abre. Sin animacion, como una pestana.
+     */
+    protected void openTab(Class<?> target) {
+        Intent intent = new Intent(this, target);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(intent);
+    }
+
+    /**
+     * El boton + registra un gasto en el grupo actual. Antes se verifica que haya con quien
+     * repartirlo; si no, se lleva a agregar integrantes y desde alli se sigue con el gasto.
+     */
+    protected void openAddExpense(View view) {
+        getServiceLocator().getUserRepository().countActiveUsers(new UiCallback<Integer>() {
+            @Override
+            protected void onData(Integer data) {
+                if (data < MIN_MEMBERS) {
+                    showToast(R.string.msgNeedTwoMembers);
+                    Intent intent = new Intent(BaseActivity.this, GroupFormActivity.class);
+                    intent.putExtra(GroupFormActivity.EXTRA_CONTINUE_TO_EXPENSE, true);
+                    startActivity(intent);
+                    return;
+                }
+                startActivity(new Intent(BaseActivity.this, AddExpenseActivity.class));
+            }
+        });
     }
 
     private void goBack(View view) {

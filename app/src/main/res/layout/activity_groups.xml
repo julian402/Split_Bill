@@ -1,62 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ui.group.GroupsActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+    <LinearLayout style="@style/Widget.SplitBill.ScreenHeader">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationContentDescription="@string/cdBack"
-            app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="@string/tvTitleGroups" />
+        <ImageView
+            style="@style/Widget.SplitBill.HeaderButton"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_group" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="8dp"
-            android:text="@string/tvGroupsHint"
-            android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle" />
+        <LinearLayout style="@style/Widget.SplitBill.ScreenHeaderTexts">
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/pbLoading"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:indeterminate="true"
-            android:visibility="gone"
-            app:trackCornerRadius="4dp" />
+            <TextView
+                style="@style/Widget.SplitBill.ScreenHeaderTitle"
+                android:text="@string/tvTitleGroups" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvGroups"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="96dp"
-            tools:listitem="@layout/item_group" />
+            <TextView
+                style="@style/Widget.SplitBill.ScreenHeaderSubtitle"
+                android:text="@string/tvGroupsSubtitle" />
+        </LinearLayout>
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/btnNewGroup"
-        android:layout_width="wrap_content"
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/pbLoading"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:trackCornerRadius="4dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvGroups"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="10dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="12dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_group" />
+
+    <Button
+        android:id="@+id/btnNewGroup"
+        style="@style/Widget.SplitBill.Button.Big"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
         android:text="@string/btnNewGroup"
-        android:textColor="@color/colorOnPrimary"
-        app:backgroundTint="@color/colorPrimary"
-        app:icon="@drawable/ic_add"
-        app:iconTint="@color/colorOnPrimary" />
-</FrameLayout>
+        app:icon="@drawable/ic_add" />
+
+    <include layout="@layout/view_bottom_nav" />
+</LinearLayout>

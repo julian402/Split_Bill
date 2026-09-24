@@ -3,6 +3,7 @@ package ue.edu.co.splitbill.ui.expense;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,6 +21,7 @@ import ue.edu.co.splitbill.sync.SyncListener;
 import ue.edu.co.splitbill.sync.SyncManager;
 import ue.edu.co.splitbill.sync.SyncResult;
 import ue.edu.co.splitbill.ui.BaseActivity;
+import ue.edu.co.splitbill.ui.Categories;
 import ue.edu.co.splitbill.ui.adapter.ExpenseShareAdapter;
 
 /**
@@ -31,7 +33,7 @@ import ue.edu.co.splitbill.ui.adapter.ExpenseShareAdapter;
  */
 public class ExpenseDetailActivity extends BaseActivity implements SyncListener {
 
-    /** Id del gasto a mostrar. Lo manda MainActivity. */
+    /** Id del gasto a mostrar. Lo mandan el grupo, el inicio y la actividad. */
     public static final String EXTRA_EXPENSE_ID = "extraExpenseId";
 
     private static final Locale DATE_LOCALE = Locale.forLanguageTag("es-CO");
@@ -41,6 +43,8 @@ public class ExpenseDetailActivity extends BaseActivity implements SyncListener 
     private TextView tvDetailPayer;
     private TextView tvDetailMeta;
     private TextView tvDetailSyncState;
+    private TextView tvDetailCategory;
+    private ImageView ivHeroDecoIcon;
     private RecyclerView rvShares;
     private Button btnEditExpense;
     private Button btnDeleteExpense;
@@ -99,6 +103,10 @@ public class ExpenseDetailActivity extends BaseActivity implements SyncListener 
         //en espanol de Colombia, igual que los montos (Money), aunque el celular este en otro idioma
         String date = DateFormat.getDateInstance(DateFormat.LONG, DATE_LOCALE).format(expense.getDate());
 
+        this.tvDetailCategory.setText(Categories.getName(this, expense.getCategory()));
+        this.ivHeroDecoIcon.setImageResource(Categories.getIcon(expense.getCategory()));
+        //un pago no se edita: si estuvo mal, se elimina y se vuelve a marcar desde la liquidacion
+        this.btnEditExpense.setVisibility(expense.isPayment() ? View.GONE : View.VISIBLE);
         this.tvDetailDescription.setText(expense.getDescription());
         this.tvDetailAmount.setText(expense.getAmount().format());
         this.tvDetailPayer.setText(getString(R.string.tvPaidBy, detail.getPayerNames()));
@@ -153,6 +161,8 @@ public class ExpenseDetailActivity extends BaseActivity implements SyncListener 
         this.tvDetailPayer = findViewById(R.id.tvDetailPayer);
         this.tvDetailMeta = findViewById(R.id.tvDetailMeta);
         this.tvDetailSyncState = findViewById(R.id.tvDetailSyncState);
+        this.tvDetailCategory = findViewById(R.id.tvDetailCategory);
+        this.ivHeroDecoIcon = findViewById(R.id.ivHeroDecoIcon);
         this.rvShares = findViewById(R.id.rvShares);
         this.btnEditExpense = findViewById(R.id.btnEditExpense);
         this.btnDeleteExpense = findViewById(R.id.btnDeleteExpense);

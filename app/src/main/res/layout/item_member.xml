@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Integrante del grupo: avatar, nombre, telefono, papel (Administrador / Integrante) y papelera -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -15,14 +16,17 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="4dp"
-        android:paddingBottom="12dp">
+        android:paddingTop="14dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="14dp">
 
         <TextView
             android:id="@+id/tvMemberInitials"
             style="@style/Widget.SplitBill.Avatar"
-            tools:text="JC" />
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:textSize="20sp"
+            tools:text="A" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -38,25 +42,34 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
-                tools:text="Julián Corredor" />
+                tools:text="Andres" />
 
             <TextView
                 android:id="@+id/tvMemberPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
+                android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle"
-                android:visibility="gone"
-                tools:text="300 000 0000"
-                tools:visibility="visible" />
+                tools:text="3111231234" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnDeleteMember"
-            style="@style/Widget.SplitBill.Button.Icon"
+        <TextView
+            android:id="@+id/tvMemberRole"
+            style="@style/Widget.SplitBill.Chip.Neutral"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            tools:text="Administrador" />
+
+        <ImageButton
+            android:id="@+id/btnDeleteMember"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_delete_button"
             android:contentDescription="@string/cdDelete"
-            app:icon="@drawable/ic_delete" />
+            android:src="@drawable/ic_delete"
+            app:tint="@color/colorDebtor" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -19,6 +19,9 @@
         <item name="colorOutline">@color/colorStroke</item>
         <item name="colorOutlineVariant">@color/colorStroke</item>
 
+        <!-- Sin el tinte lila que Material 3 le pone a las tarjetas con sombra: quedan blancas -->
+        <item name="elevationOverlayEnabled">false</item>
+
         <item name="materialButtonStyle">@style/Widget.SplitBill.Button</item>
         <item name="textInputStyle">@style/Widget.SplitBill.TextInputLayout</item>
         <item name="materialCardViewStyle">@style/Widget.SplitBill.Card</item>

@@ -16,6 +16,13 @@
     <color name="colorTextPrimary">#FFF3F4F6</color>
     <color name="colorTextSecondary">#FF9CA3AF</color>
 
+    <color name="colorCardStroke">#FF2A2E37</color>
+    <color name="colorHighlightStroke">#FF4F46E5</color>
+    <color name="colorIconCircle">#FF262A45</color>
+    <color name="colorSoftCard">#FF1F2240</color>
+    <color name="colorShadow">#00000000</color>
+    <color name="colorHeroGlassSolid">#33FFFFFF</color>
+
     <color name="colorCreditor">#FF34D399</color>
     <color name="colorCreditorContainer">#FF064E3B</color>
     <color name="colorDebtor">#FFF87171</color>
@@ -29,4 +36,10 @@
     <color name="colorAvatar4">#FF831843</color>
     <color name="colorAvatar5">#FF0C4A6E</color>
     <color name="colorOnAvatar">#FFF3F4F6</color>
+
+    <color name="colorOnAvatar1">#FFC7D2FE</color>
+    <color name="colorOnAvatar2">#FFA7F3D0</color>
+    <color name="colorOnAvatar3">#FFFDE68A</color>
+    <color name="colorOnAvatar4">#FFFBCFE8</color>
+    <color name="colorOnAvatar5">#FFBAE6FD</color>
 </resources>

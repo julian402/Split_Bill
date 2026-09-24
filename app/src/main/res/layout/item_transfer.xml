@@ -1,45 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Transferencia sugerida: quien le paga a quien, cuanto, y los botones Compartir y Pagado -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
     android:layout_marginTop="6dp"
+    android:layout_marginEnd="16dp"
     android:layout_marginBottom="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <ImageView
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/bg_icon_circle"
-            android:importantForAccessibility="no"
-            android:padding="11dp"
-            android:src="@drawable/ic_arrow_forward"
-            app:tint="@color/colorPrimary" />
-
-        <TextView
-            android:id="@+id/tvTransferDescription"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_weight="1"
-            android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
-            android:textSize="15sp"
-            tools:text="Sofía Reyes le paga a Diomar Arias" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tvTransferAmount"
-            android:layout_width="wrap_content"
+            <ImageView
+                style="@style/Widget.SplitBill.IconCircle"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:padding="14dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_arrow_forward" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTransferDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="16sp"
+                    tools:text="Luis le paga a Andres" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/tvTransferHint"
+                    android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTransferAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:maxLines="1"
+                android:textColor="@color/colorPrimary"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                tools:text="$ 283.344,00" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textAppearance="@style/TextAppearance.SplitBill.Amount"
-            android:textColor="@color/colorPrimary"
-            tools:text="$ 33.000,00" />
+            android:layout_marginTop="12dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnShareTransfer"
+                style="@style/Widget.SplitBill.Button.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btnShare"
+                app:icon="@drawable/ic_share" />
+
+            <Button
+                android:id="@+id/btnMarkPaid"
+                style="@style/Widget.SplitBill.Button.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/btnPaid"
+                android:textColor="@color/colorCreditor"
+                app:backgroundTint="@color/colorCreditorContainer"
+                app:icon="@drawable/ic_check"
+                app:iconTint="@color/colorCreditor" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

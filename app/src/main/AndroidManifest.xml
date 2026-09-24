@@ -26,7 +26,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SplitBill">
 
-        <!-- La app arranca en el login; si ya hay sesion, LoginActivity salta a MainActivity -->
+        <!-- La app arranca en el login; si ya hay sesion, LoginActivity salta al inicio (HomeActivity) -->
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="true"
@@ -44,26 +44,42 @@
             android:parentActivityName=".ui.auth.LoginActivity"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Las cuatro pestanas de la barra inferior -->
         <activity
-            android:name=".ui.group.MainActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:name=".ui.home.HomeActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.group.GroupsActivity"
             android:exported="false"
-            android:parentActivityName=".ui.group.MainActivity" />
+            android:parentActivityName=".ui.home.HomeActivity" />
 
         <activity
-            android:name=".ui.group.MembersActivity"
+            android:name=".ui.feed.ActivityFeedActivity"
             android:exported="false"
-            android:parentActivityName=".ui.group.MainActivity"
+            android:parentActivityName=".ui.home.HomeActivity" />
+
+        <activity
+            android:name=".ui.profile.ProfileActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.home.HomeActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.group.GroupDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.group.GroupsActivity" />
+
+        <activity
+            android:name=".ui.group.GroupFormActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.group.GroupsActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.contacts.ContactsActivity"
             android:exported="false"
-            android:parentActivityName=".ui.group.MembersActivity"
+            android:parentActivityName=".ui.group.GroupFormActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
@@ -73,23 +89,23 @@
         <activity
             android:name=".ui.expense.AddExpenseActivity"
             android:exported="false"
-            android:parentActivityName=".ui.group.MainActivity"
+            android:parentActivityName=".ui.group.GroupDetailActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.expense.ExpenseDetailActivity"
             android:exported="false"
-            android:parentActivityName=".ui.group.MainActivity" />
+            android:parentActivityName=".ui.group.GroupDetailActivity" />
 
         <activity
             android:name=".ui.settle.SettlementActivity"
             android:exported="false"
-            android:parentActivityName=".ui.group.MainActivity" />
+            android:parentActivityName=".ui.group.GroupDetailActivity" />
 
         <activity
             android:name=".ui.quick.QuickSplitActivity"
             android:exported="false"
-            android:parentActivityName=".ui.group.MainActivity"
+            android:parentActivityName=".ui.group.GroupDetailActivity"
             android:windowSoftInputMode="adjustResize" />
     </application>
 

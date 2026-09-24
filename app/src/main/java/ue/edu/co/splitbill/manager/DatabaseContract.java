@@ -269,6 +269,7 @@ public final class DatabaseContract {
                 + "e.exp_date AS date, "
                 + "u.use_names AS payerNames, "
                 + PAYEE_NAMES + " AS payeeNames, "
+                + "g.grp_id AS groupId, "
                 + "g.grp_name AS groupName "
                 + "FROM expenses e "
                 + "INNER JOIN users u ON u.use_id = e.exp_payer_id "

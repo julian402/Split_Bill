@@ -8,13 +8,26 @@
     android:orientation="vertical"
     tools:context=".ui.expense.ExpenseDetailActivity">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:navigationContentDescription="@string/cdBack"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="@string/tvTitleExpenseDetail" />
+    <LinearLayout style="@style/Widget.SplitBill.ScreenHeader">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            style="@style/Widget.SplitBill.HeaderButton"
+            android:contentDescription="@string/cdBack"
+            android:src="@drawable/ic_arrow_back" />
+
+        <LinearLayout style="@style/Widget.SplitBill.ScreenHeaderTexts">
+
+            <TextView
+                style="@style/Widget.SplitBill.ScreenHeaderTitle"
+                android:text="@string/tvTitleExpenseDetail" />
+
+            <TextView
+                android:id="@+id/tvDetailCategory"
+                style="@style/Widget.SplitBill.ScreenHeaderSubtitle"
+                tools:text="Comida" />
+        </LinearLayout>
+    </LinearLayout>
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/pbLoading"
@@ -36,14 +49,19 @@
             android:paddingEnd="16dp"
             android:paddingBottom="24dp">
 
-            <!-- Tarjeta destacada: que se gasto, cuanto y quien pago -->
-            <LinearLayout
+            <!-- Tarjeta destacada: que se gasto, cuanto y quien pago; el adorno lleva el icono de la categoria -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_hero"
-                android:elevation="4dp"
-                android:orientation="vertical"
+                android:elevation="6dp"
                 android:padding="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="100dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvDetailDescription"
@@ -93,13 +111,21 @@
                     tools:visibility="visible" />
             </LinearLayout>
 
+                <include
+                    layout="@layout/view_hero_deco"
+                    android:layout_width="96dp"
+                    android:layout_height="88dp"
+                    android:layout_gravity="end|center_vertical" />
+            </FrameLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="4dp"
                 android:paddingTop="24dp"
-                android:paddingBottom="4dp"
+                android:paddingBottom="6dp"
                 android:text="@string/tvSectionShares"
-                android:textAppearance="@style/TextAppearance.SplitBill.Section" />
+                android:textAppearance="@style/TextAppearance.SplitBill.SectionTitle" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvShares"
@@ -111,11 +137,12 @@
 
             <Button
                 android:id="@+id/btnEditExpense"
+                style="@style/Widget.SplitBill.Button.Big"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/btnEditExpense"
-                app:icon="@drawable/ic_receipt" />
+                app:icon="@drawable/ic_edit" />
 
             <Button
                 android:id="@+id/btnDeleteExpense"
@@ -125,6 +152,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/btnDeleteExpense"
                 android:textColor="@color/colorDebtor"
+                app:backgroundTint="@color/colorDebtorContainer"
                 app:icon="@drawable/ic_delete"
                 app:iconTint="@color/colorDebtor" />
         </LinearLayout>

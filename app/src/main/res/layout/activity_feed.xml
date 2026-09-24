@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.feed.ActivityFeedActivity">
+
+    <LinearLayout style="@style/Widget.SplitBill.ScreenHeader">
+
+        <ImageView
+            style="@style/Widget.SplitBill.HeaderButton"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_list" />
+
+        <LinearLayout style="@style/Widget.SplitBill.ScreenHeaderTexts">
+
+            <TextView
+                style="@style/Widget.SplitBill.ScreenHeaderTitle"
+                android:text="@string/tvTitleActivity" />
+
+            <TextView
+                android:id="@+id/tvSyncStatus"
+                style="@style/Widget.SplitBill.ScreenHeaderSubtitle"
+                tools:text="@string/tvSynced" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnSync"
+            style="@style/Widget.SplitBill.HeaderButton"
+            android:contentDescription="@string/cdSync"
+            android:src="@drawable/ic_sync" />
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/pbLoading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:trackCornerRadius="4dp" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:layout_weight="1">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvEmptyActivity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawablePadding="12dp"
+                android:padding="32dp"
+                android:text="@string/tvEmptyActivity"
+                android:textAlignment="center"
+                android:textColor="@color/colorTextSecondary"
+                android:visibility="gone"
+                app:drawableTint="@color/colorStroke"
+                app:drawableTopCompat="@drawable/ic_receipt" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvActivity"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_expense" />
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <include layout="@layout/view_bottom_nav" />
+</LinearLayout>

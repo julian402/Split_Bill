@@ -8,13 +8,25 @@
     android:orientation="vertical"
     tools:context=".ui.scan.ScanReceiptActivity">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:navigationContentDescription="@string/cdBack"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="@string/tvTitleScan" />
+    <LinearLayout style="@style/Widget.SplitBill.ScreenHeader">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            style="@style/Widget.SplitBill.HeaderButton"
+            android:contentDescription="@string/cdBack"
+            android:src="@drawable/ic_arrow_back" />
+
+        <LinearLayout style="@style/Widget.SplitBill.ScreenHeaderTexts">
+
+            <TextView
+                style="@style/Widget.SplitBill.ScreenHeaderTitle"
+                android:text="@string/tvTitleScan" />
+
+            <TextView
+                style="@style/Widget.SplitBill.ScreenHeaderSubtitle"
+                android:text="@string/tvScanSubtitle" />
+        </LinearLayout>
+    </LinearLayout>
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/pbLoading"

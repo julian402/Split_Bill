@@ -7,7 +7,16 @@ package ue.edu.co.splitbill.dao;
  */
 public class ActivityItem extends ExpenseListItem {
 
+    private String groupId;
     private String groupName;
+
+    public String getGroupId() {
+        return this.groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
     public String getGroupName() {
         return this.groupName;

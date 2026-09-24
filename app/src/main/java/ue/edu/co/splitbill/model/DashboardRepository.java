@@ -1,6 +1,5 @@
 package ue.edu.co.splitbill.model;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -9,7 +8,6 @@ import ue.edu.co.splitbill.dao.ActivityItem;
 import ue.edu.co.splitbill.dao.GroupListItem;
 import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.domain.Money;
-import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
 import ue.edu.co.splitbill.session.SessionManager;
 
@@ -27,8 +25,6 @@ public class DashboardRepository extends BaseRepository {
     public static final int RECENT_LIMIT = 5;
     /** Tope de la pantalla de actividad: suficiente para meses de uso sin cargar la lista de mas. */
     public static final int ACTIVITY_LIMIT = 200;
-    /** Cuantos avatares pequenos se pintan en cada tarjeta de grupo. */
-    private static final int AVATARS_PER_GROUP = 3;
 
     private final SessionManager sessionManager;
 
@@ -54,8 +50,8 @@ public class DashboardRepository extends BaseRepository {
                 for (GroupListItem group : groups) {
                     balance += group.getBalanceCents();
                     expenseCount += group.getExpenseCount();
-                    group.setMemberNames(firstMemberNames(group.getGroupId()));
                 }
+                GroupRepository.fillMemberNames(database, groups);
 
                 return new DashboardSummary(
                         Money.ofCents(database.expenseDao().sumAllGroupsSince(0L)),
@@ -77,15 +73,6 @@ public class DashboardRepository extends BaseRepository {
                 return database.expenseDao().findRecentAllGroups(ACTIVITY_LIMIT);
             }
         }, callback);
-    }
-
-    private List<String> firstMemberNames(String groupId) {
-        List<User> users = database.groupMemberDao().findActiveUsers(groupId);
-        List<String> names = new ArrayList<>(Math.min(users.size(), AVATARS_PER_GROUP));
-        for (int i = 0; i < users.size() && i < AVATARS_PER_GROUP; i++) {
-            names.add(users.get(i).getNames());
-        }
-        return names;
     }
 
     /** Medianoche del dia 1 del mes actual, en la hora del celular. */

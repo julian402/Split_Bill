@@ -16,6 +16,11 @@
     <color name="colorOnHero">#FFFFFFFF</color>
     <color name="colorOnHeroSecondary">#CCFFFFFF</color>
     <color name="colorHeroButton">#33FFFFFF</color>
+    <color name="colorHeroGlass">#26FFFFFF</color>
+    <color name="colorOnHeroPositive">#FF86EFAC</color>
+    <color name="colorOnHeroNegative">#FFFECACA</color>
+    <color name="colorHeroGlassStroke">#4DFFFFFF</color>
+    <color name="colorHeroGlassSolid">#E6FFFFFF</color>
 
     <!-- Fondos y bordes -->
     <color name="colorBackground">#FFF5F6FA</color>
@@ -23,6 +28,13 @@
     <color name="colorStroke">#FFE5E7EB</color>
     <color name="colorTextPrimary">#FF111827</color>
     <color name="colorTextSecondary">#FF6B7280</color>
+
+    <!-- Rediseno: borde casi invisible de las tarjetas, circulos de iconos y tarjetas lila -->
+    <color name="colorCardStroke">#FFEDEEF5</color>
+    <color name="colorHighlightStroke">#FFC7CBF7</color>
+    <color name="colorIconCircle">#FFEEF0FF</color>
+    <color name="colorSoftCard">#FFE9EBFE</color>
+    <color name="colorShadow">#334F46E5</color>
 
     <!-- Colores de saldo -->
     <color name="colorCreditor">#FF059669</color>
@@ -39,4 +51,11 @@
     <color name="colorAvatar4">#FFFCE7F3</color>
     <color name="colorAvatar5">#FFE0F2FE</color>
     <color name="colorOnAvatar">#FF1F2937</color>
+
+    <!-- Letra de cada avatar: el mismo tono de su fondo, mas oscuro -->
+    <color name="colorOnAvatar1">#FF4338CA</color>
+    <color name="colorOnAvatar2">#FF047857</color>
+    <color name="colorOnAvatar3">#FFB45309</color>
+    <color name="colorOnAvatar4">#FFBE185D</color>
+    <color name="colorOnAvatar5">#FF0369A1</color>
 </resources>

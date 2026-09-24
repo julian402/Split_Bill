@@ -106,8 +106,11 @@ public class ExpenseRepository extends BaseRepository {
                     expenseShares.add(new ExpenseShare(expense.getId(), share));
                 }
 
-                //la fecha y el grupo no se editan; el estado de sincronizacion depende de si ya se subio
-                expense.setDate(current.getDate());
+                //el grupo no se edita (la fecha si, desde el rediseno); el estado de sincronizacion
+                //depende de si ya se subio
+                if (expense.getDate() == null) {
+                    expense.setDate(current.getDate());
+                }
                 expense.setGroupId(current.getGroupId());
                 expense.setSyncStatus(current.getSyncStatus() == SyncStatus.PENDING_CREATE
                         ? SyncStatus.PENDING_CREATE : SyncStatus.PENDING_UPDATE);

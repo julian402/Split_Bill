@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.home.HomeActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Encabezado: logo, nombre de la app, saludo y campana -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="20dp">
+
+                <ImageView
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
+                    android:background="@drawable/bg_logo"
+                    android:contentDescription="@null"
+                    android:elevation="4dp"
+                    android:padding="15dp"
+                    android:src="@drawable/ic_group"
+                    app:tint="@color/colorOnHero" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tvAppNameSpaced"
+                        android:textAppearance="@style/TextAppearance.SplitBill.HeaderTitle" />
+
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textAppearance="@style/TextAppearance.SplitBill.HeaderSubtitle"
+                        tools:text="Hola, Julián" />
+                </LinearLayout>
+
+                <!-- Campana: estado de la sincronizacion; el punto rojo avisa cambios sin subir -->
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/btnNotifications"
+                        style="@style/Widget.SplitBill.HeaderButton"
+                        android:layout_margin="2dp"
+                        android:background="@drawable/bg_circle_white"
+                        android:contentDescription="@string/cdNotifications"
+                        android:src="@drawable/ic_notifications"
+                        app:tint="@color/colorTextPrimary" />
+
+                    <View
+                        android:id="@+id/vPendingDot"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginEnd="6dp"
+                        android:background="@drawable/bg_dot"
+                        android:elevation="4dp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSyncStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="92dp"
+                android:layout_marginEnd="20dp"
+                android:maxLines="1"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="12sp"
+                tools:text="@string/tvSynced" />
+
+            <!-- Pestanas Inicio / Grupos / Cuenta rapida -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_segmented"
+                android:elevation="2dp"
+                android:orientation="horizontal"
+                android:padding="5dp">
+
+                <TextView
+                    android:id="@+id/segHome"
+                    style="@style/Widget.SplitBill.Segment"
+                    android:background="@drawable/bg_segment_selected"
+                    android:text="@string/navHome"
+                    android:textColor="@color/colorOnPrimary"
+                    app:drawableStartCompat="@drawable/ic_home"
+                    app:drawableTint="@color/colorOnPrimary" />
+
+                <TextView
+                    android:id="@+id/segGroups"
+                    style="@style/Widget.SplitBill.Segment"
+                    android:layout_weight="0.9"
+                    android:text="@string/navGroups"
+                    app:drawableStartCompat="@drawable/ic_group" />
+
+                <TextView
+                    android:id="@+id/segQuickSplit"
+                    style="@style/Widget.SplitBill.Segment"
+                    android:layout_weight="1.3"
+                    android:text="@string/btnQuickSplit"
+                    app:drawableStartCompat="@drawable/ic_bolt" />
+            </LinearLayout>
+
+            <!-- Tarjeta destacada con el resumen de todos los grupos -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_hero"
+                android:elevation="6dp"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="104dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/tvHomeTotalLabel"
+                            android:textColor="@color/colorOnHeroSecondary"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/tvHomeTotal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:maxLines="1"
+                            android:textColor="@color/colorOnHero"
+                            android:textSize="38sp"
+                            android:textStyle="bold"
+                            app:autoSizeMaxTextSize="38sp"
+                            app:autoSizeMinTextSize="22sp"
+                            app:autoSizeTextType="uniform"
+                            tools:text="$ 566.688,00" />
+
+                        <TextView
+                            android:id="@+id/tvHomeCounts"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:drawablePadding="8dp"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/colorOnHeroSecondary"
+                            android:textSize="15sp"
+                            app:drawableStartCompat="@drawable/ic_north_east"
+                            app:drawableTint="@color/colorOnHero"
+                            tools:text="2 grupos · 3 gastos" />
+                    </LinearLayout>
+
+                    <include
+                        layout="@layout/view_hero_deco"
+                        android:layout_width="96dp"
+                        android:layout_height="88dp"
+                        android:layout_gravity="end|center_vertical" />
+                </FrameLayout>
+
+                <!-- Este mes / Tu parte / Tu balance -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/bg_hero_row"
+                    android:baselineAligned="false"
+                    android:divider="@drawable/bg_divider_hero"
+                    android:orientation="horizontal"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:showDividers="middle">
+
+                    <LinearLayout style="@style/Widget.SplitBill.HeroStat">
+
+                        <TextView
+                            style="@style/Widget.SplitBill.HeroStatLabel"
+                            android:text="@string/tvMonthTotal"
+                            app:drawableStartCompat="@drawable/ic_wallet" />
+
+                        <TextView
+                            android:id="@+id/tvMonthTotal"
+                            style="@style/Widget.SplitBill.HeroStatValue"
+                            tools:text="$ 566.688" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/Widget.SplitBill.HeroStat">
+
+                        <TextView
+                            style="@style/Widget.SplitBill.HeroStatLabel"
+                            android:text="@string/tvMyShare"
+                            app:drawableStartCompat="@drawable/ic_trending_up" />
+
+                        <TextView
+                            android:id="@+id/tvMyShare"
+                            style="@style/Widget.SplitBill.HeroStatValue"
+                            tools:text="$ 188.896" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/Widget.SplitBill.HeroStat">
+
+                        <TextView
+                            style="@style/Widget.SplitBill.HeroStatLabel"
+                            android:text="@string/tvMyBalance"
+                            app:drawableStartCompat="@drawable/ic_group" />
+
+                        <TextView
+                            android:id="@+id/tvMyBalance"
+                            style="@style/Widget.SplitBill.HeroStatValue"
+                            android:textColor="@color/colorOnHeroPositive"
+                            tools:text="$ 283.344" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Crear grupo / Cuenta rapida -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/btnCreateGroup"
+                    style="@style/Widget.SplitBill.ActionCard"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_action_primary"
+                    android:elevation="4dp">
+
+                    <ImageView
+                        style="@style/Widget.SplitBill.ActionCardIcon"
+                        android:background="@drawable/bg_circle_white"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_add"
+                        app:tint="@color/colorPrimary" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Widget.SplitBill.ActionCardTitle"
+                            android:text="@string/btnCreateGroup"
+                            android:textColor="@color/colorOnHero" />
+
+                        <TextView
+                            style="@style/Widget.SplitBill.ActionCardSubtitle"
+                            android:text="@string/tvCreateGroupHint"
+                            android:textColor="@color/colorOnHeroSecondary" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnQuickSplit"
+                    style="@style/Widget.SplitBill.ActionCard"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_action_soft">
+
+                    <ImageView
+                        style="@style/Widget.SplitBill.ActionCardIcon"
+                        android:background="@drawable/bg_circle_white"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_bolt"
+                        app:tint="@color/colorPrimary" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Widget.SplitBill.ActionCardTitle"
+                            android:text="@string/btnQuickSplit"
+                            android:textColor="@color/colorPrimary" />
+
+                        <TextView
+                            style="@style/Widget.SplitBill.ActionCardSubtitle"
+                            android:text="@string/tvQuickSplitHint"
+                            android:textColor="@color/colorPrimary" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Tus grupos -->
+            <LinearLayout style="@style/Widget.SplitBill.SectionHeader">
+
+                <TextView
+                    style="@style/Widget.SplitBill.SectionHeaderTitle"
+                    android:text="@string/tvTitleGroups" />
+
+                <TextView
+                    android:id="@+id/tvSeeAllGroups"
+                    style="@style/Widget.SplitBill.SectionHeaderLink"
+                    android:text="@string/tvSeeAll" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvGroups"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:orientation="horizontal"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_group" />
+
+            <!-- Actividad reciente -->
+            <LinearLayout style="@style/Widget.SplitBill.SectionHeader">
+
+                <TextView
+                    style="@style/Widget.SplitBill.SectionHeaderTitle"
+                    android:text="@string/tvRecentActivity" />
+
+                <TextView
+                    android:id="@+id/tvSeeAllActivity"
+                    style="@style/Widget.SplitBill.SectionHeaderLink"
+                    android:text="@string/tvSeeAllFem" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvEmptyActivity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="12dp"
+                        android:padding="28dp"
+                        android:text="@string/tvEmptyActivity"
+                        android:textAlignment="center"
+                        android:textColor="@color/colorTextSecondary"
+                        android:visibility="gone"
+                        app:drawableTint="@color/colorStroke"
+                        app:drawableTopCompat="@drawable/ic_receipt" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvRecent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:itemCount="3"
+                        tools:listitem="@layout/item_expense" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <include layout="@layout/view_bottom_nav" />
+</LinearLayout>

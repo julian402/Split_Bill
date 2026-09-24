@@ -16,6 +16,7 @@ import java.util.List;
 
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.domain.Balance;
+import ue.edu.co.splitbill.domain.Transfer;
 import ue.edu.co.splitbill.model.SettlementResult;
 import ue.edu.co.splitbill.ui.Avatar;
 
@@ -59,6 +60,7 @@ public class BalanceAdapter extends RecyclerView.Adapter<BalanceAdapter.BalanceV
         private final TextView tvBalanceInitials;
         private final TextView tvBalanceName;
         private final TextView tvBalanceState;
+        private final TextView tvBalanceSubtitle;
         private final TextView tvBalanceAmount;
 
         BalanceViewHolder(View itemView) {
@@ -66,13 +68,16 @@ public class BalanceAdapter extends RecyclerView.Adapter<BalanceAdapter.BalanceV
             this.tvBalanceInitials = itemView.findViewById(R.id.tvBalanceInitials);
             this.tvBalanceName = itemView.findViewById(R.id.tvBalanceName);
             this.tvBalanceState = itemView.findViewById(R.id.tvBalanceState);
+            this.tvBalanceSubtitle = itemView.findViewById(R.id.tvBalanceSubtitle);
             this.tvBalanceAmount = itemView.findViewById(R.id.tvBalanceAmount);
         }
 
         void bind(Balance balance) {
             String userName = settlement.getUserName(balance.getUserId());
             Avatar.bind(this.tvBalanceInitials, userName);
+            this.tvBalanceInitials.setText(Avatar.getInitials(userName).substring(0, 1));
             this.tvBalanceName.setText(userName);
+            this.tvBalanceSubtitle.setText(subtitleFor(balance));
 
             int stateResourceId;
             int colorResourceId;
@@ -86,8 +91,8 @@ public class BalanceAdapter extends RecyclerView.Adapter<BalanceAdapter.BalanceV
                 colorResourceId = R.color.colorDebtor;
                 containerResourceId = R.color.colorDebtorContainer;
             } else {
-                stateResourceId = R.string.tvSettled;
-                colorResourceId = R.color.colorSettledBalance;
+                stateResourceId = R.string.tvBalanceZero;
+                colorResourceId = R.color.colorTextPrimary;
                 containerResourceId = R.color.colorSettledContainer;
             }
 
@@ -100,6 +105,27 @@ public class BalanceAdapter extends RecyclerView.Adapter<BalanceAdapter.BalanceV
             this.tvBalanceAmount.setTextColor(color);
             //Se muestra el valor absoluto: el estado ya dice si debe o le deben
             this.tvBalanceAmount.setText(balance.getAmount().abs().format());
+        }
+
+        /** "Recibe 1 transferencia", "Realiza 2 transferencias" o "Ya esta al dia". */
+        private String subtitleFor(Balance balance) {
+            int received = 0;
+            int made = 0;
+            for (Transfer transfer : settlement.getTransfers()) {
+                if (transfer.getToUserId().equals(balance.getUserId())) {
+                    received++;
+                }
+                if (transfer.getFromUserId().equals(balance.getUserId())) {
+                    made++;
+                }
+            }
+            if (received > 0) {
+                return itemView.getResources().getQuantityString(R.plurals.tvReceivesTransfers, received, received);
+            }
+            if (made > 0) {
+                return itemView.getResources().getQuantityString(R.plurals.tvMakesTransfers, made, made);
+            }
+            return itemView.getContext().getString(R.string.tvAlreadySettled);
         }
     }
 }

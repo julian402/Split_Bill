@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.profile.ProfileActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout style="@style/Widget.SplitBill.ScreenHeader">
+
+                <ImageView
+                    style="@style/Widget.SplitBill.HeaderButton"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_person_outline" />
+
+                <LinearLayout style="@style/Widget.SplitBill.ScreenHeaderTexts">
+
+                    <TextView
+                        style="@style/Widget.SplitBill.ScreenHeaderTitle"
+                        android:text="@string/tvTitleProfile" />
+
+                    <TextView
+                        style="@style/Widget.SplitBill.ScreenHeaderSubtitle"
+                        android:text="@string/tvProfileSubtitle" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Tarjeta con el avatar, el nombre y el email -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_hero_banner"
+                android:elevation="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/tvProfileAvatar"
+                    style="@style/Widget.SplitBill.Avatar"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:textSize="28sp"
+                    tools:text="J" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvProfileName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:textColor="@color/colorOnHero"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        tools:text="Julián Corredor" />
+
+                    <TextView
+                        android:id="@+id/tvProfileEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:drawablePadding="6dp"
+                        android:ellipsize="end"
+                        android:gravity="center_vertical"
+                        android:maxLines="1"
+                        android:textColor="@color/colorOnHeroSecondary"
+                        android:textSize="14sp"
+                        app:drawableStartCompat="@drawable/ic_mail"
+                        app:drawableTint="@color/colorOnHeroSecondary"
+                        tools:text="julian@correo.com" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Datos editables -->
+            <LinearLayout style="@style/Widget.SplitBill.SectionHeader">
+
+                <TextView
+                    style="@style/Widget.SplitBill.SectionHeaderTitle"
+                    android:text="@string/tvProfileData" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/etNames"
+                        app:startIconDrawable="@drawable/ic_person"
+                        app:startIconTint="@color/colorTextSecondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etProfileNames"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="name"
+                            android:inputType="textPersonName|textCapWords"
+                            android:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="@string/etPhone"
+                        app:startIconDrawable="@drawable/ic_phone"
+                        app:startIconTint="@color/colorTextSecondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etProfilePhone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="phone"
+                            android:inputType="phone"
+                            android:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/tvProfileOnlineHint"
+                        android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle" />
+
+                    <Button
+                        android:id="@+id/btnSaveProfile"
+                        style="@style/Widget.SplitBill.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/btnSaveChanges"
+                        app:icon="@drawable/ic_save" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Sincronizacion -->
+            <LinearLayout style="@style/Widget.SplitBill.SectionHeader">
+
+                <TextView
+                    style="@style/Widget.SplitBill.SectionHeaderTitle"
+                    android:text="@string/tvProfileSync" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/Widget.SplitBill.FieldCard"
+                android:layout_width="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_card">
+
+                <ImageView
+                    style="@style/Widget.SplitBill.IconCircle"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_sync" />
+
+                <LinearLayout style="@style/Widget.SplitBill.FieldTexts">
+
+                    <TextView
+                        style="@style/Widget.SplitBill.FieldLabelText"
+                        android:text="@string/tvProfileSyncLabel" />
+
+                    <TextView
+                        android:id="@+id/tvSyncStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="@style/TextAppearance.SplitBill.FieldValue"
+                        android:textSize="15sp"
+                        tools:text="@string/tvSynced" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnSync"
+                    style="@style/Widget.SplitBill.Button.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btnSyncNow" />
+            </LinearLayout>
+
+            <!-- Sesion -->
+            <Button
+                android:id="@+id/btnLogout"
+                style="@style/Widget.SplitBill.Button.Tonal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="22dp"
+                android:layout_marginEnd="16dp"
+                android:text="@string/btnLogout"
+                android:textColor="@color/colorDebtor"
+                app:backgroundTint="@color/colorDebtorContainer"
+                app:icon="@drawable/ic_logout"
+                app:iconTint="@color/colorDebtor" />
+
+            <TextView
+                android:id="@+id/tvAppVersion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle"
+                tools:text="SplitBill 1.0" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <include layout="@layout/view_bottom_nav" />
+</LinearLayout>

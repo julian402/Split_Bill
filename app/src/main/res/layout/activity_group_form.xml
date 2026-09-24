@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.group.GroupFormActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/svForm"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="12dp">
+
+            <LinearLayout style="@style/Widget.SplitBill.ScreenHeader">
+
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    style="@style/Widget.SplitBill.HeaderButton"
+                    android:contentDescription="@string/cdBack"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="@color/colorTextPrimary" />
+
+                <LinearLayout style="@style/Widget.SplitBill.ScreenHeaderTexts">
+
+                    <TextView
+                        android:id="@+id/tvFormTitle"
+                        style="@style/Widget.SplitBill.ScreenHeaderTitle"
+                        android:text="@string/tvTitleNewGroup" />
+
+                    <TextView
+                        android:id="@+id/tvFormSubtitle"
+                        style="@style/Widget.SplitBill.ScreenHeaderSubtitle"
+                        android:text="@string/tvNewGroupSubtitle" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Tarjeta destacada con los dos atajos para agregar gente -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_hero_banner"
+                android:elevation="6dp"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvHeroTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="100dp"
+                        android:text="@string/tvCreateYourGroup"
+                        android:textColor="@color/colorOnHero"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvHeroSubtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginEnd="100dp"
+                        android:text="@string/tvCreateYourGroupHint"
+                        android:textColor="@color/colorOnHeroSecondary"
+                        android:textSize="15sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btnFocusMember"
+                            style="@style/Widget.SplitBill.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="52dp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:text="@string/btnAddMember"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="14sp"
+                            app:backgroundTint="@color/colorCard"
+                            app:icon="@drawable/ic_person_add"
+                            app:iconPadding="6dp"
+                            app:iconTint="@color/colorPrimary" />
+
+                        <Button
+                            android:id="@+id/btnAddFromContacts"
+                            style="@style/Widget.SplitBill.Button.OnHero"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="52dp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:text="@string/btnImportContacts"
+                            app:icon="@drawable/ic_contacts" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <include
+                    android:id="@+id/heroDeco"
+                    layout="@layout/view_hero_deco"
+                    android:layout_width="96dp"
+                    android:layout_height="88dp"
+                    android:layout_gravity="end|top" />
+            </FrameLayout>
+
+            <!-- Nombre del grupo -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tvGroupNameLabel"
+                        android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilGroupName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="@string/hintGroupName"
+                        app:endIconMode="clear_text"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_group"
+                        app:startIconTint="@color/colorTextSecondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etGroupName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/hintGroupName"
+                            android:imeOptions="actionNext"
+                            android:inputType="textCapSentences"
+                            android:maxLength="100"
+                            android:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Integrantes: contador y estado -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingTop="22dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/btnMembers"
+                    android:textAppearance="@style/TextAppearance.SplitBill.SectionTitle" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvMemberCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.SplitBill.Link"
+                        tools:text="3 integrantes" />
+
+                    <TextView
+                        android:id="@+id/tvReady"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:drawablePadding="6dp"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/colorCreditor"
+                        android:textSize="13sp"
+                        app:drawableStartCompat="@drawable/bg_ready_dot"
+                        tools:text="@string/tvReadyToStart" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Formulario en linea: nombre + telefono -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/etMemberNames"
+                                android:textAppearance="@style/TextAppearance.SplitBill.FieldLabel" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                app:hintEnabled="false"
+                                app:startIconDrawable="@drawable/ic_person"
+                                app:startIconTint="@color/colorTextSecondary">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etMemberNames"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/etNames"
+                                    android:imeOptions="actionNext"
+                                    android:inputType="textPersonName|textCapWords"
+                                    android:maxLines="1" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/etMemberPhone"
+                                android:textAppearance="@style/TextAppearance.SplitBill.FieldLabel" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                app:hintEnabled="false"
+                                app:startIconDrawable="@drawable/ic_phone"
+                                app:startIconTint="@color/colorTextSecondary">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etMemberPhone"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/hintPhoneExample"
+                                    android:imeOptions="actionDone"
+                                    android:inputType="phone"
+                                    android:maxLines="1" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnSaveMember"
+                        style="@style/Widget.SplitBill.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/btnAddMember"
+                        app:icon="@drawable/ic_person_add" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <Button
+                android:id="@+id/btnClaimMember"
+                style="@style/Widget.SplitBill.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="4dp"
+                android:text="@string/btnClaimMember"
+                android:visibility="gone"
+                app:icon="@drawable/ic_person"
+                tools:visibility="visible" />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/pbLoading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:trackCornerRadius="4dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMembers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_member" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <Button
+        android:id="@+id/btnSaveGroup"
+        style="@style/Widget.SplitBill.Button.Big"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/btnSaveGroup"
+        app:icon="@drawable/ic_save" />
+
+    <include layout="@layout/view_bottom_nav" />
+</LinearLayout>

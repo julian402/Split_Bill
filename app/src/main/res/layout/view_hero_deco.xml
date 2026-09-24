@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Adorno de las tarjetas con degradado: dos cuadros traslucidos girados y uno blanco con un icono.
+    La pantalla cambia el icono con ivHeroDecoIcon (grafico en el inicio, flechas en la liquidacion).
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="96dp"
+    android:layout_height="88dp"
+    android:importantForAccessibility="noHideDescendants">
+
+    <View
+        android:layout_width="62dp"
+        android:layout_height="62dp"
+        android:layout_gravity="start|bottom"
+        android:layout_marginBottom="2dp"
+        android:background="@drawable/bg_glass"
+        android:rotation="-10" />
+
+    <View
+        android:layout_width="62dp"
+        android:layout_height="62dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/bg_glass"
+        android:rotation="-4" />
+
+    <ImageView
+        android:id="@+id/ivHeroDecoIcon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_glass_solid"
+        android:contentDescription="@null"
+        android:elevation="6dp"
+        android:padding="15dp"
+        android:rotation="8"
+        android:src="@drawable/ic_bar_chart"
+        app:tint="@color/colorPrimary" />
+</FrameLayout>

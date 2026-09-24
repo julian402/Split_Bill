@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -16,7 +17,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.material.textfield.TextInputLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.math.BigDecimal;
@@ -53,7 +53,8 @@ public class QuickSplitActivity extends BaseActivity {
     private static final int DEFAULT_PEOPLE = 4;
     private static final String DEFAULT_TIP = "10";
 
-    private TextInputLayout tilQuickTotal;
+    private ImageButton btnScanReceipt;
+    private View rowSplitType;
     private EditText etQuickTotal;
     private EditText etTipPercentage;
     private TextView tvTotalWithTip;
@@ -74,6 +75,11 @@ public class QuickSplitActivity extends BaseActivity {
 
     /** Abre el escaner y recibe el total que el usuario confirmo. */
     private ActivityResultLauncher<Intent> scanLauncher;
+
+    @Override
+    protected int getNavItem() {
+        return R.id.navHome;
+    }
 
     @Override
     protected int getLayoutResourceId() {
@@ -102,7 +108,8 @@ public class QuickSplitActivity extends BaseActivity {
         this.btnPlus.setOnClickListener(this::addPerson);
         this.btnCalculate.setOnClickListener(this::calculateSplit);
         this.btnSaveAsExpense.setOnClickListener(this::saveAsExpense);
-        this.tilQuickTotal.setEndIconOnClickListener(this::scanReceipt);
+        this.btnScanReceipt.setOnClickListener(this::scanReceipt);
+        this.rowSplitType.setOnClickListener(view -> this.spSplitType.performClick());
 
         //El total con propina se recalcula mientras el usuario escribe
         SimpleTextWatcher recalcular = new SimpleTextWatcher() {
@@ -250,7 +257,8 @@ public class QuickSplitActivity extends BaseActivity {
 
     @Override
     protected void initObjects() {
-        this.tilQuickTotal = findViewById(R.id.tilQuickTotal);
+        this.btnScanReceipt = findViewById(R.id.btnScanReceipt);
+        this.rowSplitType = findViewById(R.id.rowSplitType);
         this.etQuickTotal = findViewById(R.id.etQuickTotal);
         this.etTipPercentage = findViewById(R.id.etTipPercentage);
         this.tvTotalWithTip = findViewById(R.id.tvTotalWithTip);
@@ -268,7 +276,7 @@ public class QuickSplitActivity extends BaseActivity {
 
         //Spinner de tipos de division: el mismo arreglo que usa la pantalla de gastos
         ArrayAdapter<CharSequence> splitTypeAdapter = ArrayAdapter.createFromResource(
-                this, R.array.splitTypes, R.layout.item_spinner);
+                this, R.array.splitTypes, R.layout.item_spinner_plain);
         splitTypeAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         this.spSplitType.setAdapter(splitTypeAdapter);
 

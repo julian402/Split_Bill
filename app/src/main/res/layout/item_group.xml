@@ -1,64 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Tarjeta de un grupo: avatar, nombre, integrantes, avatares pequenos, estado y saldo propio.
+    En el inicio va en un carrusel horizontal (ancho fijo); en Grupos, a lo ancho de la pantalla.
+-->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardGroup"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
+    android:layout_marginStart="6dp"
     android:layout_marginTop="6dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginBottom="6dp"
-    android:checkable="true"
+    android:layout_marginEnd="6dp"
+    android:layout_marginBottom="10dp"
     android:clickable="true"
     android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingTop="14dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="14dp">
-
-        <TextView
-            android:id="@+id/tvGroupInitials"
-            style="@style/Widget.SplitBill.Avatar"
-            tools:text="VI" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tvGroupName"
-                android:layout_width="match_parent"
+                android:id="@+id/tvGroupAvatar"
+                style="@style/Widget.SplitBill.Avatar"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:textSize="20sp"
+                tools:text="V" />
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
-                tools:text="Viaje a Cartagena" />
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvGroupName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textAppearance="@style/TextAppearance.SplitBill.ItemTitle"
+                    tools:text="Viaje a Cartagena" />
+
+                <TextView
+                    android:id="@+id/tvGroupMembers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle"
+                    tools:text="3 integrantes" />
+            </LinearLayout>
+
+            <!-- Menu del grupo: renombrar (solo el dueno) o ver integrantes -->
+            <ImageButton
+                android:id="@+id/btnGroupMenu"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cdGroupMenu"
+                android:src="@drawable/ic_more_vert"
+                app:tint="@color/colorTextSecondary"
+                xmlns:app="http://schemas.android.com/apk/res-auto" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Hasta tres avatares pequenos y "+N" con los demas -->
+            <LinearLayout
+                android:id="@+id/llMemberAvatars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
 
             <TextView
-                android:id="@+id/tvGroupMembers"
-                android:layout_width="match_parent"
+                android:id="@+id/tvGroupCurrent"
+                style="@style/Widget.SplitBill.Chip.Primary"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle"
-                tools:text="4 integrantes · Actual" />
+                android:layout_marginStart="8dp"
+                android:text="@string/tvCurrentGroup"
+                android:visibility="gone"
+                tools:visibility="visible" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvGroupTotal"
+            android:id="@+id/tvGroupStatus"
+            style="@style/Widget.SplitBill.Chip.Negative"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textAppearance="@style/TextAppearance.SplitBill.Amount"
-            tools:text="$ 180.000,00" />
+            android:layout_marginTop="12dp"
+            tools:text="Te deben" />
+
+        <TextView
+            android:id="@+id/tvGroupBalance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:maxLines="1"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="$ 283.344,00" />
+
+        <TextView
+            android:id="@+id/tvGroupTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle"
+            tools:text="Total del grupo: $ 566.688,00" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

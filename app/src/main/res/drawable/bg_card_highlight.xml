@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tarjeta del monto: igual a bg_card pero con borde lila -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="24dp" />
+    <solid android:color="@color/colorCard" />
+    <stroke android:width="1.5dp" android:color="@color/colorHighlightStroke" />
+</shape>

@@ -7,9 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.card.MaterialCardView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,6 +26,7 @@ import java.util.Set;
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.entity.User;
+import ue.edu.co.splitbill.ui.Avatar;
 import ue.edu.co.splitbill.ui.SimpleTextWatcher;
 
 /**
@@ -37,6 +42,11 @@ import ue.edu.co.splitbill.ui.SimpleTextWatcher;
  */
 public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.ParticipantViewHolder> {
 
+    /** Aviso de que cambio lo marcado o lo digitado: la pantalla recalcula la division estimada. */
+    public interface OnParticipantsChangedListener {
+        void onParticipantsChanged();
+    }
+
     private static final String KEY_SELECTED = "participantSelected";
     private static final String KEY_VALUE_IDS = "participantValueIds";
     private static final String KEY_VALUE_TEXTS = "participantValueTexts";
@@ -47,6 +57,52 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
 
     private SplitType splitType = SplitType.EQUAL;
     private boolean loaded;
+    private OnParticipantsChangedListener changedListener;
+
+    public void setOnParticipantsChangedListener(OnParticipantsChangedListener changedListener) {
+        this.changedListener = changedListener;
+    }
+
+    private void notifyChanged() {
+        if (this.changedListener != null) {
+            this.changedListener.onParticipantsChanged();
+        }
+    }
+
+    /** "Seleccionar todos": marca a todos; si ya estaban todos, los desmarca. */
+    public void toggleAll() {
+        if (this.selectedIds.size() == this.participants.size()) {
+            this.selectedIds.clear();
+            this.typedValues.clear();
+        } else {
+            for (User user : this.participants) {
+                this.selectedIds.add(user.getId());
+            }
+        }
+        notifyDataSetChanged();
+        notifyChanged();
+    }
+
+    public SplitType getSplitType() {
+        return this.splitType;
+    }
+
+    /** Suma de lo digitado por los marcados (montos o porcentajes); lo que no es numero cuenta cero. */
+    public BigDecimal sumTypedValues() {
+        BigDecimal sum = BigDecimal.ZERO;
+        for (String userId : getSelectedUserIds()) {
+            String typed = this.typedValues.get(userId);
+            if (typed == null || typed.trim().isEmpty()) {
+                continue;
+            }
+            try {
+                sum = sum.add(new BigDecimal(typed.trim()));
+            } catch (NumberFormatException e) {
+                //todavia lo esta escribiendo: no suma
+            }
+        }
+        return sum;
+    }
 
     /**
      * Carga o recarga la lista de integrantes.
@@ -86,6 +142,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
             this.participants.addAll(participants);
         }
         notifyDataSetChanged();
+        notifyChanged();
     }
 
     /**
@@ -99,6 +156,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         this.typedValues.putAll(values);
         this.loaded = true;
         notifyDataSetChanged();
+        notifyChanged();
     }
 
     /**
@@ -112,6 +170,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
     public void setSplitType(SplitType splitType) {
         this.splitType = splitType;
         notifyDataSetChanged();
+        notifyChanged();
     }
 
     /**
@@ -153,6 +212,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         }
         this.loaded = true;
         notifyDataSetChanged();
+        notifyChanged();
     }
 
     /** Integrantes marcados, en el orden en que aparecen en pantalla. */
@@ -214,25 +274,40 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
 
     class ParticipantViewHolder extends RecyclerView.ViewHolder {
 
+        private final MaterialCardView cardParticipant;
         private final CheckBox cbParticipant;
+        private final TextView tvParticipantAvatar;
+        private final TextView tvParticipantName;
         private final EditText etParticipantValue;
         private SimpleTextWatcher valueWatcher;
 
         ParticipantViewHolder(View itemView) {
             super(itemView);
+            this.cardParticipant = itemView.findViewById(R.id.cardParticipant);
             this.cbParticipant = itemView.findViewById(R.id.cbParticipant);
+            this.tvParticipantAvatar = itemView.findViewById(R.id.tvParticipantAvatar);
+            this.tvParticipantName = itemView.findViewById(R.id.tvParticipantName);
             this.etParticipantValue = itemView.findViewById(R.id.etParticipantValue);
+        }
+
+        /** La tarjeta marcada lleva borde lila; la desmarcada, gris. */
+        private void showChecked(boolean checked) {
+            this.cbParticipant.setChecked(checked);
+            this.cardParticipant.setStrokeColor(ContextCompat.getColor(itemView.getContext(),
+                    checked ? R.color.colorHighlightStroke : R.color.colorStroke));
+            this.etParticipantValue.setEnabled(checked);
         }
 
         void bind(final User user) {
             //Se sueltan los listeners antes de cambiar el contenido para que no se disparen solos
-            this.cbParticipant.setOnCheckedChangeListener(null);
+            this.cardParticipant.setOnClickListener(null);
             if (this.valueWatcher != null) {
                 this.etParticipantValue.removeTextChangedListener(this.valueWatcher);
             }
 
-            this.cbParticipant.setText(user.getNames());
-            this.cbParticipant.setChecked(selectedIds.contains(user.getId()));
+            Avatar.bind(this.tvParticipantAvatar, user.getNames());
+            this.tvParticipantAvatar.setText(Avatar.getInitials(user.getNames()).substring(0, 1));
+            this.tvParticipantName.setText(user.getNames());
 
             boolean needsValue = splitType != SplitType.EQUAL;
             this.etParticipantValue.setVisibility(needsValue ? View.VISIBLE : View.GONE);
@@ -241,9 +316,11 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
                     : R.string.hintValueExact);
             String typed = typedValues.get(user.getId());
             this.etParticipantValue.setText(typed == null ? "" : typed);
-            this.etParticipantValue.setEnabled(selectedIds.contains(user.getId()));
+            showChecked(selectedIds.contains(user.getId()));
 
-            this.cbParticipant.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            //toda la tarjeta marca o desmarca al participante
+            this.cardParticipant.setOnClickListener(view -> {
+                boolean isChecked = !selectedIds.contains(user.getId());
                 if (isChecked) {
                     selectedIds.add(user.getId());
                 } else {
@@ -251,13 +328,15 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
                     typedValues.remove(user.getId());
                     etParticipantValue.setText("");
                 }
-                etParticipantValue.setEnabled(isChecked);
+                showChecked(isChecked);
+                notifyChanged();
             });
 
             this.valueWatcher = new SimpleTextWatcher() {
                 @Override
                 public void afterTextChanged(Editable s) {
                     typedValues.put(user.getId(), s.toString());
+                    notifyChanged();
                 }
             };
             this.etParticipantValue.addTextChangedListener(this.valueWatcher);

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Barra inferior de las pantallas principales: Inicio, Grupos, (+), Actividad y Perfil.
+    Se incluye al final del layout con <include layout="@layout/view_bottom_nav" />; BaseActivity la
+    configura si la pantalla devuelve su pestana en getNavItem().
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottomNav"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <LinearLayout
+        android:id="@+id/navBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_bottom_nav"
+        android:elevation="16dp"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <LinearLayout
+            android:id="@+id/navHome"
+            style="@style/Widget.SplitBill.NavItem">
+
+            <ImageView
+                android:id="@+id/navHomeIcon"
+                style="@style/Widget.SplitBill.NavIcon"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_home" />
+
+            <TextView
+                android:id="@+id/navHomeLabel"
+                style="@style/Widget.SplitBill.NavLabel"
+                android:text="@string/navHome" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navGroups"
+            style="@style/Widget.SplitBill.NavItem">
+
+            <ImageView
+                android:id="@+id/navGroupsIcon"
+                style="@style/Widget.SplitBill.NavIcon"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_group" />
+
+            <TextView
+                android:id="@+id/navGroupsLabel"
+                style="@style/Widget.SplitBill.NavLabel"
+                android:text="@string/navGroups" />
+        </LinearLayout>
+
+        <!-- Hueco del boton + -->
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/navActivity"
+            style="@style/Widget.SplitBill.NavItem">
+
+            <ImageView
+                android:id="@+id/navActivityIcon"
+                style="@style/Widget.SplitBill.NavIcon"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_list" />
+
+            <TextView
+                android:id="@+id/navActivityLabel"
+                style="@style/Widget.SplitBill.NavLabel"
+                android:text="@string/navActivity" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navProfile"
+            style="@style/Widget.SplitBill.NavItem">
+
+            <ImageView
+                android:id="@+id/navProfileIcon"
+                style="@style/Widget.SplitBill.NavIcon"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_person_outline" />
+
+            <TextView
+                android:id="@+id/navProfileLabel"
+                style="@style/Widget.SplitBill.NavLabel"
+                android:text="@string/navProfile" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Boton + del centro: registra un gasto en el grupo actual. Borde blanco como en el diseno -->
+    <FrameLayout
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:layout_gravity="top|center_horizontal"
+        android:background="@drawable/bg_circle_white"
+        android:elevation="18dp"
+        android:padding="6dp">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnNavAdd"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/cdAddExpense"
+            android:src="@drawable/ic_add"
+            app:backgroundTint="@color/colorPrimary"
+            app:elevation="0dp"
+            app:fabCustomSize="64dp"
+            app:maxImageSize="32dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.SplitBill.Circle"
+            app:tint="@color/colorOnPrimary" />
+    </FrameLayout>
+</FrameLayout>

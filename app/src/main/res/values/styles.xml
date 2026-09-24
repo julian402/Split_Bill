@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Botón principal: esquinas redondeadas y altura cómoda para el dedo -->
     <style name="Widget.SplitBill.Button" parent="Widget.Material3.Button">
         <item name="cornerRadius">16dp</item>
@@ -64,13 +64,15 @@
         <item name="boxBackgroundColor">@color/colorCard</item>
     </style>
 
-    <!-- Tarjeta plana con borde fino, sin sombra -->
+    <!-- Tarjeta blanca con sombra lila muy suave (en modo oscuro, un borde fino) -->
     <style name="Widget.SplitBill.Card" parent="Widget.Material3.CardView.Outlined">
-        <item name="cardCornerRadius">20dp</item>
-        <item name="cardElevation">0dp</item>
+        <item name="cardCornerRadius">22dp</item>
+        <item name="cardElevation">3dp</item>
         <item name="cardBackgroundColor">@color/colorCard</item>
-        <item name="strokeColor">@color/colorStroke</item>
+        <item name="strokeColor">@color/colorCardStroke</item>
         <item name="strokeWidth">1dp</item>
+        <item name="android:outlineSpotShadowColor" tools:targetApi="p">@color/colorShadow</item>
+        <item name="android:outlineAmbientShadowColor" tools:targetApi="p">@color/colorShadow</item>
     </style>
 
     <!-- Barra superior de las pantallas secundarias -->
@@ -129,6 +131,419 @@
         <item name="android:paddingBottom">3dp</item>
         <item name="android:textSize">11sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <!-- ============================ Rediseno ============================ -->
+
+    <!-- Encabezado de cada pantalla: titulo grande y subtitulo gris -->
+    <style name="TextAppearance.SplitBill.HeaderTitle" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
+
+    <style name="TextAppearance.SplitBill.HeaderSubtitle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/colorTextSecondary</item>
+    </style>
+
+    <!-- Titulo de cada seccion ("Tus grupos", "Participantes") -->
+    <style name="TextAppearance.SplitBill.SectionTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
+
+    <!-- Enlace de la derecha de una seccion ("Ver todos") -->
+    <style name="TextAppearance.SplitBill.Link" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <!-- Etiqueta pequena y valor de los campos tipo tarjeta -->
+    <style name="TextAppearance.SplitBill.FieldLabel" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/colorTextSecondary</item>
+    </style>
+
+    <style name="TextAppearance.SplitBill.FieldValue" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
+
+    <!-- Boton cuadrado del encabezado: atras, campana, mas opciones -->
+    <style name="Widget.SplitBill.HeaderButton" parent="">
+        <item name="android:layout_width">52dp</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:background">@drawable/bg_square_button</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:elevation">2dp</item>
+        <item name="tint">@color/colorPrimary</item>
+    </style>
+
+    <!-- Icono dentro de un circulo lila -->
+    <style name="Widget.SplitBill.IconCircle" parent="">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:background">@drawable/bg_icon_circle</item>
+        <item name="android:backgroundTint">@color/colorIconCircle</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="tint">@color/colorPrimary</item>
+    </style>
+
+    <!-- Etiquetas de estado: le deben, debe, al dia, administrador -->
+    <style name="Widget.SplitBill.Chip" parent="Widget.SplitBill.Pill">
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="Widget.SplitBill.Chip.Positive">
+        <item name="android:backgroundTint">@color/colorCreditorContainer</item>
+        <item name="android:textColor">@color/colorCreditor</item>
+    </style>
+
+    <style name="Widget.SplitBill.Chip.Negative">
+        <item name="android:backgroundTint">@color/colorDebtorContainer</item>
+        <item name="android:textColor">@color/colorDebtor</item>
+    </style>
+
+    <style name="Widget.SplitBill.Chip.Neutral">
+        <item name="android:backgroundTint">@color/colorSettledContainer</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
+
+    <style name="Widget.SplitBill.Chip.Primary">
+        <item name="android:backgroundTint">@color/colorIconCircle</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <!-- Boton principal grande del final de cada formulario -->
+    <style name="Widget.SplitBill.Button.Big">
+        <item name="cornerRadius">20dp</item>
+        <item name="android:minHeight">60dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="iconSize">24dp</item>
+        <item name="iconPadding">12dp</item>
+        <item name="iconGravity">textStart</item>
+    </style>
+
+    <!-- Boton lila pequeno dentro de una tarjeta ("Compartir", "Pagado") -->
+    <style name="Widget.SplitBill.Button.Small" parent="Widget.Material3.Button.TonalButton">
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="backgroundTint">@color/colorIconCircle</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="iconTint">@color/colorPrimary</item>
+        <item name="iconSize">18dp</item>
+        <item name="iconPadding">6dp</item>
+    </style>
+
+    <!-- Campo de texto sin borde, dentro de un campo tipo tarjeta -->
+    <style name="Widget.SplitBill.PlainInput" parent="">
+        <item name="android:background">@null</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+        <item name="android:textColorHint">@color/colorTextSecondary</item>
+    </style>
+
+    <!-- Encabezado de las pantallas: boton de atras, titulo y subtitulo -->
+    <style name="Widget.SplitBill.ScreenHeader" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingBottom">10dp</item>
+    </style>
+
+    <style name="Widget.SplitBill.ScreenHeaderTexts" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="Widget.SplitBill.ScreenHeaderTitle" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">@style/TextAppearance.SplitBill.HeaderTitle</item>
+    </style>
+
+    <style name="Widget.SplitBill.ScreenHeaderSubtitle" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">@style/TextAppearance.SplitBill.HeaderSubtitle</item>
+    </style>
+
+    <!-- Campo tipo tarjeta: icono en circulo, etiqueta pequena y valor (descripcion, pagador...) -->
+    <style name="Widget.SplitBill.FieldCard" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">76dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:elevation">1dp</item>
+    </style>
+
+    <style name="Widget.SplitBill.FieldTexts" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">14dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="Widget.SplitBill.FieldLabelText" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">@style/TextAppearance.SplitBill.FieldLabel</item>
+    </style>
+
+    <style name="Widget.SplitBill.FieldChevron" parent="">
+        <item name="android:layout_width">28dp</item>
+        <item name="android:layout_height">28dp</item>
+        <item name="android:src">@drawable/ic_expand_more</item>
+        <item name="tint">@color/colorTextSecondary</item>
+    </style>
+
+    <!-- Lista de seleccion sin borde, dentro de un campo tipo tarjeta -->
+    <style name="Widget.SplitBill.Spinner.Plain" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@null</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:popupBackground">@drawable/bg_popup</item>
+        <item name="android:dropDownVerticalOffset">36dp</item>
+        <item name="android:popupElevation">6dp</item>
+    </style>
+
+    <!-- Cifras del resumen de la liquidacion -->
+    <style name="Widget.SplitBill.SummaryStat" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingStart">6dp</item>
+        <item name="android:paddingEnd">6dp</item>
+    </style>
+
+    <style name="Widget.SplitBill.SummaryStatIcon" parent="Widget.SplitBill.IconCircle">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:padding">11dp</item>
+    </style>
+
+    <style name="Widget.SplitBill.SummaryStatLabel" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/colorTextSecondary</item>
+    </style>
+
+    <style name="Widget.SplitBill.SummaryStatValue" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMinTextSize">10sp</item>
+        <item name="autoSizeMaxTextSize">15sp</item>
+    </style>
+
+    <!-- Pestanas del inicio (Inicio / Grupos / Cuenta rapida) -->
+    <style name="Widget.SplitBill.Segment" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:drawablePadding">6dp</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">6dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/colorTextSecondary</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="drawableTint">@color/colorTextSecondary</item>
+    </style>
+
+    <!-- Cada cifra de la franja del degradado del inicio -->
+    <style name="Widget.SplitBill.HeroStat" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">6dp</item>
+    </style>
+
+    <style name="Widget.SplitBill.HeroStatLabel" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:drawablePadding">5dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/colorOnHeroSecondary</item>
+        <item name="drawableTint">@color/colorOnHero</item>
+    </style>
+
+    <style name="Widget.SplitBill.HeroStatValue" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/colorOnHero</item>
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMinTextSize">10sp</item>
+        <item name="autoSizeMaxTextSize">15sp</item>
+    </style>
+
+    <!-- Botones grandes del inicio: "Crear grupo" y "Cuenta rapida" -->
+    <style name="Widget.SplitBill.ActionCard" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:minHeight">84dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:padding">14dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="Widget.SplitBill.ActionCardIcon" parent="">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <style name="Widget.SplitBill.ActionCardTitle" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.SplitBill.ActionCardSubtitle" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- Encabezado de seccion: titulo a la izquierda y enlace "Ver todos" a la derecha -->
+    <style name="Widget.SplitBill.SectionHeader" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingTop">22dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingBottom">6dp</item>
+    </style>
+
+    <style name="Widget.SplitBill.SectionHeaderTitle" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textAppearance">@style/TextAppearance.SplitBill.SectionTitle</item>
+    </style>
+
+    <style name="Widget.SplitBill.SectionHeaderLink" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">4dp</item>
+        <item name="android:drawablePadding">2dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:textAppearance">@style/TextAppearance.SplitBill.Link</item>
+        <item name="drawableEndCompat">@drawable/ic_chevron_right</item>
+        <item name="drawableTint">@color/colorPrimary</item>
+    </style>
+
+    <!-- Barra inferior: cada pestana es un icono con su nombre debajo -->
+    <style name="Widget.SplitBill.NavItem" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
+
+    <style name="Widget.SplitBill.NavIcon" parent="">
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">34dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="tint">@color/colorTextSecondary</item>
+    </style>
+
+    <style name="Widget.SplitBill.NavLabel" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">3dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/colorTextSecondary</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="ShapeAppearance.SplitBill.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 
     <!-- Lista de selección con el mismo borde que los campos de texto -->

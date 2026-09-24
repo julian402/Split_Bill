@@ -1,5 +1,6 @@
 package ue.edu.co.splitbill.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -8,6 +9,7 @@ import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
 import ue.edu.co.splitbill.entity.SyncStatus;
+import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
 import ue.edu.co.splitbill.session.SessionManager;
@@ -46,14 +48,31 @@ public class GroupRepository extends BaseRepository {
         return this.sessionManager.getUserId();
     }
 
-    /** Grupos activos con su total y cantidad de integrantes, por nombre. */
+    /** Cuantos avatares pequenos se pintan en cada tarjeta de grupo. */
+    private static final int AVATARS_PER_GROUP = 3;
+
+    /** Grupos activos con su total, su gente y el saldo de la persona, por nombre. */
     public void getGroups(DataCallback<List<GroupListItem>> callback) {
         runAsync(new Callable<List<GroupListItem>>() {
             @Override
             public List<GroupListItem> call() {
-                return database.groupDao().findActiveWithTotals(getCurrentUserId());
+                List<GroupListItem> groups = database.groupDao().findActiveWithTotals(getCurrentUserId());
+                fillMemberNames(database, groups);
+                return groups;
             }
         }, callback);
+    }
+
+    /** Los nombres de los primeros integrantes de cada grupo, para los avatares de su tarjeta. */
+    static void fillMemberNames(SplitBillDatabase database, List<GroupListItem> groups) {
+        for (GroupListItem group : groups) {
+            List<User> users = database.groupMemberDao().findActiveUsers(group.getGroupId());
+            List<String> names = new ArrayList<>();
+            for (int i = 0; i < users.size() && i < AVATARS_PER_GROUP; i++) {
+                names.add(users.get(i).getNames());
+            }
+            group.setMemberNames(names);
+        }
     }
 
     /** El grupo actual, para mostrar su nombre en la pantalla principal. */
@@ -71,16 +90,22 @@ public class GroupRepository extends BaseRepository {
     }
 
     /**
-     * Crea un grupo con la persona como duena e integrante, y lo deja como grupo actual.
+     * Crea un grupo con la persona como duena e integrante, mas los integrantes que haya escrito en
+     * el formulario, y lo deja como grupo actual. Todo va en una sola transaccion: o queda el grupo
+     * con su gente, o no queda nada.
      *
+     * @param members personas nuevas (sin cuenta) que entran al grupo; puede ir vacia
      * @param callback recibe el grupo creado
      */
-    public void createGroup(final String name, DataCallback<Group> callback) {
+    public void createGroup(final String name, final List<User> members, DataCallback<Group> callback) {
         runAsync(new Callable<Group>() {
             @Override
             public Group call() {
                 final Group group = new Group(name == null ? null : name.trim(), DatabaseContract.DEFAULT_GROUP_CURRENCY);
                 group.validar();
+                for (User member : members) {
+                    member.validar();
+                }
                 final String userId = sessionManager.getUserId();
                 group.setOwnerId(userId);
                 database.runInTransaction(new Runnable() {
@@ -89,6 +114,11 @@ public class GroupRepository extends BaseRepository {
                         database.groupDao().insert(group);
                         //el servidor agrega al creador como integrante: por eso ya queda sincronizado
                         database.groupMemberDao().upsert(new GroupMember(group.getId(), userId, SyncStatus.SYNCED));
+                        for (User member : members) {
+                            database.userDao().insert(member);
+                            database.groupMemberDao().upsert(new GroupMember(group.getId(), member.getId(),
+                                    SyncStatus.PENDING_CREATE));
+                        }
                     }
                 });
                 sessionManager.setCurrentGroupId(group.getId());

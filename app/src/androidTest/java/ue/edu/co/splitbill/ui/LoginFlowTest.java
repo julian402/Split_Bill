@@ -36,16 +36,16 @@ public class LoginFlowTest extends UiTestSupport {
     }
 
     /**
-     * Con la clave correcta entra a la pantalla principal. Como el servidor no tiene grupos para
-     * esta persona, la app le crea "Mi grupo" y la deja como integrante.
+     * Con la clave correcta entra al inicio. Como el servidor no tiene grupos para esta persona, la
+     * app le crea "Mi grupo" y la deja como integrante; el grupo aparece en "Tus grupos".
      */
     @Test
     public void correctPasswordOpensTheGroup() {
         try (ActivityScenario<LoginActivity> ignored = ActivityScenario.launch(LoginActivity.class)) {
             login("julian@test.co", FakeBackend.PASSWORD);
 
-            onView(withId(R.id.tvAppGreeting)).check(matches(withText("Hola, " + FakeBackend.USER_NAMES)));
-            onView(withId(R.id.tvTitle)).check(matches(withText("Mi grupo")));
+            onView(withId(R.id.tvGreeting)).check(matches(withText("Hola, " + FakeBackend.USER_NAMES)));
+            onView(withText("Mi grupo")).check(matches(isDisplayed()));
             assertNotNull(this.sessionManager.getToken());
             assertEquals(1, this.database.groupMemberDao().countActive(this.sessionManager.getCurrentGroupId()));
         }

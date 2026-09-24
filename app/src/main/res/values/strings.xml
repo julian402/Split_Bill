@@ -40,6 +40,7 @@
 
     <!-- Pantalla de cuenta rápida -->
     <string name="tvTitleQuickSplit">Cuenta rápida</string>
+    <string name="tvQuickSubtitle">Divide una cuenta en segundos</string>
     <string name="tvQuickIntro">Divide una cuenta al momento, sin registrar integrantes ni quién pagó.</string>
     <string name="etQuickTotal">Total de la cuenta</string>
     <string name="etTipPercentage">Propina</string>
@@ -60,7 +61,6 @@
     <string name="tvBalancesLabel">Saldo de cada integrante</string>
     <string name="tvTransfersLabel">Transferencias sugeridas</string>
     <string name="tvAllSettled">El grupo está a paz y salvo.</string>
-    <string name="tvTransferSummary">%1$d transferencia(s) en lugar de %2$d</string>
     <string name="tvSettlementHeroLabel">Plan de pagos</string>
 
     <!-- Textos compartidos -->
@@ -221,7 +221,7 @@
     <string name="etGroupName">Nombre del grupo (ej. Viaje a Cartagena)</string>
     <string name="btnCreate">Crear</string>
     <string name="btnSave">Guardar</string>
-    <string name="msgGroupCreated">Grupo «%1$s» creado. Agrega a sus integrantes</string>
+    <string name="msgGroupCreated">Grupo «%1$s» creado</string>
     <string name="msgGroupSwitched">Ahora estás en «%1$s»</string>
     <string name="msgGroupRenamed">Nombre actualizado</string>
     <string name="msgOnlyOwnerRenames">Solo quien creó el grupo le puede cambiar el nombre</string>
@@ -229,4 +229,175 @@
         <item quantity="one">%d integrante</item>
         <item quantity="other">%d integrantes</item>
     </plurals>
+
+    <!-- Rediseno: barra inferior -->
+    <string name="navHome">Inicio</string>
+    <string name="navGroups">Grupos</string>
+    <string name="navActivity">Actividad</string>
+    <string name="navProfile">Perfil</string>
+    <string name="cdAddExpense">Agregar gasto</string>
+
+    <!-- Rediseno: inicio -->
+    <string name="tvAppNameSpaced">Split Bill</string>
+    <string name="cdNotifications">Estado de la sincronización</string>
+    <string name="tvHomeTotalLabel">Total gastado en tus grupos</string>
+    <string name="tvMonthTotal">Este mes</string>
+    <string name="tvMyShare">Tu parte</string>
+    <string name="tvMyBalance">Tu balance</string>
+    <string name="tvHomeCounts">%1$s · %2$s</string>
+    <plurals name="tvGroupCount">
+        <item quantity="one">%d grupo</item>
+        <item quantity="other">%d grupos</item>
+    </plurals>
+    <plurals name="tvExpenseCount">
+        <item quantity="one">%d gasto</item>
+        <item quantity="other">%d gastos</item>
+    </plurals>
+    <string name="btnCreateGroup">Crear grupo</string>
+    <string name="tvCreateGroupHint">Organiza y comparte</string>
+    <string name="tvQuickSplitHint">Divide una cuenta al instante</string>
+    <string name="tvSeeAll">Ver todos</string>
+    <string name="tvSeeAllFem">Ver todas</string>
+    <string name="tvRecentActivity">Actividad reciente</string>
+    <string name="tvEmptyActivity">Aún no hay gastos. Toca + para registrar el primero.</string>
+    <string name="tvYouAreOwed">Te deben</string>
+    <string name="tvYouOwe">Debes</string>
+    <string name="tvAllSettledShort">Todos al día</string>
+    <string name="tvMoreMembers">+%1$d</string>
+    <string name="tvGroupTotalLine">Total del grupo: %1$s</string>
+    <string name="cdGroupMenu">Opciones del grupo</string>
+    <string name="tvGroupSubtitle">%1$s · %2$s</string>
+    <string name="tvGroupsSubtitle">Tus gastos compartidos, por grupo</string>
+
+    <!-- Rediseno: nuevo grupo e integrantes -->
+    <string name="tvTitleNewGroup">Nuevo grupo</string>
+    <string name="tvNewGroupSubtitle">Crea un grupo para compartir gastos</string>
+    <string name="tvTitleEditGroup">Integrantes</string>
+    <string name="tvEditGroupSubtitle">Nombre y gente del grupo</string>
+    <string name="tvCreateYourGroup">Crea tu grupo</string>
+    <string name="tvCreateYourGroupHint">Agrega integrantes y empieza a compartir tus gastos fácilmente.</string>
+    <string name="tvEditYourGroup">Tu grupo</string>
+    <string name="tvEditYourGroupHint">Agrega integrantes a mano o desde tus contactos.</string>
+    <string name="btnAddMember">Agregar integrante</string>
+    <string name="btnImportContacts">Importar contactos</string>
+    <string name="tvGroupNameLabel">Nombre del grupo</string>
+    <string name="hintGroupName">Ej. Viaje a Cartagena</string>
+    <string name="hintPhoneExample">311 123 4567</string>
+    <string name="tvReadyToStart">Listo para empezar</string>
+    <string name="tvNeedMoreMembers">Agrega al menos otra persona</string>
+    <string name="btnSaveGroup">Guardar grupo</string>
+    <string name="tvRoleAdmin">Administrador</string>
+    <string name="tvRoleMember">Integrante</string>
+    <string name="tvNoPhone">Sin teléfono</string>
+    <string name="msgMemberAddedToList">%1$s quedará en el grupo al guardarlo</string>
+    <string name="msgMemberAlreadyInList">%1$s ya está en la lista</string>
+    <string name="dlgDiscardGroupMessage">El grupo y los integrantes que agregaste no se guardarán.</string>
+    <string name="tvOnlyOwnerRenamesHelper">Solo quien creó el grupo le puede cambiar el nombre</string>
+    <string name="tvGroupBalanceOwed">Te deben %1$s</string>
+    <string name="tvGroupBalanceOwe">Debes %1$s</string>
+    <string name="tvGroupBalanceSettled">Estás al día en este grupo</string>
+
+    <!-- Rediseno: subtitulos de las demas pantallas -->
+    <string name="tvRegisterSubtitle">Empieza a dividir tus gastos en grupo</string>
+    <string name="tvContactsSubtitle">Agrega integrantes desde tu agenda</string>
+    <string name="tvScanSubtitle">Lee el total de tu factura con la cámara</string>
+
+    <!-- Rediseno: actividad y perfil -->
+    <string name="tvTitleActivity">Actividad</string>
+    <string name="tvTitleProfile">Perfil</string>
+    <string name="tvProfileSubtitle">Tu cuenta en SplitBill</string>
+    <string name="tvProfileData">Tus datos</string>
+    <string name="tvProfileOnlineHint">Los demás integrantes verán tu nombre nuevo. Para guardarlo necesitas conexión.</string>
+    <string name="tvProfileSync">Sincronización</string>
+    <string name="tvProfileSyncLabel">Estado</string>
+    <string name="btnSyncNow">Sincronizar</string>
+    <string name="msgProfileSaved">Perfil actualizado</string>
+    <string name="tvAppVersion">SplitBill %1$s</string>
+
+    <!-- Rediseno: liquidacion -->
+    <string name="tvSettlementSubtitle">Saldos claros y fáciles de pagar</string>
+    <plurals name="tvTransferSummary">
+        <item quantity="one">%1$d transferencia en lugar de %2$d</item>
+        <item quantity="other">%1$d transferencias en lugar de %2$d</item>
+    </plurals>
+    <string name="tvSettlementHint">Con esta liquidación todos quedan al día.</string>
+    <string name="tvSettledHint">No hay nada pendiente entre ustedes.</string>
+    <plurals name="tvTransferCount">
+        <item quantity="one">%d transferencia</item>
+        <item quantity="other">%d transferencias</item>
+    </plurals>
+    <string name="tvTransferHint">Así todos quedan al día</string>
+    <string name="btnShare">Compartir</string>
+    <string name="btnPaid">Pagado</string>
+    <string name="btnMarkAllPaid">Marcar como pagado</string>
+    <plurals name="tvReceivesTransfers">
+        <item quantity="one">Recibe %d transferencia</item>
+        <item quantity="other">Recibe %d transferencias</item>
+    </plurals>
+    <plurals name="tvMakesTransfers">
+        <item quantity="one">Realiza %d transferencia</item>
+        <item quantity="other">Realiza %d transferencias</item>
+    </plurals>
+    <string name="tvBalanceZero">Saldo en cero</string>
+    <string name="tvAlreadySettled">Ya está al día</string>
+    <string name="tvSettlementSummary">Resumen de la liquidación</string>
+    <string name="tvSettledPeople">Personas saldadas</string>
+    <string name="tvTransfersShort">Transferencias</string>
+    <string name="tvSettledOf">%1$d de %2$d</string>
+    <plurals name="tvTransfersTotal">
+        <item quantity="one">%d en total</item>
+        <item quantity="other">%d en total</item>
+    </plurals>
+    <string name="dlgMarkPaidTitle">¿Registrar el pago?</string>
+    <string name="dlgMarkPaidMessage">%1$s le pagó %2$s a %3$s. Queda en los movimientos del grupo como un pago y los saldos se actualizan.</string>
+    <string name="dlgMarkAllPaidTitle">¿Marcar todo como pagado?</string>
+    <plurals name="dlgMarkAllPaidMessage">
+        <item quantity="one">Se registrará %d pago y todos quedarán al día.</item>
+        <item quantity="other">Se registrarán %d pagos y todos quedarán al día.</item>
+    </plurals>
+    <string name="btnRegisterPayment">Registrar pago</string>
+    <plurals name="msgPaymentsRegistered">
+        <item quantity="one">%d pago registrado</item>
+        <item quantity="other">%d pagos registrados</item>
+    </plurals>
+    <string name="shareTransferText">Hola, %1$s. Según SplitBill, en «%2$s» te toca pagarle %3$s a %4$s.</string>
+    <string name="shareChooserTitle">Compartir con</string>
+
+    <!-- Rediseno: formulario de gasto -->
+    <string name="tvAddExpenseSubtitle">En %1$s</string>
+    <string name="prefixCurrencySpaced">$\u0020</string>
+    <string name="hintAmountZero">0</string>
+    <string name="hintDescription">Ej. Gasolina</string>
+    <string name="tvSelectAll">Seleccionar todos</string>
+    <string name="tvDateLabel">Fecha</string>
+    <string name="tvCategoryLabel">Categoría</string>
+    <string name="tvEstimatedSplit">División estimada</string>
+    <string name="tvEstimateEqual">Cada uno paga %1$s</string>
+    <string name="tvEstimateExact">Asignado %1$s de %2$s</string>
+    <string name="tvEstimatePercent">Asignado %1$s %% de 100 %%</string>
+    <string name="tvEstimateEmpty">Escribe el monto para ver la división</string>
+    <string name="tvEstimateNobody">Marca al menos un participante</string>
+    <plurals name="tvParticipantCount">
+        <item quantity="one">%d participante</item>
+        <item quantity="other">%d participantes</item>
+    </plurals>
+    <string name="dlgPickDateTitle">Fecha del gasto</string>
+
+    <!-- Rediseno: filas de gastos, categorias y fechas -->
+    <string name="tvPaymentRow">%1$s le pagó a %2$s</string>
+    <string name="tvPaymentRegistered">Pago registrado</string>
+    <string name="tvCategoryPayment">Pago</string>
+    <string name="tvDateTime">%1$s, %2$s</string>
+    <string name="tvToday">Hoy</string>
+    <string name="tvYesterday">Ayer</string>
+    <!-- El orden debe coincidir con ExpenseCategory.selectable() -->
+    <string-array name="expenseCategories">
+        <item>Comida</item>
+        <item>Mercado</item>
+        <item>Transporte</item>
+        <item>Hospedaje</item>
+        <item>Entretenimiento</item>
+        <item>Servicios</item>
+        <item>Otro</item>
+    </string-array>
 </resources>

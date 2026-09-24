@@ -224,6 +224,10 @@ public class GroupService {
                     userShare = share;
                 }
             }
+            if (memberShare != null || expense.getPayerId().equals(userId)) {
+                //cambio de quien es el gasto o sus partes: la app lo debe traer en su proxima sincronizacion
+                expense.touch();
+            }
             if (memberShare != null && userShare != null) {
                 //los dos tenian parte: se suman en la de la cuenta y la del integrante desaparece
                 userShare.setAmountCents(userShare.getAmountCents() + memberShare.getAmountCents());

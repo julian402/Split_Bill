@@ -61,6 +61,18 @@ public final class ApiClient {
         throw new ApiException(response.code(), readErrorMessage(response));
     }
 
+    /**
+     * Igual que execute, pero devuelve la respuesta completa: sirve cuando ademas del cuerpo hace falta
+     * un encabezado, como la hora del servidor (Date).
+     */
+    public static <T> Response<T> executeForResponse(Call<T> call) throws IOException {
+        Response<T> response = call.execute();
+        if (response.isSuccessful()) {
+            return response;
+        }
+        throw new ApiException(response.code(), readErrorMessage(response));
+    }
+
     /** Saca el campo detail del ProblemDetail; si no se puede leer, usa el codigo HTTP. */
     private static String readErrorMessage(Response<?> response) {
         ResponseBody errorBody = response.errorBody();

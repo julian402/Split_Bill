@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,9 +39,12 @@ public class ExpenseController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar gastos del grupo", description = "Del más reciente al más antiguo.")
-    public List<ExpenseResponse> list(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId) {
-        return this.expenseService.list(CurrentUser.id(jwt), groupId);
+    @Operation(summary = "Listar gastos del grupo",
+            description = "Del más reciente al más antiguo. Con updatedSince (ISO-8601) trae solo lo que "
+                    + "cambió desde esa fecha, incluidos los borrados (active=false).")
+    public List<ExpenseResponse> list(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId,
+                                      @RequestParam(required = false) Instant updatedSince) {
+        return this.expenseService.list(CurrentUser.id(jwt), groupId, updatedSince);
     }
 
     @PostMapping

@@ -24,6 +24,7 @@ public class SessionManager {
     private static final String PREF_USER_EMAIL = "user_email";
     private static final String PREF_GROUP_ID = "group_id";
     private static final String PREF_SUGGEST_CLAIM = "suggest_claim";
+    private static final String PREF_LAST_PULL = "last_pull_";
 
     private final SharedPreferences preferences;
     private final TokenStore tokenStore;
@@ -104,5 +105,17 @@ public class SessionManager {
 
     public synchronized boolean shouldSuggestClaim() {
         return this.preferences.getBoolean(PREF_SUGGEST_CLAIM, false);
+    }
+
+    /**
+     * Hora (del servidor, en milisegundos) desde la que hay que pedir cambios del grupo. 0 si nunca se
+     * ha sincronizado: entonces se pide todo.
+     */
+    public synchronized long getLastPull(String groupId) {
+        return this.preferences.getLong(PREF_LAST_PULL + groupId, 0L);
+    }
+
+    public synchronized void setLastPull(String groupId, long serverMillis) {
+        this.preferences.edit().putLong(PREF_LAST_PULL + groupId, serverMillis).apply();
     }
 }

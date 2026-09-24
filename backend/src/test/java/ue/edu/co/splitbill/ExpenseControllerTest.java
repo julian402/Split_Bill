@@ -185,6 +185,28 @@ class ExpenseControllerTest extends ApiTestSupport {
                 .andExpect(status().isNotFound());
     }
 
+    /** Sincronizacion incremental: solo lo que cambio despues de la fecha, incluidos los borrados. */
+    @Test
+    void updatedSinceReturnsOnlyWhatChangedIncludingDeletions() throws Exception {
+        String viejo = JsonPath.read(body(doPost(this.julian, expensesPath(), expenseJson(null, this.julian.id(),
+                "Viejo", 100L, "EXACT", share(this.julian.id(), 100L))).andExpect(status().isCreated())), "$.id");
+        String borrado = JsonPath.read(body(doPost(this.julian, expensesPath(), expenseJson(null, this.julian.id(),
+                "Borrado", 100L, "EXACT", share(this.julian.id(), 100L))).andExpect(status().isCreated())), "$.id");
+        Thread.sleep(20);
+        java.time.Instant since = java.time.Instant.now();
+        Thread.sleep(20);
+        doPost(this.julian, expensesPath(), expenseJson(null, this.julian.id(), "Nuevo", 100L, "EXACT",
+                share(this.julian.id(), 100L))).andExpect(status().isCreated());
+        doDelete(this.julian, expensesPath() + "/" + borrado).andExpect(status().isNoContent());
+
+        doGet(this.julian, expensesPath() + "?updatedSince=" + since)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[?(@.description == 'Nuevo')].active").value(true))
+                .andExpect(jsonPath("$[?(@.id == '" + borrado + "')].active").value(false))
+                .andExpect(jsonPath("$[?(@.id == '" + viejo + "')]", hasSize(0)));
+    }
+
     private String expensesPath() {
         return "/api/groups/" + this.groupId + "/expenses";
     }

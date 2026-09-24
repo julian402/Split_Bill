@@ -16,6 +16,7 @@ import ue.edu.co.splitbill.session.KeystoreTokenStore;
 import ue.edu.co.splitbill.session.SessionManager;
 import ue.edu.co.splitbill.sync.NetworkMonitor;
 import ue.edu.co.splitbill.sync.SyncManager;
+import ue.edu.co.splitbill.sync.SyncScheduler;
 
 /**
  * Arma los objetos de la aplicacion y decide cuales se comparten.
@@ -79,6 +80,8 @@ public class ServiceLocator {
     public synchronized SyncManager getSyncManager() {
         if (this.syncManager == null) {
             this.syncManager = new SyncManager(getDatabase(), getApiService(), getSessionManager(), getExecutors());
+            //ademas de sincronizar con la app abierta, deja programado el trabajo en segundo plano
+            this.syncManager.setBackgroundScheduler(new SyncScheduler(this.context)::schedule);
         }
         return this.syncManager;
     }

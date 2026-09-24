@@ -51,8 +51,12 @@ public interface ApiService {
     @DELETE("api/groups/{groupId}/members/{userId}")
     Call<Void> removeMember(@Path("groupId") String groupId, @Path("userId") String userId);
 
+    /**
+     * @param updatedSince si llega (ISO-8601), el servidor devuelve solo lo que cambio desde esa fecha,
+     *                     incluidos los borrados; si es null, todos los gastos activos
+     */
     @GET("api/groups/{groupId}/expenses")
-    Call<List<ExpenseDto>> getExpenses(@Path("groupId") String groupId);
+    Call<List<ExpenseDto>> getExpenses(@Path("groupId") String groupId, @Query("updatedSince") String updatedSince);
 
     @POST("api/groups/{groupId}/expenses")
     Call<ExpenseDto> createExpense(@Path("groupId") String groupId, @Body ExpenseDto expense);

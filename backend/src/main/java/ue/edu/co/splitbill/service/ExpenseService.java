@@ -3,6 +3,7 @@ package ue.edu.co.splitbill.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,10 +47,21 @@ public class ExpenseService {
 
     @Transactional(readOnly = true)
     public List<ExpenseResponse> list(UUID userId, UUID groupId) {
+        return list(userId, groupId, null);
+    }
+
+    /**
+     * Sin updatedSince: los gastos activos del grupo. Con updatedSince: solo los que cambiaron desde
+     * esa fecha, incluidos los borrados (active=false), para que la app sincronice sin traer todo.
+     */
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> list(UUID userId, UUID groupId, Instant updatedSince) {
         this.groupService.requireMembership(groupId, userId);
+        List<Expense> expenses = updatedSince == null
+                ? this.expenseRepository.findByGroupIdAndStatusOrderByDateDesc(groupId, DatabaseContract.STATUS_ACTIVE)
+                : this.expenseRepository.findByGroupIdAndUpdatedAtAfterOrderByDateDesc(groupId, updatedSince);
         List<ExpenseResponse> result = new ArrayList<>();
-        for (Expense expense : this.expenseRepository.findByGroupIdAndStatusOrderByDateDesc(groupId,
-                DatabaseContract.STATUS_ACTIVE)) {
+        for (Expense expense : expenses) {
             result.add(ExpenseResponse.from(expense));
         }
         return result;
@@ -105,6 +117,8 @@ public class ExpenseService {
             expense.setDate(request.date());
         }
         replaceShares(expense, request.shares());
+        //si solo cambiaron las partes, JPA no actualizaria la fecha: se marca a mano
+        expense.touch();
         expense.validar();
         validateParticipants(groupId, expense);
         //saveAndFlush para que @PreUpdate actualice la fecha antes de armar la respuesta

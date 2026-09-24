@@ -18,10 +18,14 @@ public class ExpenseDto {
     private String splitType;
     private String date;
     private List<ShareDto> shares;
+    /** false si el gasto fue borrado. Solo llega asi en la sincronizacion incremental. */
+    private boolean active;
 
     /** Constructor vacio: lo usa Gson para crear el objeto al leer el JSON. */
     public ExpenseDto() {
         this.shares = new ArrayList<>();
+        //si el servidor no manda el campo, el gasto se toma como activo
+        this.active = true;
     }
 
     public ExpenseDto(String id, String groupId, String payerId, String description, long amountCents, String splitType, String date, List<ShareDto> shares) {
@@ -33,6 +37,7 @@ public class ExpenseDto {
         this.splitType = splitType;
         this.date = date;
         this.shares = shares;
+        this.active = true;
     }
 
     public String getId() {
@@ -97,6 +102,14 @@ public class ExpenseDto {
 
     public void setShares(List<ShareDto> shares) {
         this.shares = shares;
+    }
+
+    public boolean isActive() {
+        return this.active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override

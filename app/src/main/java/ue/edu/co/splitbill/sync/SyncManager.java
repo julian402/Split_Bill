@@ -3,13 +3,16 @@ package ue.edu.co.splitbill.sync;
 import android.util.Log;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import retrofit2.Response;
 import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.Group;
@@ -46,6 +49,12 @@ public class SyncManager {
 
     private static final String TAG = "SyncManager";
 
+    /**
+     * Margen al pedir "lo que cambio desde": un gasto que se estaba guardando justo cuando se hizo la
+     * consulta anterior puede tener una hora un poco anterior. Traerlo dos veces no hace dano.
+     */
+    private static final long PULL_SAFETY_MARGIN_MS = 60_000L;
+
     private final SplitBillDatabase database;
     private final ApiService api;
     private final SessionManager sessionManager;
@@ -55,6 +64,9 @@ public class SyncManager {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicBoolean requestedAgain = new AtomicBoolean(false);
     private final List<SyncListener> listeners = new CopyOnWriteArrayList<>();
+
+    /** Programa la sincronizacion en segundo plano (WorkManager). Null en las pruebas. */
+    private Runnable backgroundScheduler;
 
     public SyncManager(SplitBillDatabase database, ApiService api, SessionManager sessionManager,
                        AppExecutors executors) {
@@ -70,6 +82,21 @@ public class SyncManager {
 
     public void removeListener(SyncListener listener) {
         this.listeners.remove(listener);
+    }
+
+    public void setBackgroundScheduler(Runnable backgroundScheduler) {
+        this.backgroundScheduler = backgroundScheduler;
+    }
+
+    /**
+     * Lo llaman los repositorios despues de cada cambio local: se intenta subir ya mismo y, por si la
+     * app se cierra antes o no hay red, queda programado para que Android lo haga cuando pueda.
+     */
+    public void notifyLocalChange() {
+        requestSync();
+        if (this.backgroundScheduler != null) {
+            this.backgroundScheduler.run();
+        }
     }
 
     /** Pide una sincronizacion en segundo plano. Se puede llamar las veces que sea, desde cualquier hilo. */
@@ -210,9 +237,18 @@ public class SyncManager {
 
     // ------------------------------------------------------------------ pull
 
+    /**
+     * Trae los cambios del servidor. Los integrantes llegan siempre completos (son pocos). Los gastos
+     * llegan completos la primera vez; despues, solo los que cambiaron desde la ultima sincronizacion,
+     * incluidos los borrados.
+     */
     private void pull(final String groupId) throws IOException {
         final List<UserDto> members = ApiClient.execute(this.api.getMembers(groupId, true));
-        final List<ExpenseDto> expenses = ApiClient.execute(this.api.getExpenses(groupId));
+        long lastPull = this.sessionManager.getLastPull(groupId);
+        final boolean incremental = lastPull > 0;
+        String since = incremental ? Instant.ofEpochMilli(lastPull).toString() : null;
+        Response<List<ExpenseDto>> response = ApiClient.executeForResponse(this.api.getExpenses(groupId, since));
+        final List<ExpenseDto> expenses = response.body() == null ? new ArrayList<ExpenseDto>() : response.body();
 
         //se aplica todo en una transaccion: la pantalla nunca ve la mitad de un pull
         this.database.runInTransaction(new Runnable() {
@@ -229,21 +265,36 @@ public class SyncManager {
                 for (ExpenseDto dto : expenses) {
                     serverIds.add(dto.getId());
                     Expense local = database.expenseDao().findById(dto.getId());
-                    if (local == null || local.getSyncStatus() == SyncStatus.SYNCED) {
+                    if (local != null && local.getSyncStatus() != SyncStatus.SYNCED) {
+                        //hay un cambio local sin subir: no se pisa
+                        continue;
+                    }
+                    if (dto.isActive()) {
                         database.expenseDao().upsert(ApiMapper.toEntity(dto));
                         database.expenseShareDao().deleteByExpense(dto.getId());
                         database.expenseShareDao().insertAll(ApiMapper.toShares(dto));
+                    } else if (local != null) {
+                        //otro integrante lo borro
+                        database.expenseDao().markDeletedByServer(dto.getId());
                     }
                 }
 
-                //los gastos que estaban sincronizados y ya no vienen del servidor, otro los borro
-                for (String expenseId : database.expenseDao().findSyncedActiveIds(groupId)) {
-                    if (!serverIds.contains(expenseId)) {
-                        database.expenseDao().markDeletedByServer(expenseId);
+                //en la lista completa los borrados no vienen: se deducen de los que faltan
+                if (!incremental) {
+                    for (String expenseId : database.expenseDao().findSyncedActiveIds(groupId)) {
+                        if (!serverIds.contains(expenseId)) {
+                            database.expenseDao().markDeletedByServer(expenseId);
+                        }
                     }
                 }
             }
         });
+
+        //la proxima vez se pide solo lo que cambie desde ahora, con la hora del servidor (no la del celular)
+        Date serverDate = response.headers().getDate("Date");
+        if (serverDate != null) {
+            this.sessionManager.setLastPull(groupId, serverDate.getTime() - PULL_SAFETY_MARGIN_MS);
+        }
     }
 
     // ------------------------------------------------------------------ avisos a la pantalla

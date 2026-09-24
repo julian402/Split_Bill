@@ -11,7 +11,7 @@ e inicia sesión y sincroniza sus datos.
 | Base de datos | PostgreSQL 17, esquema versionado con Flyway |
 | Autenticación | BCrypt para las contraseñas + JWT (HS256) |
 | Documentación | Swagger UI en `/swagger-ui.html` |
-| Pruebas | 25 de integración con MockMvc + Testcontainers (Postgres real) |
+| Pruebas | 29 de integración con MockMvc + Testcontainers (Postgres real) |
 
 ## Cómo levantarlo
 
@@ -56,7 +56,8 @@ centavos**: $60.000 = `6000000`.
 | GET / PUT / DELETE | `/api/groups/{id}` | Ver / editar / borrar (editar y borrar: solo el dueño) |
 | GET / POST | `/api/groups/{id}/members` | Integrantes (`?includeRemoved=true` trae también a los retirados) / agregar por nombre o por email |
 | DELETE | `/api/groups/{id}/members/{userId}` | Retirar integrante (solo el dueño) |
-| GET / POST | `/api/groups/{id}/expenses` | Gastos del grupo / registrar gasto con sus partes |
+| GET / POST | `/api/groups/{id}/expenses` | Gastos del grupo (`?updatedSince=` trae solo lo que cambió, incluidos los borrados) / registrar gasto con sus partes |
+| POST | `/api/groups/{id}/members/{memberId}/claim` | "Soy yo": junta un integrante sin cuenta con la cuenta que inició sesión |
 | GET / PUT / DELETE | `/api/groups/{id}/expenses/{expenseId}` | Ver / editar / borrar gasto |
 
 Los errores siempre tienen la misma forma (`ProblemDetail`, RFC 9457):

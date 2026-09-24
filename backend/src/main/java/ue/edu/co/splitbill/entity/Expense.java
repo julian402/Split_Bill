@@ -154,6 +154,15 @@ public class Expense {
         this.updatedAt = Instant.now();
     }
 
+    /**
+     * Marca el gasto como modificado aunque solo hayan cambiado sus partes. JPA solo actualiza
+     * updatedAt cuando cambia una columna del gasto, y la app pide "lo que cambio desde tal hora":
+     * sin esto, un cambio solo en las partes no le llegaria.
+     */
+    public void touch() {
+        this.updatedAt = Instant.now();
+    }
+
     public UUID getId() {
         return this.id;
     }

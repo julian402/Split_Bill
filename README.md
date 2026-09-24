@@ -27,7 +27,7 @@ funciona igual sin conexión, y los cambios se suben solos cuando vuelve la red.
 | `minSdk` / `targetSdk` | 26 / 36 |
 | Persistencia | Room (capa sobre SQLite) |
 | Red | Retrofit 3 + Gson, token JWT cifrado con el Android Keystore |
-| Pruebas | 50 unitarias + 14 instrumentadas |
+| Pruebas | 50 unitarias + 17 instrumentadas |
 
 ## Pantallas
 
@@ -107,7 +107,13 @@ Las pantallas **siempre** leen y escriben en Room. Cada fila guarda su `sync_sta
 2. **Pull**: trae lo que otros integrantes cambiaron. Nunca pisa un cambio local pendiente.
 
 Se sincroniza al abrir la pantalla principal, después de cada cambio, al tocar el botón de
-sincronizar y **cada vez que vuelve la conexión** (`NetworkMonitor`). Si el servidor rechaza un
+sincronizar y **cada vez que vuelve la conexión** (`NetworkMonitor`). Además, cada cambio deja
+programado un `SyncWorker` con **WorkManager**: si no hay red o el servidor no responde, Android lo
+reintenta solo y lo sube **aunque la app esté cerrada**.
+
+La primera sincronización trae todos los gastos del grupo; las siguientes piden solo los que
+cambiaron (`?updatedSince=`, con la hora del servidor y un minuto de margen), incluidos los que
+otro integrante borró. Si el servidor rechaza un
 cambio (por ejemplo, partes que no suman el total), el cambio se descarta y se le avisa al usuario.
 Si el token vence, la app vuelve al login sin cerrarse.
 

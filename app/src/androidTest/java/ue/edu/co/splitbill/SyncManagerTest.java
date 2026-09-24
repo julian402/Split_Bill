@@ -212,6 +212,41 @@ public class SyncManagerTest {
         assertTrue(!this.database.expenseDao().findById(this.almuerzo.getId()).isActive());
     }
 
+    /**
+     * Despues de la primera sincronizacion solo se piden los cambios: el servidor manda el taxi nuevo
+     * y el almuerzo marcado como borrado, y la app aplica los dos sin traer la lista completa.
+     */
+    @Test
+    public void afterTheFirstSyncOnlyChangesAreRequested() throws Exception {
+        this.database.groupDao().markSynced(this.group.getId());
+        this.database.userDao().markSynced(this.diomar.getId(), this.diomar.getStatus());
+        this.database.expenseDao().markSynced(this.almuerzo.getId(), this.almuerzo.getStatus());
+
+        //primera sincronizacion: lista completa, y se guarda la hora del servidor
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        this.server.enqueue(new MockResponse().setResponseCode(200)
+                .setHeader("Content-Type", "application/json")
+                .setHeader("Date", "Thu, 24 Sep 2026 16:00:00 GMT")
+                .setBody("[" + expenseJson(this.almuerzo) + "]"));
+        assertEquals(SyncResult.State.SYNCED, this.syncManager.syncNow().getState());
+        this.server.takeRequest();
+        assertEquals("/api/groups/" + this.group.getId() + "/expenses", this.server.takeRequest().getPath());
+
+        //segunda: solo lo que cambio desde esa hora (menos un minuto de margen)
+        Expense taxi = new Expense(this.group.getId(), this.diomar.getId(), "Taxi", Money.ofCents(20_000L),
+                SplitType.EQUAL);
+        String almuerzoBorrado = expenseJson(this.almuerzo).replace("\"shares\"", "\"active\":false,\"shares\"");
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        enqueue(200, "[" + expenseJson(taxi) + "," + almuerzoBorrado + "]");
+        assertEquals(SyncResult.State.SYNCED, this.syncManager.syncNow().getState());
+        this.server.takeRequest();
+        RecordedRequest incremental = this.server.takeRequest();
+        assertEquals("2026-09-24T15:59:00Z", incremental.getRequestUrl().queryParameter("updatedSince"));
+
+        assertTrue(this.database.expenseDao().findById(taxi.getId()).isActive());
+        assertTrue(!this.database.expenseDao().findById(this.almuerzo.getId()).isActive());
+    }
+
     @Test
     public void anExpiredTokenStopsTheSyncAndClosesTheSession() {
         enqueue(401, "");

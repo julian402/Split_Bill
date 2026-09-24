@@ -75,7 +75,7 @@ public class UserRepository extends BaseRepository {
             public User call() {
                 user.validar();
                 database.userDao().insert(user);
-                syncManager.requestSync();
+                syncManager.notifyLocalChange();
                 return user;
             }
         }, callback);
@@ -123,7 +123,7 @@ public class UserRepository extends BaseRepository {
                 if (rowsAffected == 0) {
                     throw new IllegalArgumentException("No se encontró el integrante");
                 }
-                syncManager.requestSync();
+                syncManager.notifyLocalChange();
                 return rowsAffected;
             }
         }, callback);

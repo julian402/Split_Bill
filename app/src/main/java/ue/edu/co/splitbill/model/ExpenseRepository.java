@@ -75,7 +75,7 @@ public class ExpenseRepository extends BaseRepository {
                     }
                 });
                 //el gasto ya esta guardado en el celular; subirlo al servidor ocurre por detras
-                syncManager.requestSync();
+                syncManager.notifyLocalChange();
                 return saved;
             }
         }, callback);
@@ -121,7 +121,7 @@ public class ExpenseRepository extends BaseRepository {
                         return expense;
                     }
                 });
-                syncManager.requestSync();
+                syncManager.notifyLocalChange();
                 return saved;
             }
         }, callback);
@@ -190,7 +190,7 @@ public class ExpenseRepository extends BaseRepository {
                 if (rowsAffected == 0) {
                     throw new IllegalArgumentException("No se encontró el gasto");
                 }
-                syncManager.requestSync();
+                syncManager.notifyLocalChange();
                 return rowsAffected;
             }
         }, callback);

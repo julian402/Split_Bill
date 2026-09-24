@@ -80,6 +80,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
 
+    // Sincronizacion en segundo plano: Android ejecuta el SyncWorker cuando vuelve la red, aunque la app este cerrada
+    implementation(libs.work.runtime)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

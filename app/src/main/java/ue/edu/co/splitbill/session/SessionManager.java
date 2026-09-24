@@ -83,6 +83,11 @@ public class SessionManager {
         return this.preferences.getString(PREF_USER_NAMES, null);
     }
 
+    /** El nombre cambio en el perfil: se ve de inmediato en el saludo del inicio. */
+    public synchronized void setUserNames(String names) {
+        this.preferences.edit().putString(PREF_USER_NAMES, names).apply();
+    }
+
     public synchronized String getUserEmail() {
         return this.preferences.getString(PREF_USER_EMAIL, null);
     }

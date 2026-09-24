@@ -52,6 +52,10 @@ public class Expense {
     @Column(name = DatabaseContract.Expenses.COLUMN_DATE, nullable = false)
     private Instant date;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = DatabaseContract.Expenses.COLUMN_CATEGORY, nullable = false)
+    private ExpenseCategory category;
+
     @Column(name = DatabaseContract.Expenses.COLUMN_STATUS, nullable = false)
     private short status;
 
@@ -73,6 +77,7 @@ public class Expense {
     public Expense() {
         this.id = UUID.randomUUID();
         this.date = Instant.now();
+        this.category = ExpenseCategory.OTHER;
         this.status = DatabaseContract.STATUS_ACTIVE;
         this.shares = new ArrayList<>();
     }
@@ -219,6 +224,15 @@ public class Expense {
         this.date = date;
     }
 
+    public ExpenseCategory getCategory() {
+        return this.category;
+    }
+
+    /** Sin categoria (una app anterior al rediseno no la manda) el gasto queda como OTHER. */
+    public void setCategory(ExpenseCategory category) {
+        this.category = category == null ? ExpenseCategory.OTHER : category;
+    }
+
     public short getStatus() {
         return this.status;
     }
@@ -246,6 +260,7 @@ public class Expense {
         sb.append(", description=").append(description);
         sb.append(", amountCents=").append(amountCents);
         sb.append(", splitType=").append(splitType);
+        sb.append(", category=").append(category);
         sb.append(", shares=").append(shares.size());
         sb.append('}');
         return sb.toString();

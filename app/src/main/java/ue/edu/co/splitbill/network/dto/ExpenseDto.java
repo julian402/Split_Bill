@@ -16,6 +16,8 @@ public class ExpenseDto {
     private String description;
     private long amountCents;
     private String splitType;
+    /** Version 4. Un servidor anterior no la manda: se toma como OTHER. */
+    private String category;
     private String date;
     private List<ShareDto> shares;
     /** false si el gasto fue borrado. Solo llega asi en la sincronizacion incremental. */
@@ -88,6 +90,14 @@ public class ExpenseDto {
         this.splitType = splitType;
     }
 
+    public String getCategory() {
+        return this.category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public String getDate() {
         return this.date;
     }
@@ -121,6 +131,7 @@ public class ExpenseDto {
         sb.append(", description=").append(description);
         sb.append(", amountCents=").append(amountCents);
         sb.append(", splitType=").append(splitType);
+        sb.append(", category=").append(category);
         sb.append(", date=").append(date);
         sb.append(", shares=").append(shares);
         sb.append('}');

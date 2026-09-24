@@ -16,6 +16,7 @@ import ue.edu.co.splitbill.network.dto.LoginRequest;
 import ue.edu.co.splitbill.network.dto.MemberRequest;
 import ue.edu.co.splitbill.network.dto.RegisterRequest;
 import ue.edu.co.splitbill.network.dto.TokenResponse;
+import ue.edu.co.splitbill.network.dto.UpdateProfileRequest;
 import ue.edu.co.splitbill.network.dto.UserDto;
 
 /**
@@ -32,6 +33,10 @@ public interface ApiService {
 
     @POST("api/auth/register")
     Call<TokenResponse> register(@Body RegisterRequest request);
+
+    /** Nombre y telefono de quien inicio sesion. */
+    @PUT("api/users/me")
+    Call<UserDto> updateMe(@Body UpdateProfileRequest request);
 
     @GET("api/groups")
     Call<List<GroupDto>> getGroups();

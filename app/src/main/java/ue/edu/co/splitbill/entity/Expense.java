@@ -11,6 +11,7 @@ import androidx.room.PrimaryKey;
 import java.util.Date;
 import java.util.UUID;
 
+import ue.edu.co.splitbill.domain.ExpenseCategory;
 import ue.edu.co.splitbill.domain.Money;
 import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.manager.DatabaseContract;
@@ -62,6 +63,11 @@ public class Expense {
     @ColumnInfo(name = DatabaseContract.Expenses.COLUMN_DATE)
     private Date date;
 
+    /** Version 4: en que se gasto. El valor por defecto es el mismo de MIGRATION_3_4. */
+    @NonNull
+    @ColumnInfo(name = DatabaseContract.Expenses.COLUMN_CATEGORY, defaultValue = "OTHER")
+    private ExpenseCategory category;
+
     @ColumnInfo(name = DatabaseContract.Expenses.COLUMN_STATUS)
     private int status;
 
@@ -75,6 +81,7 @@ public class Expense {
         this.payerId = "";
         this.date = new Date();
         this.splitType = SplitType.EQUAL;
+        this.category = ExpenseCategory.OTHER;
         this.status = DatabaseContract.STATUS_ACTIVE;
         this.syncStatus = SyncStatus.PENDING_CREATE;
     }
@@ -180,6 +187,19 @@ public class Expense {
         this.date = date;
     }
 
+    @NonNull
+    public ExpenseCategory getCategory() {
+        return this.category;
+    }
+
+    public void setCategory(ExpenseCategory category) {
+        this.category = category == null ? ExpenseCategory.OTHER : category;
+    }
+
+    public boolean isPayment() {
+        return this.category.isPayment();
+    }
+
     public int getStatus() {
         return this.status;
     }
@@ -203,6 +223,7 @@ public class Expense {
         sb.append(", description=").append(description);
         sb.append(", amount=").append(getAmount().toBigDecimal());
         sb.append(", splitType=").append(splitType);
+        sb.append(", category=").append(category);
         sb.append('}');
         return sb.toString();
     }

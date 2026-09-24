@@ -45,8 +45,9 @@ public interface GroupDao {
     @Query(DatabaseContract.Groups.MOVE_MEMBERS)
     void moveMembers(String oldId, String newId);
 
+    /** @param userId la persona de la sesion: su saldo en cada grupo viene en balanceCents */
     @Query(DatabaseContract.Groups.SELECT_ACTIVE_WITH_TOTALS)
-    List<GroupListItem> findActiveWithTotals();
+    List<GroupListItem> findActiveWithTotals(String userId);
 
     @Query(DatabaseContract.Groups.UPDATE_NAME)
     int updateName(String groupId, String name);

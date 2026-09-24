@@ -51,7 +51,7 @@ public class GroupRepository extends BaseRepository {
         runAsync(new Callable<List<GroupListItem>>() {
             @Override
             public List<GroupListItem> call() {
-                return database.groupDao().findActiveWithTotals();
+                return database.groupDao().findActiveWithTotals(getCurrentUserId());
             }
         }, callback);
     }

@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ue.edu.co.splitbill.dao.ActivityItem;
 import ue.edu.co.splitbill.dao.GroupListItem;
 import ue.edu.co.splitbill.dao.ExpenseListItem;
 import ue.edu.co.splitbill.dao.ShareListItem;
@@ -29,6 +30,7 @@ import ue.edu.co.splitbill.dao.UserAmount;
 import ue.edu.co.splitbill.domain.Balance;
 import ue.edu.co.splitbill.domain.BalanceCalculator;
 import ue.edu.co.splitbill.domain.DebtSimplifier;
+import ue.edu.co.splitbill.domain.ExpenseCategory;
 import ue.edu.co.splitbill.domain.Money;
 import ue.edu.co.splitbill.domain.Share;
 import ue.edu.co.splitbill.domain.SplitType;
@@ -126,7 +128,7 @@ public class SplitBillDatabaseTest {
         assertEquals(SyncStatus.PENDING_DELETE,
                 this.database.groupMemberDao().findById(casa.getId(), this.sofia.getId()).getSyncStatus());
 
-        List<GroupListItem> groups = this.database.groupDao().findActiveWithTotals();
+        List<GroupListItem> groups = this.database.groupDao().findActiveWithTotals(this.julian.getId());
         assertEquals(2, groups.size());
     }
 
@@ -211,6 +213,65 @@ public class SplitBillDatabaseTest {
 
         List<Transfer> transfers = new DebtSimplifier().simplificar(balances);
         assertTrue("Se generaron " + transfers.size() + " transferencias", transfers.size() <= 3);
+    }
+
+    /**
+     * "Marcar como pagado": el pago de Diomar a Julian no suma al total gastado del grupo, pero si
+     * entra en los saldos y deja a Diomar en cero. En la lista se ve a quien se le pago.
+     */
+    @Test
+    public void unPagoNoCuentaComoGastoPeroSaldaLaDeuda() {
+        insertExpense("Almuerzo", "60000", this.julian, SplitType.EQUAL, null);
+        Expense payment = new Expense(this.groupId, this.diomar.getId(), "Pago a Julian",
+                Money.of("15000"), SplitType.EXACT);
+        payment.setCategory(ExpenseCategory.PAYMENT);
+        this.database.expenseDao().insert(payment);
+        this.database.expenseShareDao().insertAll(Arrays.asList(
+                new ExpenseShare(payment.getId(), new Share(this.julian.getId(), Money.of("15000")))));
+
+        assertEquals(Money.of("60000"), Money.ofCents(this.database.expenseDao().sumActiveCents(this.groupId)));
+        assertEquals(3, this.database.balanceDao().countDirectTransfers(this.groupId));
+
+        List<Balance> balances = new BalanceCalculator().calcularBalances(idsDelGrupo(),
+                aMapa(this.database.balanceDao().sumPaidByUser(this.groupId)),
+                aMapa(this.database.balanceDao().sumOwedByUser(this.groupId)));
+        assertTrue(buscar(balances, this.diomar).getAmount().isZero());
+        assertEquals(Money.of("30000"), buscar(balances, this.julian).getAmount());
+
+        ExpenseListItem item = null;
+        for (ExpenseListItem candidate : this.database.expenseDao().findActiveWithPayer(this.groupId)) {
+            if (candidate.isPayment()) {
+                item = candidate;
+            }
+        }
+        assertNotNull(item);
+        assertEquals("Diomar Arias", item.getPayerNames());
+        assertEquals("Julian Corredor", item.getPayeeNames());
+    }
+
+    /**
+     * Inicio: el saldo de la persona en cada grupo, lo que le toco a ella y la actividad de todos los
+     * grupos con el nombre del grupo.
+     */
+    @Test
+    public void elInicioResumeLosGastosDeTodosLosGrupos() {
+        insertExpense("Almuerzo", "60000", this.julian, SplitType.EQUAL, null);
+        insertExpense("Gasolina", "80000", this.diomar, SplitType.EQUAL, null);
+
+        List<GroupListItem> groups = this.database.groupDao().findActiveWithTotals(this.julian.getId());
+        assertEquals(1, groups.size());
+        assertEquals(2, groups.get(0).getExpenseCount());
+        assertEquals(Money.of("140000"), groups.get(0).getTotal());
+        //Julian pago 60.000 y le tocaban 15.000 + 20.000
+        assertEquals(Money.of("25000"), groups.get(0).getBalance());
+
+        assertEquals(Money.of("140000"), Money.ofCents(this.database.expenseDao().sumAllGroupsSince(0L)));
+        assertEquals(Money.of("35000"),
+                Money.ofCents(this.database.expenseDao().sumUserSharesAllGroups(this.julian.getId())));
+
+        List<ActivityItem> recent = this.database.expenseDao().findRecentAllGroups(1);
+        assertEquals(1, recent.size());
+        assertEquals(DatabaseContract.DEFAULT_GROUP_NAME, recent.get(0).getGroupName());
     }
 
     //Metodos de apoyo

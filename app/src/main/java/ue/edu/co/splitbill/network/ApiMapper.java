@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import ue.edu.co.splitbill.domain.ExpenseCategory;
 import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
@@ -70,9 +71,11 @@ public final class ApiMapper {
         for (ExpenseShare share : shares) {
             shareDtos.add(new ShareDto(share.getUserId(), share.getAmountCents()));
         }
-        return new ExpenseDto(expense.getId(), expense.getGroupId(), expense.getPayerId(),
+        ExpenseDto dto = new ExpenseDto(expense.getId(), expense.getGroupId(), expense.getPayerId(),
                 expense.getDescription(), expense.getAmountCents(), expense.getSplitType().name(),
                 formatDate(expense.getDate()), shareDtos);
+        dto.setCategory(expense.getCategory().name());
+        return dto;
     }
 
     public static Expense toEntity(ExpenseDto dto) {
@@ -83,6 +86,7 @@ public final class ApiMapper {
         expense.setDescription(dto.getDescription());
         expense.setAmountCents(dto.getAmountCents());
         expense.setSplitType(SplitType.valueOf(dto.getSplitType()));
+        expense.setCategory(ExpenseCategory.fromName(dto.getCategory()));
         expense.setDate(parseDate(dto.getDate()));
         expense.setSyncStatus(SyncStatus.SYNCED);
         return expense;

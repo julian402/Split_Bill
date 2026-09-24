@@ -38,8 +38,8 @@ import ue.edu.co.splitbill.session.SessionManager;
  * - Este SyncManager, en segundo plano, hace dos cosas en orden:
  *   1. Push: sube la cola de TODOS los grupos, respetando las dependencias (grupos, luego
  *      integrantes, luego gastos).
- *   2. Pull: trae la lista de grupos y lo que otros integrantes cambiaron en el grupo actual. Los
- *      demas grupos se traen cuando la persona entra en ellos.
+ *   2. Pull: trae la lista de grupos y lo que otros integrantes cambiaron en cada uno de ellos
+ *      (primero el actual). Asi el inicio y la actividad muestran datos al dia de todos los grupos.
  *
  * Reglas:
  * - Nunca se pisa un cambio local pendiente con lo que llega del servidor.
@@ -143,7 +143,7 @@ public class SyncManager {
             pushMembers(rejected);
             pushExpenses(rejected);
             pullGroups();
-            pull(groupId);
+            pullAllGroups(groupId);
             return new SyncResult(SyncResult.State.SYNCED, countPending(), rejected);
         } catch (IOException e) {
             Log.e(TAG, "ERROR AL SINCRONIZAR: SIN CONEXION CON EL SERVIDOR", e);
@@ -273,7 +273,23 @@ public class SyncManager {
     }
 
     /**
-     * Trae los cambios del servidor en el grupo actual. Los integrantes llegan siempre completos (son pocos). Los gastos
+     * Trae los cambios de todos los grupos que el servidor conoce, empezando por el actual: si la red
+     * se cae a mitad de camino, al menos la pantalla abierta ya quedo al dia. Cada grupo lleva su
+     * propia hora de ultima sincronizacion, asi que despues de la primera vez solo viaja lo que cambio.
+     * Un grupo recien creado que aun no se sube no se pide (el servidor todavia no lo tiene).
+     */
+    private void pullAllGroups(String currentGroupId) throws IOException {
+        List<String> groupIds = this.database.groupDao().findSyncedActiveIds();
+        if (groupIds.remove(currentGroupId)) {
+            pull(currentGroupId);
+        }
+        for (String groupId : groupIds) {
+            pull(groupId);
+        }
+    }
+
+    /**
+     * Trae los cambios del servidor en un grupo. Los integrantes llegan siempre completos (son pocos). Los gastos
      * llegan completos la primera vez; despues, solo los que cambiaron desde la ultima sincronizacion,
      * incluidos los borrados.
      */

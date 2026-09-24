@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import ue.edu.co.splitbill.entity.ExpenseCategory;
 import ue.edu.co.splitbill.entity.SplitType;
 
 /**
@@ -19,6 +20,7 @@ import ue.edu.co.splitbill.entity.SplitType;
  *
  * @param id   opcional: UUID generado por la app. Si se repite, el servidor no duplica el gasto
  * @param date opcional: si no llega, se usa la hora del servidor
+ * @param category opcional: si no llega, el gasto queda como OTHER
  */
 public record ExpenseRequest(
         UUID id,
@@ -37,6 +39,8 @@ public record ExpenseRequest(
         SplitType splitType,
 
         Instant date,
+
+        ExpenseCategory category,
 
         @NotEmpty(message = "El gasto debe tener al menos un participante")
         List<@Valid ShareRequest> shares) {

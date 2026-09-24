@@ -27,6 +27,15 @@ public interface ExpenseDao {
     @Query(DatabaseContract.Expenses.SELECT_ACTIVE_WITH_PAYER)
     List<ExpenseListItem> findActiveWithPayer(String groupId);
 
+    @Query(DatabaseContract.Expenses.SELECT_RECENT_ALL_GROUPS)
+    List<ActivityItem> findRecentAllGroups(int limit);
+
+    @Query(DatabaseContract.Expenses.SUM_ALL_GROUPS_SINCE)
+    long sumAllGroupsSince(long fromMillis);
+
+    @Query(DatabaseContract.Expenses.SUM_USER_SHARES_ALL_GROUPS)
+    long sumUserSharesAllGroups(String userId);
+
     @Query(DatabaseContract.Expenses.SELECT_BY_ID)
     Expense findById(String expenseId);
 

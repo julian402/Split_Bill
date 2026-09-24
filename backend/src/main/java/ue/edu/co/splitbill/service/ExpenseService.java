@@ -88,6 +88,7 @@ public class ExpenseService {
         if (request.id() != null) {
             expense.setId(request.id());
         }
+        expense.setCategory(request.category());
         if (request.date() != null) {
             expense.setDate(request.date());
         }
@@ -113,6 +114,7 @@ public class ExpenseService {
         expense.setDescription(request.description().trim());
         expense.setAmountCents(request.amountCents());
         expense.setSplitType(request.splitType());
+        expense.setCategory(request.category());
         if (request.date() != null) {
             expense.setDate(request.date());
         }

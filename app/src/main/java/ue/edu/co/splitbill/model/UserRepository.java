@@ -10,7 +10,10 @@ import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
 import ue.edu.co.splitbill.network.ApiClient;
+import ue.edu.co.splitbill.network.ApiMapper;
 import ue.edu.co.splitbill.network.ApiService;
+import ue.edu.co.splitbill.network.dto.UpdateProfileRequest;
+import ue.edu.co.splitbill.network.dto.UserDto;
 import ue.edu.co.splitbill.session.SessionManager;
 import ue.edu.co.splitbill.sync.SyncResult;
 import ue.edu.co.splitbill.sync.SyncManager;
@@ -61,6 +64,37 @@ public class UserRepository extends BaseRepository {
                 ApiClient.execute(api.claimMember(sessionManager.getCurrentGroupId(), memberId));
                 syncManager.syncNow();
                 return true;
+            }
+        }, callback);
+    }
+
+    /** Los datos de quien inicio sesion, para la pantalla de perfil. */
+    public void getCurrentUser(DataCallback<User> callback) {
+        runAsync(new Callable<User>() {
+            @Override
+            public User call() {
+                return database.userDao().findById(sessionManager.getUserId());
+            }
+        }, callback);
+    }
+
+    /**
+     * Cambia el nombre y el telefono propios. Necesita conexion: la cuenta vive en el servidor y los
+     * demas integrantes deben ver el nombre nuevo. Si el servidor lo acepta, se guarda tambien en el
+     * celular y en la sesion.
+     */
+    public void updateProfile(final String names, final String phone, DataCallback<User> callback) {
+        runNetwork(new Callable<User>() {
+            @Override
+            public User call() throws IOException {
+                User check = new User(names, sessionManager.getUserEmail(), phone);
+                check.validar();
+                String cleanPhone = phone == null || phone.trim().isEmpty() ? null : phone.trim();
+                UserDto saved = ApiClient.execute(api.updateMe(new UpdateProfileRequest(names.trim(), cleanPhone)));
+                User user = ApiMapper.toEntity(saved);
+                database.userDao().upsert(user);
+                sessionManager.setUserNames(user.getNames());
+                return user;
             }
         }, callback);
     }

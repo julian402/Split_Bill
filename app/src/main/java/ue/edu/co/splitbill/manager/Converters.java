@@ -4,6 +4,7 @@ import androidx.room.TypeConverter;
 
 import java.util.Date;
 
+import ue.edu.co.splitbill.domain.ExpenseCategory;
 import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.entity.SyncStatus;
 
@@ -34,6 +35,16 @@ public final class Converters {
     @TypeConverter
     public static SplitType stringToSplitType(String name) {
         return name == null ? null : SplitType.valueOf(name);
+    }
+
+    @TypeConverter
+    public static String categoryToString(ExpenseCategory category) {
+        return category == null ? null : category.name();
+    }
+
+    @TypeConverter
+    public static ExpenseCategory stringToCategory(String name) {
+        return ExpenseCategory.fromName(name);
     }
 
     @TypeConverter

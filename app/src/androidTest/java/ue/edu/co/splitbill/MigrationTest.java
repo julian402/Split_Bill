@@ -20,7 +20,7 @@ import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
 
 /**
- * Prueba de la migracion 1 -> 2 sobre un archivo de base de datos real.
+ * Pruebas de las migraciones (1 -> 2, 2 -> 3 y 3 -> 4) sobre un archivo de base de datos real.
  *
  * Se crea la base con el esquema exacto de la entrega 1 (schemas/1.json), se le meten datos como los
  * que tendria un usuario, se ejecuta la migracion y Room verifica que el resultado sea identico al
@@ -97,5 +97,29 @@ public class MigrationTest {
             assertEquals(0, members.getInt(1));
         }
         version3.close();
+    }
+
+    /** 3 -> 4: los gastos que ya existian quedan con categoria OTHER y no se pierde ninguno. */
+    @Test
+    public void migrationFrom3To4LeavesOldExpensesAsOther() throws IOException {
+        SupportSQLiteDatabase version3 = helper.createDatabase(TEST_DB, 3);
+        version3.execSQL("INSERT INTO `groups` (grp_id, grp_name, grp_currency, grp_created_at, grp_status, "
+                + "grp_sync_status) VALUES ('g-1', 'Paseo', 'COP', 0, 1, 'SYNCED')");
+        version3.execSQL("INSERT INTO users (use_id, use_names, use_status, use_sync_status) "
+                + "VALUES ('u-1', 'Julian', 1, 'SYNCED')");
+        version3.execSQL("INSERT INTO expenses (exp_id, exp_group_id, exp_payer_id, exp_description, "
+                + "exp_amount_cents, exp_split_type, exp_date, exp_status, exp_sync_status) "
+                + "VALUES ('e-1', 'g-1', 'u-1', 'Almuerzo', 6000000, 'EQUAL', 0, 1, 'SYNCED')");
+        version3.close();
+
+        SupportSQLiteDatabase version4 = helper.runMigrationsAndValidate(TEST_DB, 4, true,
+                SplitBillDatabase.MIGRATION_3_4);
+
+        try (Cursor expense = version4.query("SELECT exp_description, exp_category FROM expenses")) {
+            assertTrue(expense.moveToFirst());
+            assertEquals("Almuerzo", expense.getString(0));
+            assertEquals("OTHER", expense.getString(1));
+        }
+        version4.close();
     }
 }

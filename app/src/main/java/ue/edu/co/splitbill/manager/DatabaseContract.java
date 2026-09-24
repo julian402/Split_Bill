@@ -17,8 +17,9 @@ public final class DatabaseContract {
     /**
      * Version 2 (entrega 3): la tabla groups gana grp_sync_status y grp_owner_id.
      * Version 3 (entrega 4): tabla group_members, para que cada grupo tenga sus propios integrantes.
+     * Version 4 (rediseno): expenses gana exp_category (comida, transporte... o PAYMENT).
      */
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
 
     /** Borrado logico: las filas no se eliminan, se marcan como inactivas. */
     public static final int STATUS_ACTIVE = 1;
@@ -29,6 +30,9 @@ public final class DatabaseContract {
     public static final String PENDING_CREATE = "'PENDING_CREATE'";
     public static final String PENDING_UPDATE = "'PENDING_UPDATE'";
     public static final String PENDING_DELETE = "'PENDING_DELETE'";
+
+    /** Categoria de los pagos entre integrantes: no son gastos y no cuentan en los totales. */
+    public static final String PAYMENT = "'PAYMENT'";
 
     /**
      * Grupo por defecto que se siembra al crear la base de datos. Todas las instalaciones lo crean
@@ -110,15 +114,28 @@ public final class DatabaseContract {
                 "UPDATE group_members SET gmb_group_id = :newId WHERE gmb_group_id = :oldId";
 
         /**
-         * Grupos activos, por nombre, con cuantos integrantes tienen y cuanto
-         * suman sus gastos. Dos subconsultas en vez de JOIN para que un grupo sin gastos tambien salga.
+         * Grupos activos, por nombre, con cuantos integrantes y gastos tienen, cuanto suman sus gastos
+         * y el saldo de la persona (:userId) en cada uno. Subconsultas en vez de JOIN para que un grupo
+         * sin gastos tambien salga.
+         *
+         * El saldo es lo que la persona pago menos lo que le tocaba, igual que en BalanceCalculator. Aqui
+         * si entran los pagos (PAYMENT), porque son justamente los que lo dejan en cero.
          */
         public static final String SELECT_ACTIVE_WITH_TOTALS =
                 "SELECT g.grp_id AS groupId, g.grp_name AS name, g.grp_owner_id AS ownerId, "
                 + "(SELECT COUNT(*) FROM group_members m WHERE m.gmb_group_id = g.grp_id AND m.gmb_status = 1) "
                 + "AS memberCount, "
+                + "(SELECT COUNT(*) FROM expenses e WHERE e.exp_group_id = g.grp_id AND e.exp_status = 1 "
+                + "AND e.exp_category <> " + PAYMENT + ") AS expenseCount, "
                 + "(SELECT COALESCE(SUM(e.exp_amount_cents), 0) FROM expenses e "
-                + "WHERE e.exp_group_id = g.grp_id AND e.exp_status = 1) AS totalCents "
+                + "WHERE e.exp_group_id = g.grp_id AND e.exp_status = 1 AND e.exp_category <> " + PAYMENT
+                + ") AS totalCents, "
+                + "(SELECT COALESCE(SUM(e.exp_amount_cents), 0) FROM expenses e "
+                + "WHERE e.exp_group_id = g.grp_id AND e.exp_status = 1 AND e.exp_payer_id = :userId) "
+                + "- (SELECT COALESCE(SUM(s.shr_amount_cents), 0) FROM expense_shares s "
+                + "INNER JOIN expenses e ON e.exp_id = s.shr_expense_id "
+                + "WHERE e.exp_group_id = g.grp_id AND e.exp_status = 1 AND s.shr_user_id = :userId) "
+                + "AS balanceCents "
                 + "FROM `groups` g WHERE g.grp_status = 1 ORDER BY g.grp_name COLLATE NOCASE ASC";
 
         /** Si el grupo nunca se subio, sigue como PENDING_CREATE: al crearlo ya va el nombre nuevo. */
@@ -204,8 +221,15 @@ public final class DatabaseContract {
         public static final String COLUMN_AMOUNT_CENTS = "exp_amount_cents";
         public static final String COLUMN_SPLIT_TYPE = "exp_split_type";
         public static final String COLUMN_DATE = "exp_date";
+        public static final String COLUMN_CATEGORY = "exp_category";
         public static final String COLUMN_STATUS = "exp_status";
         public static final String COLUMN_SYNC_STATUS = "exp_sync_status";
+
+        /** En un pago, el nombre de quien lo recibio (su unica parte); en un gasto, NULL. */
+        public static final String PAYEE_NAMES =
+                "(CASE WHEN e.exp_category = " + PAYMENT + " THEN (SELECT pu.use_names FROM expense_shares ps "
+                + "INNER JOIN users pu ON pu.use_id = ps.shr_user_id WHERE ps.shr_expense_id = e.exp_id LIMIT 1) "
+                + "ELSE NULL END)";
 
         /**
          * Lista de gastos del grupo con el nombre de quien pago.
@@ -216,8 +240,10 @@ public final class DatabaseContract {
                 + "e.exp_description AS description, "
                 + "e.exp_amount_cents AS amountCents, "
                 + "e.exp_split_type AS splitType, "
+                + "e.exp_category AS category, "
                 + "e.exp_date AS date, "
-                + "u.use_names AS payerNames "
+                + "u.use_names AS payerNames, "
+                + PAYEE_NAMES + " AS payeeNames "
                 + "FROM expenses e "
                 + "INNER JOIN users u ON u.use_id = e.exp_payer_id "
                 + "WHERE e.exp_group_id = :groupId AND e.exp_status = 1 "
@@ -228,7 +254,42 @@ public final class DatabaseContract {
 
         public static final String SELECT_TOTAL_CENTS =
                 "SELECT COALESCE(SUM(exp_amount_cents), 0) FROM expenses "
-                + "WHERE exp_group_id = :groupId AND exp_status = 1";
+                + "WHERE exp_group_id = :groupId AND exp_status = 1 AND exp_category <> " + PAYMENT;
+
+        /**
+         * Actividad: los gastos y pagos de TODOS los grupos activos, los mas recientes primero, con el
+         * nombre del grupo, de quien pago y (en los pagos) de quien recibio.
+         */
+        public static final String SELECT_RECENT_ALL_GROUPS =
+                "SELECT e.exp_id AS expenseId, "
+                + "e.exp_description AS description, "
+                + "e.exp_amount_cents AS amountCents, "
+                + "e.exp_split_type AS splitType, "
+                + "e.exp_category AS category, "
+                + "e.exp_date AS date, "
+                + "u.use_names AS payerNames, "
+                + PAYEE_NAMES + " AS payeeNames, "
+                + "g.grp_name AS groupName "
+                + "FROM expenses e "
+                + "INNER JOIN users u ON u.use_id = e.exp_payer_id "
+                + "INNER JOIN `groups` g ON g.grp_id = e.exp_group_id "
+                + "WHERE e.exp_status = 1 AND g.grp_status = 1 "
+                + "ORDER BY e.exp_date DESC LIMIT :limit";
+
+        /** Lo gastado en todos los grupos activos desde :fromMillis (0 = desde siempre), sin los pagos. */
+        public static final String SUM_ALL_GROUPS_SINCE =
+                "SELECT COALESCE(SUM(e.exp_amount_cents), 0) FROM expenses e "
+                + "INNER JOIN `groups` g ON g.grp_id = e.exp_group_id "
+                + "WHERE e.exp_status = 1 AND g.grp_status = 1 AND e.exp_category <> " + PAYMENT + " "
+                + "AND e.exp_date >= :fromMillis";
+
+        /** "Tu parte": la suma de lo que le toco a la persona en los gastos (no pagos) de sus grupos. */
+        public static final String SUM_USER_SHARES_ALL_GROUPS =
+                "SELECT COALESCE(SUM(s.shr_amount_cents), 0) FROM expense_shares s "
+                + "INNER JOIN expenses e ON e.exp_id = s.shr_expense_id "
+                + "INNER JOIN `groups` g ON g.grp_id = e.exp_group_id "
+                + "WHERE e.exp_status = 1 AND g.grp_status = 1 AND e.exp_category <> " + PAYMENT + " "
+                + "AND s.shr_user_id = :userId";
 
         /** Igual que en users: el borrado queda en la cola de sincronizacion. */
         public static final String SOFT_DELETE =
@@ -319,7 +380,7 @@ public final class DatabaseContract {
         public static final String COUNT_DIRECT_TRANSFERS =
                 "SELECT COUNT(*) FROM expense_shares s "
                 + "INNER JOIN expenses e ON e.exp_id = s.shr_expense_id "
-                + "WHERE e.exp_group_id = :groupId AND e.exp_status = 1 "
+                + "WHERE e.exp_group_id = :groupId AND e.exp_status = 1 AND e.exp_category <> " + PAYMENT + " "
                 + "AND s.shr_user_id <> e.exp_payer_id AND s.shr_amount_cents > 0";
 
         private ExpenseShares() {

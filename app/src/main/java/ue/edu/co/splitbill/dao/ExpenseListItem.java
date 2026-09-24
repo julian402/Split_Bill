@@ -2,6 +2,7 @@ package ue.edu.co.splitbill.dao;
 
 import java.util.Date;
 
+import ue.edu.co.splitbill.domain.ExpenseCategory;
 import ue.edu.co.splitbill.domain.Money;
 import ue.edu.co.splitbill.domain.SplitType;
 
@@ -18,8 +19,15 @@ public class ExpenseListItem {
     private String description;
     private long amountCents;
     private SplitType splitType;
+    private ExpenseCategory category;
     private Date date;
     private String payerNames;
+    /** Solo en los pagos: quien recibio el dinero. */
+    private String payeeNames;
+
+    public boolean isPayment() {
+        return this.category != null && this.category.isPayment();
+    }
 
     public Money getAmount() {
         return Money.ofCents(this.amountCents);
@@ -55,6 +63,22 @@ public class ExpenseListItem {
 
     public void setSplitType(SplitType splitType) {
         this.splitType = splitType;
+    }
+
+    public ExpenseCategory getCategory() {
+        return this.category;
+    }
+
+    public void setCategory(ExpenseCategory category) {
+        this.category = category;
+    }
+
+    public String getPayeeNames() {
+        return this.payeeNames;
+    }
+
+    public void setPayeeNames(String payeeNames) {
+        this.payeeNames = payeeNames;
     }
 
     public Date getDate() {

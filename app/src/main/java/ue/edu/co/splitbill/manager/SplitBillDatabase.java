@@ -93,6 +93,18 @@ public abstract class SplitBillDatabase extends RoomDatabase {
         }
     };
 
+    /**
+     * Version 3 -> 4 (rediseno): cada gasto tiene categoria. Los que ya existian quedan como OTHER;
+     * el DEFAULT es el mismo que declara la entidad, asi Room reconoce el esquema como valido.
+     */
+    public static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE `" + DatabaseContract.Expenses.TABLE_NAME + "` ADD COLUMN `"
+                    + DatabaseContract.Expenses.COLUMN_CATEGORY + "` TEXT NOT NULL DEFAULT 'OTHER'");
+        }
+    };
+
     public static SplitBillDatabase getInstance(Context context) {
         if (instance == null) {
             synchronized (SplitBillDatabase.class) {
@@ -103,7 +115,7 @@ public abstract class SplitBillDatabase extends RoomDatabase {
                                     DatabaseContract.DATABASE_NAME)
                             //Sin fallbackToDestructiveMigration: perder datos del usuario al cambiar
                             //el esquema no es una opcion, las migraciones se escriben a mano
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                             .addCallback(CALLBACK)
                             .build();
                 }

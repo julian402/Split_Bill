@@ -77,6 +77,7 @@ public final class DatabaseContract {
         public static final String COLUMN_AMOUNT_CENTS = "exp_amount_cents";
         public static final String COLUMN_SPLIT_TYPE = "exp_split_type";
         public static final String COLUMN_DATE = "exp_date";
+        public static final String COLUMN_CATEGORY = "exp_category";
         public static final String COLUMN_STATUS = "exp_status";
         public static final String COLUMN_CREATED_AT = "exp_created_at";
         public static final String COLUMN_UPDATED_AT = "exp_updated_at";

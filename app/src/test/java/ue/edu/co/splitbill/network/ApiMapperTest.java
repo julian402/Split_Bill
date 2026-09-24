@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import ue.edu.co.splitbill.domain.ExpenseCategory;
 import ue.edu.co.splitbill.domain.Money;
 import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.entity.Expense;
@@ -48,6 +49,18 @@ public class ApiMapperTest {
         assertEquals(6_000_000L, back.getAmountCents());
         assertEquals(SplitType.EQUAL, back.getSplitType());
         assertEquals(expense.getDate(), back.getDate());
+    }
+
+    @Test
+    public void theCategoryTravelsAndAnOldServerWithoutItMeansOther() {
+        Expense expense = new Expense(GROUP_ID, JULIAN, "Taxi", Money.ofCents(1_000L), SplitType.EXACT);
+        expense.setCategory(ExpenseCategory.TRANSPORT);
+        ExpenseDto dto = ApiMapper.toDto(expense, Arrays.asList(share(expense, JULIAN, 1_000L)));
+        assertEquals("TRANSPORT", dto.getCategory());
+        assertEquals(ExpenseCategory.TRANSPORT, ApiMapper.toEntity(dto).getCategory());
+
+        dto.setCategory(null);
+        assertEquals(ExpenseCategory.OTHER, ApiMapper.toEntity(dto).getCategory());
     }
 
     @Test

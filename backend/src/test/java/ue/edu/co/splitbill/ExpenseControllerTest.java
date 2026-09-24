@@ -207,6 +207,43 @@ class ExpenseControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$[?(@.id == '" + viejo + "')]", hasSize(0)));
     }
 
+    /** Rediseno: cada gasto tiene categoria; si la app no la manda, queda como OTHER. */
+    @Test
+    void theCategoryIsSavedAndDefaultsToOther() throws Exception {
+        doPost(this.julian, expensesPath(), withCategory(expenseJson(null, this.julian.id(), "Almuerzo", 100L, "EXACT",
+                share(this.julian.id(), 100L)), "FOOD"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.category").value("FOOD"));
+        doPost(this.julian, expensesPath(), expenseJson(null, this.julian.id(), "Sin categoria", 100L, "EXACT",
+                share(this.julian.id(), 100L)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.category").value("OTHER"));
+    }
+
+    @Test
+    void anUnknownCategoryIsRejected() throws Exception {
+        doPost(this.julian, expensesPath(), withCategory(expenseJson(null, this.julian.id(), "Almuerzo", 100L, "EXACT",
+                share(this.julian.id(), 100L)), "JOYAS"))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * "Marcar como pagado": Diomar le paga a Julian lo que le debe del almuerzo. Es un gasto PAYMENT
+     * que paga Diomar y cuya unica parte es de Julian, con las mismas reglas de cualquier gasto.
+     */
+    @Test
+    void aPaymentBetweenMembersIsAnExpenseWithASingleShare() throws Exception {
+        doPost(this.julian, expensesPath(), expenseJson(null, this.julian.id(), "Almuerzo", 6_000_000L, "EQUAL",
+                share(this.julian.id(), 1_500_000L), share(this.diomar, 1_500_000L),
+                share(this.juan, 1_500_000L), share(this.sofia, 1_500_000L)))
+                .andExpect(status().isCreated());
+        doPost(this.julian, expensesPath(), withCategory(expenseJson(null, this.diomar, "Pago a Julian", 1_500_000L,
+                "EXACT", share(this.julian.id(), 1_500_000L)), "PAYMENT"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.category").value("PAYMENT"))
+                .andExpect(jsonPath("$.shares", hasSize(1)));
+    }
+
     private String expensesPath() {
         return "/api/groups/" + this.groupId + "/expenses";
     }
@@ -222,5 +259,9 @@ class ExpenseControllerTest extends ApiTestSupport {
         return """
                 {%s"payerId": "%s", "description": "%s", "amountCents": %d, "splitType": "%s", "shares": [%s]}
                 """.formatted(idField, payerId, description, amountCents, splitType, String.join(", ", shares));
+    }
+
+    private static String withCategory(String expenseJson, String category) {
+        return expenseJson.replaceFirst("\\{", "{\"category\": \"" + category + "\", ");
     }
 }

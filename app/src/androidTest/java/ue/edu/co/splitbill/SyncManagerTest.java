@@ -284,10 +284,14 @@ public class SyncManagerTest {
         enqueue(200, "[" + groupJson() + "," + groupJson(casa) + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+        //el pull tambien recorre el otro grupo
+        enqueue(200, "[" + userJson(sofia, true) + "]");
+        enqueue(200, "[]");
 
         SyncResult result = this.syncManager.syncNow();
 
         assertEquals(SyncResult.State.SYNCED, result.getState());
+        assertEquals(6, this.server.getRequestCount());
         RecordedRequest add = assertRequest("POST", "/api/groups/" + casa.getId() + "/members");
         assertTrue(add.getBody().readUtf8().contains("310 222 3344"));
         assertEquals(0, result.getPendingChanges());
@@ -310,10 +314,13 @@ public class SyncManagerTest {
         enqueue(200, "[" + groupJson() + "," + groupJson(nuevo) + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+        //despues del grupo actual se trae el nuevo: integrantes y gastos
+        enqueue(200, "[" + userJson(this.julian, true) + "]");
+        enqueue(200, "[]");
 
         assertEquals(SyncResult.State.SYNCED, this.syncManager.syncNow().getState());
 
-        List<GroupListItem> groups = this.database.groupDao().findActiveWithTotals();
+        List<GroupListItem> groups = this.database.groupDao().findActiveWithTotals(this.julian.getId());
         assertEquals(2, groups.size());
         assertNotNull(this.database.groupDao().findById(nuevo.getId()));
         assertTrue(!this.database.groupDao().findById(viejo.getId()).isActive());

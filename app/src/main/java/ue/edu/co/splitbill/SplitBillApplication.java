@@ -21,11 +21,16 @@ public class SplitBillApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        this.serviceLocator = new ServiceLocator(this);
+        this.serviceLocator = createServiceLocator();
 
         //cada vez que el celular recupera la conexion, se suben los cambios hechos sin ella
         final SyncManager syncManager = this.serviceLocator.getSyncManager();
         this.serviceLocator.getNetworkMonitor().start(syncManager::requestSync);
+    }
+
+    /** Las pruebas de interfaz lo sobrescriben para armar la app con piezas de prueba. */
+    protected ServiceLocator createServiceLocator() {
+        return new ServiceLocator(this);
     }
 
     public ServiceLocator getServiceLocator() {

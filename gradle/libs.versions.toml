@@ -21,6 +21,7 @@ okhttp = "4.12.0"
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoCore" }
 test-core = { group = "androidx.test", name = "core", version.ref = "androidxTest" }
 test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }

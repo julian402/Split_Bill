@@ -26,7 +26,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Runner propio: arranca la app con base de datos en memoria y servidor falso (ver SplitBillTestRunner)
+        testInstrumentationRunner = "ue.edu.co.splitbill.SplitBillTestRunner"
 
         // Direccion del backend. Por defecto 10.0.2.2, que es el computador visto desde el emulador.
         // Cada quien puede cambiarla en su local.properties (no se sube a git), por ejemplo para un
@@ -93,6 +94,7 @@ dependencies {
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.espresso.contrib)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.test.core)
     androidTestImplementation(libs.test.runner)

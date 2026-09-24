@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -23,13 +22,21 @@ public class AppExecutors {
 
     private static final int NETWORK_THREADS = 2;
 
-    private final ExecutorService io;
-    private final ExecutorService network;
+    private final Executor io;
+    private final Executor network;
     private final Executor mainThread;
 
     public AppExecutors() {
-        this.io = Executors.newFixedThreadPool(IO_THREADS);
-        this.network = Executors.newFixedThreadPool(NETWORK_THREADS);
+        this(Executors.newFixedThreadPool(IO_THREADS), Executors.newFixedThreadPool(NETWORK_THREADS));
+    }
+
+    /**
+     * Para las pruebas de interfaz (Espresso): reciben hilos que avisan cuando estan ocupados, asi la
+     * prueba espera a que termine la consulta antes de revisar la pantalla.
+     */
+    public AppExecutors(Executor io, Executor network) {
+        this.io = io;
+        this.network = network;
         this.mainThread = new MainThreadExecutor();
     }
 

@@ -16,6 +16,7 @@ import ue.edu.co.splitbill.network.ApiClient;
 import ue.edu.co.splitbill.network.ApiService;
 import ue.edu.co.splitbill.session.KeystoreTokenStore;
 import ue.edu.co.splitbill.session.SessionManager;
+import ue.edu.co.splitbill.session.TokenStore;
 import ue.edu.co.splitbill.sync.NetworkMonitor;
 import ue.edu.co.splitbill.sync.SyncManager;
 import ue.edu.co.splitbill.sync.SyncScheduler;
@@ -28,12 +29,16 @@ import ue.edu.co.splitbill.sync.SyncScheduler;
  * construye una sola vez, la primera vez que alguien la pide, y se reutiliza.
  *
  * Es inyeccion de dependencias hecha a mano: las clases no salen a buscar lo que necesitan, lo
- * reciben por constructor. Eso permite, por ejemplo, pasarle a un repositorio una base de datos en
- * memoria durante las pruebas cambiando una sola linea de este archivo.
+ * reciben por constructor. Eso permite, por ejemplo, pasarle a toda la app una base de datos en
+ * memoria durante las pruebas de interfaz (ver el segundo constructor).
  */
 public class ServiceLocator {
 
     private final Context context;
+
+    /** Lo que las pruebas de interfaz pueden cambiar. Null = lo normal de la app. */
+    private final String apiBaseUrl;
+    private final TokenStore tokenStore;
 
     private SplitBillDatabase database;
     private AppExecutors executors;
@@ -49,7 +54,21 @@ public class ServiceLocator {
     private GroupRepository groupRepository;
 
     public ServiceLocator(Context context) {
+        this(context, null, null, null, null);
+    }
+
+    /**
+     * Para las pruebas de interfaz (Espresso): una base de datos en memoria, el token en memoria, un
+     * servidor falso y hilos que Espresso sabe esperar. Asi las pruebas no tocan los datos reales del
+     * celular ni necesitan el backend.
+     */
+    public ServiceLocator(Context context, SplitBillDatabase database, TokenStore tokenStore,
+                          AppExecutors executors, String apiBaseUrl) {
         this.context = context.getApplicationContext();
+        this.database = database;
+        this.tokenStore = tokenStore;
+        this.executors = executors;
+        this.apiBaseUrl = apiBaseUrl;
     }
 
     public synchronized SplitBillDatabase getDatabase() {
@@ -68,7 +87,8 @@ public class ServiceLocator {
 
     public synchronized SessionManager getSessionManager() {
         if (this.sessionManager == null) {
-            this.sessionManager = new SessionManager(this.context, new KeystoreTokenStore(this.context));
+            TokenStore store = this.tokenStore != null ? this.tokenStore : new KeystoreTokenStore(this.context);
+            this.sessionManager = new SessionManager(this.context, store);
         }
         return this.sessionManager;
     }
@@ -76,7 +96,8 @@ public class ServiceLocator {
     /** La direccion del backend sale de BuildConfig: distinta para desarrollo y para produccion. */
     public synchronized ApiService getApiService() {
         if (this.apiService == null) {
-            this.apiService = ApiClient.create(BuildConfig.API_BASE_URL, getSessionManager());
+            String baseUrl = this.apiBaseUrl != null ? this.apiBaseUrl : BuildConfig.API_BASE_URL;
+            this.apiService = ApiClient.create(baseUrl, getSessionManager());
         }
         return this.apiService;
     }

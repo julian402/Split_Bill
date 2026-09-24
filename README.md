@@ -129,13 +129,19 @@ Para usar la app hay que tener el backend corriendo en el mismo computador (ver
 [`backend/README.md`](backend/README.md)). Por defecto la app lo busca en `10.0.2.2:8080`, que es
 el computador visto **desde el emulador**. Esa dirección no existe en un celular real.
 
-**En un celular físico** (o para usar la misma dirección en todos los dispositivos):
+**En un celular físico** (o para usar la misma dirección en todos los dispositivos), agregar a
+`local.properties` (no se sube a git):
 
-1. Agregar a `local.properties` (no se sube a git): `splitbill.apiBaseUrl=http://localhost:8080/`
-2. Con el celular conectado por USB o depuración inalámbrica: `adb reverse tcp:8080 tcp:8080`.
-   Así, el `localhost:8080` del celular llega al backend del PC. Hay que repetirlo cada vez que el
-   celular se reconecta.
-3. Volver a instalar la app.
+```
+splitbill.apiBaseUrl=http://localhost:8080/
+splitbill.adbReversePort=8080
+```
+
+La primera línea hace que la app busque el backend en `localhost`. La segunda hace que Gradle ejecute
+`adb reverse tcp:8080 tcp:8080` en **todos los dispositivos conectados** antes de cada compilación
+(también al darle Run en Android Studio). Así el `localhost:8080` del celular o del emulador llega al
+backend del PC por la conexión de depuración, sin IP ni firewall. El celular tiene que estar conectado
+por USB o por depuración inalámbrica.
 
 > **Proyecto dentro de OneDrive:** la sincronización bloquea los archivos de `app\build` mientras Gradle
 > compila, y falla con `Unable to delete directory` o en `dexBuilderDebug`. No es un error del código.

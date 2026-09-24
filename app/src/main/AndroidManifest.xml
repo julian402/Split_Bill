@@ -50,6 +50,11 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.group.GroupsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.group.MainActivity" />
+
+        <activity
             android:name=".ui.group.MembersActivity"
             android:exported="false"
             android:parentActivityName=".ui.group.MainActivity"

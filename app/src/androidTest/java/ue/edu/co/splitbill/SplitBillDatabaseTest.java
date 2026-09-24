@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ue.edu.co.splitbill.dao.GroupListItem;
 import ue.edu.co.splitbill.dao.ExpenseListItem;
 import ue.edu.co.splitbill.dao.ShareListItem;
 import ue.edu.co.splitbill.dao.UserAmount;
@@ -37,6 +38,8 @@ import ue.edu.co.splitbill.domain.split.SplitStrategyFactory;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
+import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
@@ -89,20 +92,42 @@ public class SplitBillDatabaseTest {
 
     @Test
     public void losIntegrantesActivosSeListanPorNombre() {
-        List<User> users = this.database.userDao().findActive();
+        List<User> users = this.database.groupMemberDao().findActiveUsers(this.groupId);
 
         assertEquals(4, users.size());
         assertEquals("Diomar Arias", users.get(0).getNames());
-        assertEquals(4, this.database.userDao().countActive());
+        assertEquals(4, this.database.groupMemberDao().countActive(this.groupId));
     }
 
     @Test
     public void elBorradoLogicoSacaAlIntegranteDeLaLista() {
-        assertEquals(1, this.database.userDao().softDelete(this.sofia.getId()));
+        assertEquals(1, this.database.groupMemberDao().softDelete(this.groupId, this.sofia.getId()));
 
-        assertEquals(3, this.database.userDao().countActive());
+        assertEquals(3, this.database.groupMemberDao().countActive(this.groupId));
         //La fila sigue existiendo: solo quedo marcada como inactiva
         assertNotNull(this.database.userDao().findById(this.sofia.getId()));
+    }
+
+    /** Una misma persona puede estar en dos grupos y salir de uno sin salir del otro. */
+    @Test
+    public void cadaGrupoTieneSusPropiosIntegrantes() {
+        Group casa = new Group("Casa", DatabaseContract.DEFAULT_GROUP_CURRENCY);
+        this.database.groupDao().insert(casa);
+        this.database.groupMemberDao().upsert(new GroupMember(casa.getId(), this.julian.getId(), SyncStatus.SYNCED));
+        this.database.groupMemberDao().upsert(new GroupMember(casa.getId(), this.sofia.getId(), SyncStatus.SYNCED));
+
+        assertEquals(2, this.database.groupMemberDao().countActive(casa.getId()));
+        assertEquals(4, this.database.groupMemberDao().countActive(this.groupId));
+
+        this.database.groupMemberDao().softDelete(casa.getId(), this.sofia.getId());
+        assertEquals(1, this.database.groupMemberDao().countActive(casa.getId()));
+        assertEquals(4, this.database.groupMemberDao().countActive(this.groupId));
+        //el retiro queda pendiente de subir al servidor
+        assertEquals(SyncStatus.PENDING_DELETE,
+                this.database.groupMemberDao().findById(casa.getId(), this.sofia.getId()).getSyncStatus());
+
+        List<GroupListItem> groups = this.database.groupDao().findActiveWithTotals();
+        assertEquals(2, groups.size());
     }
 
     @Test
@@ -193,6 +218,7 @@ public class SplitBillDatabaseTest {
     private User insertUser(String names) {
         User user = new User(names, null, null);
         this.database.userDao().insert(user);
+        this.database.groupMemberDao().upsert(new GroupMember(this.groupId, user.getId(), SyncStatus.PENDING_CREATE));
         return user;
     }
 

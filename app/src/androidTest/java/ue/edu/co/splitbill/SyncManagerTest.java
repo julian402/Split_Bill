@@ -1,6 +1,7 @@
 package ue.edu.co.splitbill;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -16,17 +17,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.List;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import okhttp3.mockwebserver.SocketPolicy;
+import ue.edu.co.splitbill.dao.GroupListItem;
 import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.domain.Money;
 import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
+import ue.edu.co.splitbill.entity.GroupMember;
 import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
@@ -79,6 +83,9 @@ public class SyncManagerTest {
         this.diomar = new User("Diomar", null, null);
         this.database.userDao().insert(this.julian);
         this.database.userDao().insert(this.diomar);
+        this.database.groupMemberDao().upsert(new GroupMember(this.group.getId(), this.julian.getId(), SyncStatus.SYNCED));
+        this.database.groupMemberDao().upsert(new GroupMember(this.group.getId(), this.diomar.getId(),
+                SyncStatus.PENDING_CREATE));
         this.almuerzo = insertExpense("Almuerzo", 6_000_000L);
 
         this.sessionManager.startSession(TOKEN, this.julian.getId(), "Julian", "julian@test.com");
@@ -97,6 +104,7 @@ public class SyncManagerTest {
         enqueue(201, groupJson());
         enqueue(201, userJson(this.diomar, true));
         enqueue(201, "{}");
+        enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
 
@@ -111,6 +119,7 @@ public class SyncManagerTest {
         assertTrue(body.contains(this.almuerzo.getId()));
         assertTrue(body.contains("\"amountCents\":3000000"));
         assertEquals("Bearer " + TOKEN, expense.getHeader("Authorization"));
+        assertRequest("GET", "/api/groups");
         assertRequest("GET", "/api/groups/" + this.group.getId() + "/members?includeRemoved=true");
         assertRequest("GET", "/api/groups/" + this.group.getId() + "/expenses");
     }
@@ -142,6 +151,7 @@ public class SyncManagerTest {
         enqueue(201, groupJson());
         enqueue(201, userJson(this.diomar, true));
         enqueue(400, "{\"status\":400,\"detail\":\"Las partes suman 99 centavos pero el gasto es de 100 centavos\"}");
+        enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[]");
 
@@ -159,10 +169,11 @@ public class SyncManagerTest {
     public void pullBringsNewExpensesAndRemovesTheOnesDeletedOnTheServer() throws Exception {
         //todo ya estaba sincronizado; en el servidor alguien borro el almuerzo y agrego un taxi
         this.database.groupDao().markSynced(this.group.getId());
-        this.database.userDao().markSynced(this.diomar.getId(), this.diomar.getStatus());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
         this.database.expenseDao().markSynced(this.almuerzo.getId(), this.almuerzo.getStatus());
         Expense taxi = new Expense(this.group.getId(), this.diomar.getId(), "Taxi", Money.ofCents(20_000L),
                 SplitType.EQUAL);
+        enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(taxi) + "]");
 
@@ -179,11 +190,12 @@ public class SyncManagerTest {
     public void anEditedExpenseIsSentWithPut() throws Exception {
         //todo sincronizado; luego el usuario edita el almuerzo
         this.database.groupDao().markSynced(this.group.getId());
-        this.database.userDao().markSynced(this.diomar.getId(), this.diomar.getStatus());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
         this.almuerzo.setDescription("Almuerzo corregido");
         this.almuerzo.setSyncStatus(SyncStatus.PENDING_UPDATE);
         this.database.expenseDao().update(this.almuerzo);
         enqueue(200, expenseJson(this.almuerzo));
+        enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
 
@@ -199,10 +211,11 @@ public class SyncManagerTest {
     @Test
     public void editingAnExpenseDeletedByOthersIsDiscarded() throws Exception {
         this.database.groupDao().markSynced(this.group.getId());
-        this.database.userDao().markSynced(this.diomar.getId(), this.diomar.getStatus());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
         this.almuerzo.setSyncStatus(SyncStatus.PENDING_UPDATE);
         this.database.expenseDao().update(this.almuerzo);
         enqueue(404, "{\"status\":404,\"detail\":\"Gasto no encontrado\"}");
+        enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[]");
 
@@ -219,10 +232,11 @@ public class SyncManagerTest {
     @Test
     public void afterTheFirstSyncOnlyChangesAreRequested() throws Exception {
         this.database.groupDao().markSynced(this.group.getId());
-        this.database.userDao().markSynced(this.diomar.getId(), this.diomar.getStatus());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
         this.database.expenseDao().markSynced(this.almuerzo.getId(), this.almuerzo.getStatus());
 
         //primera sincronizacion: lista completa, y se guarda la hora del servidor
+        enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         this.server.enqueue(new MockResponse().setResponseCode(200)
                 .setHeader("Content-Type", "application/json")
@@ -230,21 +244,79 @@ public class SyncManagerTest {
                 .setBody("[" + expenseJson(this.almuerzo) + "]"));
         assertEquals(SyncResult.State.SYNCED, this.syncManager.syncNow().getState());
         this.server.takeRequest();
+        this.server.takeRequest();
         assertEquals("/api/groups/" + this.group.getId() + "/expenses", this.server.takeRequest().getPath());
 
         //segunda: solo lo que cambio desde esa hora (menos un minuto de margen)
         Expense taxi = new Expense(this.group.getId(), this.diomar.getId(), "Taxi", Money.ofCents(20_000L),
                 SplitType.EQUAL);
         String almuerzoBorrado = expenseJson(this.almuerzo).replace("\"shares\"", "\"active\":false,\"shares\"");
+        enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(taxi) + "," + almuerzoBorrado + "]");
         assertEquals(SyncResult.State.SYNCED, this.syncManager.syncNow().getState());
+        this.server.takeRequest();
         this.server.takeRequest();
         RecordedRequest incremental = this.server.takeRequest();
         assertEquals("2026-09-24T15:59:00Z", incremental.getRequestUrl().queryParameter("updatedSince"));
 
         assertTrue(this.database.expenseDao().findById(taxi.getId()).isActive());
         assertTrue(!this.database.expenseDao().findById(this.almuerzo.getId()).isActive());
+    }
+
+    /**
+     * Con varios grupos, cada integrante pendiente se sube a su propio grupo, aunque la persona este
+     * trabajando en otro.
+     */
+    @Test
+    public void aMemberAddedInAnotherGroupIsUploadedToThatGroup() throws Exception {
+        this.database.groupDao().markSynced(this.group.getId());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
+        this.database.expenseDao().markSynced(this.almuerzo.getId(), this.almuerzo.getStatus());
+        Group casa = new Group("Casa", "COP");
+        casa.setSyncStatus(SyncStatus.SYNCED);
+        this.database.groupDao().insert(casa);
+        User sofia = new User("Sofia", null, "310 222 3344");
+        this.database.userDao().insert(sofia);
+        this.database.groupMemberDao().upsert(new GroupMember(casa.getId(), sofia.getId(), SyncStatus.PENDING_CREATE));
+
+        enqueue(201, userJson(sofia, true));
+        enqueue(200, "[" + groupJson() + "," + groupJson(casa) + "]");
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+
+        SyncResult result = this.syncManager.syncNow();
+
+        assertEquals(SyncResult.State.SYNCED, result.getState());
+        RecordedRequest add = assertRequest("POST", "/api/groups/" + casa.getId() + "/members");
+        assertTrue(add.getBody().readUtf8().contains("310 222 3344"));
+        assertEquals(0, result.getPendingChanges());
+        //y en el grupo actual sigue igual
+        assertEquals(2, this.database.groupMemberDao().countActive(this.group.getId()));
+        assertEquals(1, this.database.groupMemberDao().countActive(casa.getId()));
+    }
+
+    /** Un grupo nuevo en el servidor aparece; uno que ya no esta (sacaron a la persona) desaparece. */
+    @Test
+    public void pullBringsNewGroupsAndHidesTheOnesThatAreGone() throws Exception {
+        this.database.groupDao().markSynced(this.group.getId());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
+        this.database.expenseDao().markSynced(this.almuerzo.getId(), this.almuerzo.getStatus());
+        Group viejo = new Group("Viejo", "COP");
+        viejo.setSyncStatus(SyncStatus.SYNCED);
+        this.database.groupDao().insert(viejo);
+        Group nuevo = new Group("Oficina", "COP");
+
+        enqueue(200, "[" + groupJson() + "," + groupJson(nuevo) + "]");
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+
+        assertEquals(SyncResult.State.SYNCED, this.syncManager.syncNow().getState());
+
+        List<GroupListItem> groups = this.database.groupDao().findActiveWithTotals();
+        assertEquals(2, groups.size());
+        assertNotNull(this.database.groupDao().findById(nuevo.getId()));
+        assertTrue(!this.database.groupDao().findById(viejo.getId()).isActive());
     }
 
     @Test
@@ -291,8 +363,12 @@ public class SyncManagerTest {
     }
 
     private String groupJson() {
-        return "{\"id\":\"" + this.group.getId() + "\",\"name\":\"Paseo\",\"currency\":\"COP\",\"ownerId\":\""
-                + this.julian.getId() + "\"}";
+        return groupJson(this.group);
+    }
+
+    private String groupJson(Group group) {
+        return "{\"id\":\"" + group.getId() + "\",\"name\":\"" + group.getName()
+                + "\",\"currency\":\"COP\",\"ownerId\":\"" + this.julian.getId() + "\"}";
     }
 
     private static String userJson(User user, boolean active) {

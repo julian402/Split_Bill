@@ -12,7 +12,8 @@ import ue.edu.co.splitbill.manager.DatabaseContract;
 
 /**
  * Operaciones sobre la tabla de grupos. Aparece en la entrega 3, cuando el grupo deja de ser siempre
- * el sembrado y pasa a ser el grupo del usuario en el servidor.
+ * el sembrado y pasa a ser el grupo del usuario en el servidor; en la entrega 4 lista y renombra los
+ * varios grupos de la persona.
  */
 @Dao
 public interface GroupDao {
@@ -40,6 +41,21 @@ public interface GroupDao {
 
     @Query(DatabaseContract.Groups.MOVE_EXPENSES)
     void moveExpenses(String oldId, String newId);
+
+    @Query(DatabaseContract.Groups.MOVE_MEMBERS)
+    void moveMembers(String oldId, String newId);
+
+    @Query(DatabaseContract.Groups.SELECT_ACTIVE_WITH_TOTALS)
+    List<GroupListItem> findActiveWithTotals();
+
+    @Query(DatabaseContract.Groups.UPDATE_NAME)
+    int updateName(String groupId, String name);
+
+    @Query(DatabaseContract.Groups.SELECT_SYNCED_ACTIVE_IDS)
+    List<String> findSyncedActiveIds();
+
+    @Query(DatabaseContract.Groups.MARK_REMOVED_BY_SERVER)
+    void markRemovedByServer(String groupId);
 
     @Query(DatabaseContract.Groups.DELETE_BY_ID)
     void deleteById(String groupId);

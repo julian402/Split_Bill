@@ -14,10 +14,12 @@ import ue.edu.co.splitbill.dao.BalanceDao;
 import ue.edu.co.splitbill.dao.ExpenseDao;
 import ue.edu.co.splitbill.dao.ExpenseShareDao;
 import ue.edu.co.splitbill.dao.GroupDao;
+import ue.edu.co.splitbill.dao.GroupMemberDao;
 import ue.edu.co.splitbill.dao.UserDao;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
+import ue.edu.co.splitbill.entity.GroupMember;
 import ue.edu.co.splitbill.entity.User;
 
 /**
@@ -32,7 +34,7 @@ import ue.edu.co.splitbill.entity.User;
  * generan bloqueos. Se usa doble verificacion con synchronized para que dos hilos no la abran a la vez.
  */
 @Database(
-        entities = {User.class, Group.class, Expense.class, ExpenseShare.class},
+        entities = {User.class, Group.class, Expense.class, ExpenseShare.class, GroupMember.class},
         version = DatabaseContract.DATABASE_VERSION,
         exportSchema = true)
 @TypeConverters({Converters.class})
@@ -49,6 +51,8 @@ public abstract class SplitBillDatabase extends RoomDatabase {
     public abstract BalanceDao balanceDao();
 
     public abstract GroupDao groupDao();
+
+    public abstract GroupMemberDao groupMemberDao();
 
     /**
      * Version 1 -> 2 (entrega 3): la tabla groups necesita saber si ya se subio al servidor y quien
@@ -68,6 +72,27 @@ public abstract class SplitBillDatabase extends RoomDatabase {
         }
     };
 
+    /**
+     * Version 2 -> 3 (entrega 4): varios grupos. Nace la tabla group_members y se llena con lo que
+     * habia: antes de esta version el celular tenia un solo grupo, asi que cada persona de users
+     * pertenece a el, con el mismo estado (activa o retirada) y la misma marca de sincronizacion.
+     */
+    public static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `group_members` (`gmb_group_id` TEXT NOT NULL, "
+                    + "`gmb_user_id` TEXT NOT NULL, `gmb_status` INTEGER NOT NULL, `gmb_sync_status` TEXT, "
+                    + "PRIMARY KEY(`gmb_group_id`, `gmb_user_id`), "
+                    + "FOREIGN KEY(`gmb_group_id`) REFERENCES `groups`(`grp_id`) ON UPDATE NO ACTION ON DELETE CASCADE , "
+                    + "FOREIGN KEY(`gmb_user_id`) REFERENCES `users`(`use_id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_group_members_gmb_user_id` "
+                    + "ON `group_members` (`gmb_user_id`)");
+            database.execSQL("INSERT INTO group_members (gmb_group_id, gmb_user_id, gmb_status, gmb_sync_status) "
+                    + "SELECT g.grp_id, u.use_id, u.use_status, u.use_sync_status "
+                    + "FROM `groups` g CROSS JOIN users u WHERE g.grp_status = 1");
+        }
+    };
+
     public static SplitBillDatabase getInstance(Context context) {
         if (instance == null) {
             synchronized (SplitBillDatabase.class) {
@@ -78,7 +103,7 @@ public abstract class SplitBillDatabase extends RoomDatabase {
                                     DatabaseContract.DATABASE_NAME)
                             //Sin fallbackToDestructiveMigration: perder datos del usuario al cambiar
                             //el esquema no es una opcion, las migraciones se escriben a mano
-                            .addMigrations(MIGRATION_1_2)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                             .addCallback(CALLBACK)
                             .build();
                 }

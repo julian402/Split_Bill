@@ -39,6 +39,10 @@ public interface ApiService {
     @POST("api/groups")
     Call<GroupDto> createGroup(@Body GroupDto group);
 
+    /** Solo el dueno del grupo puede cambiarle el nombre. */
+    @PUT("api/groups/{groupId}")
+    Call<GroupDto> updateGroup(@Path("groupId") String groupId, @Body GroupDto group);
+
     @GET("api/groups/{groupId}/members")
     Call<List<UserDto>> getMembers(@Path("groupId") String groupId, @Query("includeRemoved") boolean includeRemoved);
 

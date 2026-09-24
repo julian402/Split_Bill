@@ -65,4 +65,37 @@ public class MigrationTest {
         }
         version2.close();
     }
+
+    /**
+     * 2 -> 3: el celular tenia un solo grupo; cada persona queda como integrante de el, con el mismo
+     * estado. Una retirada sigue retirada y una sin subir sigue pendiente.
+     */
+    @Test
+    public void migrationFrom2To3PutsEveryPersonInTheGroupTheyWereIn() throws IOException {
+        SupportSQLiteDatabase version2 = helper.createDatabase(TEST_DB, 2);
+        version2.execSQL("INSERT INTO `groups` (grp_id, grp_name, grp_currency, grp_created_at, grp_status, "
+                + "grp_sync_status) VALUES ('g-1', 'Paseo', 'COP', 0, 1, 'SYNCED')");
+        version2.execSQL("INSERT INTO users (use_id, use_names, use_status, use_sync_status) "
+                + "VALUES ('u-1', 'Julian', 1, 'SYNCED')");
+        version2.execSQL("INSERT INTO users (use_id, use_names, use_status, use_sync_status) "
+                + "VALUES ('u-2', 'Diomar', 1, 'PENDING_CREATE')");
+        version2.execSQL("INSERT INTO users (use_id, use_names, use_status, use_sync_status) "
+                + "VALUES ('u-3', 'Luis', 0, 'SYNCED')");
+        version2.close();
+
+        SupportSQLiteDatabase version3 = helper.runMigrationsAndValidate(TEST_DB, 3, true,
+                SplitBillDatabase.MIGRATION_2_3);
+
+        try (Cursor members = version3.query("SELECT gmb_user_id, gmb_status, gmb_sync_status FROM group_members "
+                + "WHERE gmb_group_id = 'g-1' ORDER BY gmb_user_id")) {
+            assertEquals(3, members.getCount());
+            members.moveToPosition(1);
+            assertEquals("u-2", members.getString(0));
+            assertEquals("PENDING_CREATE", members.getString(2));
+            members.moveToPosition(2);
+            assertEquals("u-3", members.getString(0));
+            assertEquals(0, members.getInt(1));
+        }
+        version3.close();
+    }
 }

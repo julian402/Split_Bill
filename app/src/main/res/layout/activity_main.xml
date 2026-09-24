@@ -38,14 +38,24 @@
                     android:textColor="@color/colorPrimary"
                     android:fontFamily="sans-serif-medium" />
 
+                <!-- Nombre del grupo actual: al tocarlo se abre la lista de grupos -->
                 <TextView
                     android:id="@+id/tvTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:contentDescription="@string/cdChangeGroup"
+                    android:drawablePadding="4dp"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:minHeight="48dp"
+                    android:gravity="center_vertical"
                     android:text="@string/tvTitleMain"
                     android:textColor="@color/colorTextPrimary"
                     android:textSize="26sp"
-                    android:fontFamily="sans-serif-medium" />
+                    app:drawableEndCompat="@drawable/ic_expand_more"
+                    app:drawableTint="@color/colorTextPrimary" />
 
                 <!-- Estado de la sincronizacion con el servidor -->
                 <TextView

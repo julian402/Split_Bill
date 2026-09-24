@@ -49,7 +49,7 @@ public class SettlementRepository extends BaseRepository {
         runAsync(new Callable<SettlementResult>() {
             @Override
             public SettlementResult call() {
-                List<User> users = database.userDao().findActive();
+                List<User> users = database.groupMemberDao().findActiveUsers(groupId);
 
                 Map<String, Money> totalPaid = aMapaDeMontos(database.balanceDao().sumPaidByUser(groupId));
                 Map<String, Money> totalOwed = aMapaDeMontos(database.balanceDao().sumOwedByUser(groupId));

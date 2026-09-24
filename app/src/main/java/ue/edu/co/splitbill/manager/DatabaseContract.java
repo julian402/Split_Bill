@@ -14,8 +14,11 @@ package ue.edu.co.splitbill.manager;
 public final class DatabaseContract {
 
     public static final String DATABASE_NAME = "splitbill.db";
-    /** Version 2 (entrega 3): la tabla groups gana grp_sync_status y grp_owner_id. */
-    public static final int DATABASE_VERSION = 2;
+    /**
+     * Version 2 (entrega 3): la tabla groups gana grp_sync_status y grp_owner_id.
+     * Version 3 (entrega 4): tabla group_members, para que cada grupo tenga sus propios integrantes.
+     */
+    public static final int DATABASE_VERSION = 3;
 
     /** Borrado logico: las filas no se eliminan, se marcan como inactivas. */
     public static final int STATUS_ACTIVE = 1;
@@ -24,6 +27,7 @@ public final class DatabaseContract {
     /** Valores de sync_status tal como los guarda Converters (el nombre del enum SyncStatus). */
     public static final String SYNCED = "'SYNCED'";
     public static final String PENDING_CREATE = "'PENDING_CREATE'";
+    public static final String PENDING_UPDATE = "'PENDING_UPDATE'";
     public static final String PENDING_DELETE = "'PENDING_DELETE'";
 
     /**
@@ -38,7 +42,11 @@ public final class DatabaseContract {
         //impide crear objetos de esta clase
     }
 
-    /** Integrantes que participan en los gastos. */
+    /**
+     * Personas que participan en los gastos: es el directorio de personas. Desde la version 3, en que
+     * grupo esta cada una (y si sigue activa en el) se guarda en group_members; use_status y
+     * use_sync_status quedan en la tabla para no reconstruirla, pero ya no se consultan.
+     */
     public static final class Users {
 
         public static final String TABLE_NAME = "users";
@@ -49,46 +57,18 @@ public final class DatabaseContract {
         public static final String COLUMN_STATUS = "use_status";
         public static final String COLUMN_SYNC_STATUS = "use_sync_status";
 
-        public static final String SELECT_ACTIVE =
-                "SELECT * FROM users WHERE use_status = 1 ORDER BY use_names ASC";
-
         public static final String SELECT_BY_ID =
                 "SELECT * FROM users WHERE use_id = :userId";
 
-        public static final String SELECT_COUNT_ACTIVE =
-                "SELECT COUNT(*) FROM users WHERE use_status = 1";
-
-        /**
-         * Borrado logico que ademas deja el cambio en la cola de sincronizacion. Si la fila nunca se
-         * subio, sigue como PENDING_CREATE: el SyncManager la crea y luego la retira en el servidor.
-         */
-        public static final String SOFT_DELETE =
-                "UPDATE users SET use_status = 0, use_sync_status = CASE "
-                + "WHEN use_sync_status = " + PENDING_CREATE + " THEN " + PENDING_CREATE
-                + " ELSE " + PENDING_DELETE + " END WHERE use_id = :userId";
-
-        public static final String SELECT_PENDING =
-                "SELECT * FROM users WHERE use_sync_status <> " + SYNCED;
-
-        public static final String COUNT_PENDING =
-                "SELECT COUNT(*) FROM users WHERE use_sync_status <> " + SYNCED;
-
         public static final String COUNT_ALL =
                 "SELECT COUNT(*) FROM users";
-
-        /**
-         * Se marca sincronizada solo si nadie la borro mientras se subia (use_status sigue igual);
-         * si la borraron, queda pendiente y el siguiente ciclo sube el borrado.
-         */
-        public static final String MARK_SYNCED =
-                "UPDATE users SET use_sync_status = " + SYNCED + " WHERE use_id = :userId AND use_status = :status";
 
         private Users() {
             //impide crear objetos de esta clase
         }
     }
 
-    /** Grupos de gastos. En esta entrega se trabaja con el grupo sembrado por defecto. */
+    /** Grupos de gastos. Desde la entrega 4 la persona puede tener varios y cambiar entre ellos. */
     public static final class Groups {
 
         public static final String TABLE_NAME = "groups";
@@ -126,10 +106,89 @@ public final class DatabaseContract {
         public static final String MOVE_EXPENSES =
                 "UPDATE expenses SET exp_group_id = :newId WHERE exp_group_id = :oldId";
 
+        public static final String MOVE_MEMBERS =
+                "UPDATE group_members SET gmb_group_id = :newId WHERE gmb_group_id = :oldId";
+
+        /**
+         * Grupos activos, por nombre, con cuantos integrantes tienen y cuanto
+         * suman sus gastos. Dos subconsultas en vez de JOIN para que un grupo sin gastos tambien salga.
+         */
+        public static final String SELECT_ACTIVE_WITH_TOTALS =
+                "SELECT g.grp_id AS groupId, g.grp_name AS name, g.grp_owner_id AS ownerId, "
+                + "(SELECT COUNT(*) FROM group_members m WHERE m.gmb_group_id = g.grp_id AND m.gmb_status = 1) "
+                + "AS memberCount, "
+                + "(SELECT COALESCE(SUM(e.exp_amount_cents), 0) FROM expenses e "
+                + "WHERE e.exp_group_id = g.grp_id AND e.exp_status = 1) AS totalCents "
+                + "FROM `groups` g WHERE g.grp_status = 1 ORDER BY g.grp_name COLLATE NOCASE ASC";
+
+        /** Si el grupo nunca se subio, sigue como PENDING_CREATE: al crearlo ya va el nombre nuevo. */
+        public static final String UPDATE_NAME =
+                "UPDATE `groups` SET grp_name = :name, grp_sync_status = CASE "
+                + "WHEN grp_sync_status = " + PENDING_CREATE + " THEN " + PENDING_CREATE
+                + " ELSE " + PENDING_UPDATE + " END WHERE grp_id = :groupId";
+
+        public static final String SELECT_SYNCED_ACTIVE_IDS =
+                "SELECT grp_id FROM `groups` WHERE grp_status = 1 AND grp_sync_status = " + SYNCED;
+
+        /** El servidor ya no lo devuelve (lo borraron o sacaron a la persona): deja de mostrarse. */
+        public static final String MARK_REMOVED_BY_SERVER =
+                "UPDATE `groups` SET grp_status = 0 WHERE grp_id = :groupId AND grp_sync_status = " + SYNCED;
+
         public static final String DELETE_BY_ID =
                 "DELETE FROM `groups` WHERE grp_id = :groupId";
 
         private Groups() {
+            //impide crear objetos de esta clase
+        }
+    }
+
+    /** Quien esta en cada grupo (version 3). */
+    public static final class GroupMembers {
+
+        public static final String TABLE_NAME = "group_members";
+        public static final String COLUMN_GROUP_ID = "gmb_group_id";
+        public static final String COLUMN_USER_ID = "gmb_user_id";
+        public static final String COLUMN_STATUS = "gmb_status";
+        public static final String COLUMN_SYNC_STATUS = "gmb_sync_status";
+
+        public static final String SELECT_BY_ID =
+                "SELECT * FROM group_members WHERE gmb_group_id = :groupId AND gmb_user_id = :userId";
+
+        /** Los integrantes activos de un grupo, con sus datos de users, ordenados por nombre. */
+        public static final String SELECT_ACTIVE_USERS =
+                "SELECT u.* FROM users u "
+                + "INNER JOIN group_members m ON m.gmb_user_id = u.use_id "
+                + "WHERE m.gmb_group_id = :groupId AND m.gmb_status = 1 "
+                + "ORDER BY u.use_names ASC";
+
+        public static final String COUNT_ACTIVE =
+                "SELECT COUNT(*) FROM group_members WHERE gmb_group_id = :groupId AND gmb_status = 1";
+
+        /**
+         * Borrado logico que ademas deja el cambio en la cola de sincronizacion. Si la fila nunca se
+         * subio, sigue como PENDING_CREATE: el SyncManager la crea y luego la retira en el servidor.
+         */
+        public static final String SOFT_DELETE =
+                "UPDATE group_members SET gmb_status = 0, gmb_sync_status = CASE "
+                + "WHEN gmb_sync_status = " + PENDING_CREATE + " THEN " + PENDING_CREATE
+                + " ELSE " + PENDING_DELETE + " END "
+                + "WHERE gmb_group_id = :groupId AND gmb_user_id = :userId AND gmb_status = 1";
+
+        public static final String SELECT_PENDING =
+                "SELECT * FROM group_members WHERE gmb_sync_status <> " + SYNCED;
+
+        public static final String COUNT_PENDING =
+                "SELECT COUNT(*) FROM group_members WHERE gmb_sync_status <> " + SYNCED;
+
+        /**
+         * Se marca sincronizada solo si nadie la borro mientras se subia (gmb_status sigue igual);
+         * si la borraron, queda pendiente y el siguiente ciclo sube el borrado.
+         */
+        public static final String MARK_SYNCED =
+                "UPDATE group_members SET gmb_sync_status = " + SYNCED
+                + " WHERE gmb_group_id = :groupId AND gmb_user_id = :userId AND gmb_status = :status";
+
+        private GroupMembers() {
             //impide crear objetos de esta clase
         }
     }

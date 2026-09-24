@@ -14,9 +14,9 @@ import ue.edu.co.splitbill.manager.DatabaseContract;
 /**
  * Grupo de gastos.
  *
- * En esta entrega la aplicacion trabaja siempre con el grupo sembrado por defecto al crear la base
- * de datos. La tabla existe desde ahora para que la pantalla de varios grupos no obligue a migrar
- * el esquema mas adelante.
+ * En la entrega 1 la aplicacion trabajaba siempre con el grupo sembrado por defecto; desde la
+ * entrega 4 la persona puede tener varios y cambiar entre ellos (GroupsActivity). Quien esta en cada
+ * grupo se guarda en group_members.
  */
 @Entity(tableName = DatabaseContract.Groups.TABLE_NAME)
 public class Group {
@@ -65,6 +65,9 @@ public class Group {
     public void validar() {
         if (this.name == null || this.name.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del grupo es obligatorio");
+        }
+        if (this.name.trim().length() > 100) {
+            throw new IllegalArgumentException("El nombre del grupo es demasiado largo");
         }
     }
 

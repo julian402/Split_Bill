@@ -16,6 +16,7 @@ import retrofit2.Response;
 import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.Group;
+import ue.edu.co.splitbill.entity.GroupMember;
 import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
@@ -35,8 +36,10 @@ import ue.edu.co.splitbill.session.SessionManager;
  * - Las pantallas SIEMPRE leen y escriben en Room, haya o no conexion. Cada cambio queda marcado con
  *   su sync_status (PENDING_CREATE, PENDING_DELETE): esa es la cola de cambios por enviar.
  * - Este SyncManager, en segundo plano, hace dos cosas en orden:
- *   1. Push: sube la cola, respetando las dependencias (grupo, luego integrantes, luego gastos).
- *   2. Pull: trae lo que otros integrantes cambiaron en el servidor.
+ *   1. Push: sube la cola de TODOS los grupos, respetando las dependencias (grupos, luego
+ *      integrantes, luego gastos).
+ *   2. Pull: trae la lista de grupos y lo que otros integrantes cambiaron en el grupo actual. Los
+ *      demas grupos se traen cuando la persona entra en ellos.
  *
  * Reglas:
  * - Nunca se pisa un cambio local pendiente con lo que llega del servidor.
@@ -137,8 +140,9 @@ public class SyncManager {
         List<String> rejected = new ArrayList<>();
         try {
             pushGroups(rejected);
-            pushMembers(groupId, rejected);
+            pushMembers(rejected);
             pushExpenses(rejected);
+            pullGroups();
             pull(groupId);
             return new SyncResult(SyncResult.State.SYNCED, countPending(), rejected);
         } catch (IOException e) {
@@ -154,7 +158,7 @@ public class SyncManager {
 
     public int countPending() {
         return this.database.groupDao().countPending()
-                + this.database.userDao().countPending()
+                + this.database.groupMemberDao().countPending()
                 + this.database.expenseDao().countPending();
     }
 
@@ -163,7 +167,9 @@ public class SyncManager {
     private void pushGroups(List<String> rejected) throws IOException {
         for (Group group : this.database.groupDao().findPending()) {
             try {
-                GroupDto saved = ApiClient.execute(this.api.createGroup(ApiMapper.toDto(group)));
+                GroupDto saved = group.getSyncStatus() == SyncStatus.PENDING_UPDATE
+                        ? ApiClient.execute(this.api.updateGroup(group.getId(), ApiMapper.toDto(group)))
+                        : ApiClient.execute(this.api.createGroup(ApiMapper.toDto(group)));
                 //el servidor devuelve el dueno; se guarda la version del servidor, ya sincronizada
                 this.database.groupDao().upsert(ApiMapper.toEntity(saved));
             } catch (ApiException e) {
@@ -173,19 +179,21 @@ public class SyncManager {
         }
     }
 
-    private void pushMembers(String groupId, List<String> rejected) throws IOException {
-        for (User user : this.database.userDao().findPending()) {
+    /** Cada pertenencia pendiente se sube a su propio grupo, no necesariamente al actual. */
+    private void pushMembers(List<String> rejected) throws IOException {
+        for (GroupMember member : this.database.groupMemberDao().findPending()) {
+            User user = this.database.userDao().findById(member.getUserId());
             try {
-                if (user.getSyncStatus() == SyncStatus.PENDING_CREATE) {
-                    ApiClient.execute(this.api.addMember(groupId, ApiMapper.toMemberRequest(user)));
+                if (member.getSyncStatus() == SyncStatus.PENDING_CREATE && user != null) {
+                    ApiClient.execute(this.api.addMember(member.getGroupId(), ApiMapper.toMemberRequest(user)));
                 }
-                if (!user.isActive()) {
-                    deleteIgnoringNotFound(this.api.removeMember(groupId, user.getId()));
+                if (!member.isActive()) {
+                    deleteIgnoringNotFound(this.api.removeMember(member.getGroupId(), member.getUserId()));
                 }
             } catch (ApiException e) {
                 discardIfRejected(e, rejected);
             }
-            this.database.userDao().markSynced(user.getId(), user.getStatus());
+            this.database.groupMemberDao().markSynced(member.getGroupId(), member.getUserId(), member.getStatus());
         }
     }
 
@@ -238,7 +246,34 @@ public class SyncManager {
     // ------------------------------------------------------------------ pull
 
     /**
-     * Trae los cambios del servidor. Los integrantes llegan siempre completos (son pocos). Los gastos
+     * Trae los grupos de la persona: los nuevos (por ejemplo uno al que la agregaron desde otro
+     * celular) aparecen, y los que el servidor ya no devuelve dejan de mostrarse. Un grupo con
+     * cambios locales sin subir no se toca.
+     */
+    private void pullGroups() throws IOException {
+        final List<GroupDto> groups = ApiClient.execute(this.api.getGroups());
+        this.database.runInTransaction(new Runnable() {
+            @Override
+            public void run() {
+                Set<String> serverIds = new HashSet<>();
+                for (GroupDto dto : groups) {
+                    serverIds.add(dto.getId());
+                    Group local = database.groupDao().findById(dto.getId());
+                    if (local == null || local.getSyncStatus() == SyncStatus.SYNCED) {
+                        database.groupDao().upsert(ApiMapper.toEntity(dto));
+                    }
+                }
+                for (String groupId : database.groupDao().findSyncedActiveIds()) {
+                    if (!serverIds.contains(groupId)) {
+                        database.groupDao().markRemovedByServer(groupId);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Trae los cambios del servidor en el grupo actual. Los integrantes llegan siempre completos (son pocos). Los gastos
      * llegan completos la primera vez; despues, solo los que cambiaron desde la ultima sincronizacion,
      * incluidos los borrados.
      */
@@ -255,9 +290,11 @@ public class SyncManager {
             @Override
             public void run() {
                 for (UserDto dto : members) {
-                    User local = database.userDao().findById(dto.getId());
+                    //los datos de la persona los manda el servidor; su pertenencia solo si no hay cambio local
+                    database.userDao().upsert(ApiMapper.toEntity(dto));
+                    GroupMember local = database.groupMemberDao().findById(groupId, dto.getId());
                     if (local == null || local.getSyncStatus() == SyncStatus.SYNCED) {
-                        database.userDao().upsert(ApiMapper.toEntity(dto));
+                        database.groupMemberDao().upsert(ApiMapper.toMember(groupId, dto));
                     }
                 }
 

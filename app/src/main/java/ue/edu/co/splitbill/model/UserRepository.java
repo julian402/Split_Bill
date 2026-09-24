@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import ue.edu.co.splitbill.di.AppExecutors;
+import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
 import ue.edu.co.splitbill.network.ApiClient;
@@ -14,7 +16,7 @@ import ue.edu.co.splitbill.sync.SyncResult;
 import ue.edu.co.splitbill.sync.SyncManager;
 
 /**
- * Repositorio de integrantes del grupo.
+ * Repositorio de integrantes del grupo actual (el que la persona tiene abierto, segun SessionManager).
  *
  * Es la unica puerta de entrada a la tabla de usuarios: las pantallas no conocen el DAO ni la base
  * de datos, solo piden datos y reciben la respuesta por el callback.
@@ -68,17 +70,31 @@ public class UserRepository extends BaseRepository {
         return TAG;
     }
 
-    /** Registra un integrante nuevo. Valida antes de tocar la base de datos. */
+    /**
+     * Registra un integrante nuevo en el grupo actual. Valida antes de tocar la base de datos: se
+     * guarda la persona (users) y su pertenencia al grupo (group_members), que es lo que se sube.
+     */
     public void insertUser(final User user, DataCallback<User> callback) {
         runAsync(new Callable<User>() {
             @Override
             public User call() {
                 user.validar();
-                database.userDao().insert(user);
+                final String groupId = sessionManager.getCurrentGroupId();
+                database.runInTransaction(new Runnable() {
+                    @Override
+                    public void run() {
+                        addToGroup(groupId, user);
+                    }
+                });
                 syncManager.notifyLocalChange();
                 return user;
             }
         }, callback);
+    }
+
+    private void addToGroup(String groupId, User user) {
+        database.userDao().insert(user);
+        database.groupMemberDao().upsert(new GroupMember(groupId, user.getId(), SyncStatus.PENDING_CREATE));
     }
 
     /**
@@ -94,11 +110,12 @@ public class UserRepository extends BaseRepository {
                 for (User user : users) {
                     user.validar();
                 }
+                final String groupId = sessionManager.getCurrentGroupId();
                 database.runInTransaction(new Runnable() {
                     @Override
                     public void run() {
                         for (User user : users) {
-                            database.userDao().insert(user);
+                            addToGroup(groupId, user);
                         }
                     }
                 });
@@ -112,7 +129,7 @@ public class UserRepository extends BaseRepository {
         runAsync(new Callable<List<User>>() {
             @Override
             public List<User> call() {
-                return database.userDao().findActive();
+                return database.groupMemberDao().findActiveUsers(sessionManager.getCurrentGroupId());
             }
         }, callback);
     }
@@ -141,12 +158,15 @@ public class UserRepository extends BaseRepository {
         }, callback);
     }
 
-    /** Borrado logico: el integrante deja de aparecer pero sus gastos siguen cuadrando. */
+    /**
+     * Borrado logico: el integrante sale del grupo actual (y solo de ese) pero sus gastos siguen
+     * cuadrando.
+     */
     public void deleteUser(final String userId, DataCallback<Integer> callback) {
         runAsync(new Callable<Integer>() {
             @Override
             public Integer call() {
-                int rowsAffected = database.userDao().softDelete(userId);
+                int rowsAffected = database.groupMemberDao().softDelete(sessionManager.getCurrentGroupId(), userId);
                 if (rowsAffected == 0) {
                     throw new IllegalArgumentException("No se encontró el integrante");
                 }
@@ -160,7 +180,7 @@ public class UserRepository extends BaseRepository {
         runAsync(new Callable<Integer>() {
             @Override
             public Integer call() {
-                return database.userDao().countActive();
+                return database.groupMemberDao().countActive(sessionManager.getCurrentGroupId());
             }
         }, callback);
     }

@@ -7,6 +7,8 @@ import java.util.concurrent.Callable;
 
 import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.entity.Group;
+import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
@@ -128,7 +130,10 @@ public class SessionRepository extends BaseRepository {
         //quien inicia sesion es integrante de su grupo y puede ser el pagador de un gasto
         this.database.userDao().upsert(ApiMapper.toEntity(response.getUser()));
 
-        this.sessionManager.setCurrentGroupId(prepareGroup(userId));
+        String groupId = prepareGroup(userId);
+        //quien inicia sesion siempre esta en su grupo (el servidor lo agrega al crearlo)
+        this.database.groupMemberDao().upsert(new GroupMember(groupId, userId, SyncStatus.SYNCED));
+        this.sessionManager.setCurrentGroupId(groupId);
         this.syncManager.requestSync();
         return response.getUser().getNames();
     }
@@ -161,6 +166,7 @@ public class SessionRepository extends BaseRepository {
                 public void run() {
                     database.groupDao().copyWithNewId(seededId, newId, userId);
                     database.groupDao().moveExpenses(seededId, newId);
+                    database.groupDao().moveMembers(seededId, newId);
                     database.groupDao().deleteById(seededId);
                 }
             });

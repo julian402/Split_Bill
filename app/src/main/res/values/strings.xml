@@ -208,4 +208,25 @@
     <string name="btnUseAmount">Usar este valor</string>
     <string name="btnRescan">Volver a escanear</string>
     <string name="msgAmountScanned">Total tomado de la factura. Revísalo antes de guardar</string>
+
+    <!-- Entrega 4: varios grupos -->
+    <string name="tvTitleGroups">Tus grupos</string>
+    <string name="tvGroupsHint">Cada grupo tiene sus propios integrantes, gastos y liquidación. Mantén presionado un grupo para cambiarle el nombre.</string>
+    <string name="cdChangeGroup">Cambiar de grupo</string>
+    <string name="tvCurrentGroup">Actual</string>
+    <string name="tvGroupNotLoaded">Toca para abrirlo</string>
+    <string name="btnNewGroup">Nuevo grupo</string>
+    <string name="dlgNewGroupTitle">Nuevo grupo</string>
+    <string name="dlgRenameGroupTitle">Cambiar el nombre</string>
+    <string name="etGroupName">Nombre del grupo (ej. Viaje a Cartagena)</string>
+    <string name="btnCreate">Crear</string>
+    <string name="btnSave">Guardar</string>
+    <string name="msgGroupCreated">Grupo «%1$s» creado. Agrega a sus integrantes</string>
+    <string name="msgGroupSwitched">Ahora estás en «%1$s»</string>
+    <string name="msgGroupRenamed">Nombre actualizado</string>
+    <string name="msgOnlyOwnerRenames">Solo quien creó el grupo le puede cambiar el nombre</string>
+    <plurals name="tvGroupMembers">
+        <item quantity="one">%d integrante</item>
+        <item quantity="other">%d integrantes</item>
+    </plurals>
 </resources>

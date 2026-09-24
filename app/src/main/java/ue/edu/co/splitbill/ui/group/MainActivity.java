@@ -13,7 +13,9 @@ import java.util.List;
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.dao.ExpenseListItem;
 import ue.edu.co.splitbill.domain.Money;
+import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.model.ExpenseRepository;
+import ue.edu.co.splitbill.model.GroupRepository;
 import ue.edu.co.splitbill.model.SessionRepository;
 import ue.edu.co.splitbill.model.UserRepository;
 import ue.edu.co.splitbill.sync.NetworkMonitor;
@@ -30,7 +32,7 @@ import ue.edu.co.splitbill.ui.settle.SettlementActivity;
 /**
  * Pantalla principal: el total del grupo, la lista de gastos y los accesos a las demas pantallas.
  *
- * El grupo es el grupo actual de la sesion. La lista siempre se lee de la base de datos del celular,
+ * El grupo es el grupo actual de la sesion; su nombre va en el titulo y al tocarlo se cambia de grupo. La lista siempre se lee de la base de datos del celular,
  * haya o no conexion; el SyncManager la mantiene al dia con el servidor y avisa por SyncListener
  * cuando termina, para recargarla y mostrar el estado de la sincronizacion.
  */
@@ -41,6 +43,7 @@ public class MainActivity extends BaseActivity
     private static final int MIN_MEMBERS = 2;
 
     private TextView tvAppGreeting;
+    private TextView tvTitle;
     private TextView tvSyncStatus;
     private TextView tvTotal;
     private TextView tvEmptyExpenses;
@@ -56,6 +59,7 @@ public class MainActivity extends BaseActivity
     private ExpenseRepository expenseRepository;
     private UserRepository userRepository;
     private SessionRepository sessionRepository;
+    private GroupRepository groupRepository;
     private SyncManager syncManager;
     private NetworkMonitor networkMonitor;
     private String groupId;
@@ -73,11 +77,15 @@ public class MainActivity extends BaseActivity
         this.btnQuickSplit.setOnClickListener(this::openQuickSplit);
         this.btnSync.setOnClickListener(this::syncAPI);
         this.btnLogout.setOnClickListener(this::confirmLogout);
+        this.tvTitle.setOnClickListener(this::openGroups);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        //pudo cambiar de grupo en la pantalla de grupos
+        this.groupId = getServiceLocator().getSessionManager().getCurrentGroupId();
+        loadGroupNameDB();
         //Al volver de registrar un gasto la lista se refresca sola
         listExpensesDB();
         loadTotalDB();
@@ -128,6 +136,8 @@ public class MainActivity extends BaseActivity
             showToast(getString(R.string.msgChangeRejected, rejected));
         }
         showSyncStatus(result);
+        //el nombre del grupo pudo cambiar en el servidor
+        loadGroupNameDB();
         listExpensesDB();
         loadTotalDB();
     }
@@ -172,6 +182,15 @@ public class MainActivity extends BaseActivity
             @Override
             protected void onData(Boolean data) {
                 goToLogin(false);
+            }
+        });
+    }
+
+    private void loadGroupNameDB() {
+        this.groupRepository.getCurrentGroup(new UiCallback<Group>() {
+            @Override
+            protected void onData(Group data) {
+                tvTitle.setText(data.getName());
             }
         });
     }
@@ -242,6 +261,10 @@ public class MainActivity extends BaseActivity
         });
     }
 
+    private void openGroups(View view) {
+        startActivity(new Intent(this, GroupsActivity.class));
+    }
+
     private void openSettlement(View view) {
         startActivity(new Intent(this, SettlementActivity.class));
     }
@@ -258,6 +281,7 @@ public class MainActivity extends BaseActivity
     @Override
     protected void initObjects() {
         this.tvAppGreeting = findViewById(R.id.tvAppGreeting);
+        this.tvTitle = findViewById(R.id.tvTitle);
         this.tvSyncStatus = findViewById(R.id.tvSyncStatus);
         this.tvTotal = findViewById(R.id.tvTotal);
         this.tvEmptyExpenses = findViewById(R.id.tvEmptyExpenses);
@@ -273,6 +297,7 @@ public class MainActivity extends BaseActivity
         this.expenseRepository = getServiceLocator().getExpenseRepository();
         this.userRepository = getServiceLocator().getUserRepository();
         this.sessionRepository = getServiceLocator().getSessionRepository();
+        this.groupRepository = getServiceLocator().getGroupRepository();
         this.syncManager = getServiceLocator().getSyncManager();
         this.networkMonitor = getServiceLocator().getNetworkMonitor();
 

@@ -9,6 +9,7 @@ import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
+import ue.edu.co.splitbill.entity.GroupMember;
 import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.DatabaseContract;
@@ -47,6 +48,13 @@ public final class ApiMapper {
     public static MemberRequest toMemberRequest(User user) {
         String phone = user.getPhone() == null || user.getPhone().trim().isEmpty() ? null : user.getPhone().trim();
         return new MemberRequest(user.getId(), user.getNames(), null, phone);
+    }
+
+    /** La pertenencia de la persona al grupo, tal como la tiene el servidor. */
+    public static GroupMember toMember(String groupId, UserDto dto) {
+        GroupMember member = new GroupMember(groupId, dto.getId(), SyncStatus.SYNCED);
+        member.setStatus(dto.isActive() ? DatabaseContract.STATUS_ACTIVE : DatabaseContract.STATUS_INACTIVE);
+        return member;
     }
 
     public static User toEntity(UserDto dto) {

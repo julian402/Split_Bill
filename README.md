@@ -13,8 +13,10 @@ Acta de Constitución `SPLITBILL-v1`.
 
 ## Estado
 
-**Entrega 1 completada.** Funciona de punta a punta y 100 % sin conexión, sobre SQLite local.
-El backend, la sincronización, la cámara y los contactos llegan en las entregas siguientes.
+**Entrega 1 completada.** La app funciona de punta a punta y 100 % sin conexión, sobre SQLite local.
+
+**Entrega 2 completada.** El backend (Spring Boot + PostgreSQL + JWT) vive en [`backend/`](backend/README.md).
+La app todavía no se conecta a él: eso, la cámara y los contactos llegan en las entregas siguientes.
 
 | | |
 |---|---|
@@ -101,6 +103,5 @@ Requiere Android Studio y un dispositivo o emulador con API 26 o superior.
 
 ## Pendiente
 
-- **Entrega 2** — API REST en Spring Boot + PostgreSQL con Spring Security, BCrypt y JWT.
 - **Entrega 3** — Retrofit y sincronización offline-first.
 - **Entrega 4** — Cámara con OCR de facturas (ML Kit), lectura de contactos y varios grupos.

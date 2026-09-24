@@ -1,0 +1,14 @@
+# Perfil de produccion: se activa con SPRING_PROFILES_ACTIVE=prod.
+# Aqui no hay valores por defecto: si falta una variable, la aplicacion no arranca.
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+splitbill:
+  jwt:
+    secret: ${JWT_SECRET}
+
+server:
+  port: ${PORT:8080}

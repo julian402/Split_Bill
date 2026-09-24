@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: splitbill-api
+  config:
+    # Si existe un archivo .env en la carpeta del backend, sus variables se cargan como propiedades
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/splitbill}
+    username: ${DB_USER:splitbill}
+    password: ${DB_PASSWORD:splitbill}
+  jpa:
+    # El esquema lo crea Flyway; Hibernate solo verifica que las entidades coincidan con las tablas
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+
+splitbill:
+  jwt:
+    # Valor solo para desarrollo local. En produccion se exige la variable JWT_SECRET (application-prod.yml)
+    secret: ${JWT_SECRET:clave-de-desarrollo-local-no-usar-en-produccion-123456}
+    issuer: splitbill-api
+    expiration: 24h
+
+# Swagger queda activo tambien en produccion a proposito: es la forma de probar la API en la sustentacion
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method

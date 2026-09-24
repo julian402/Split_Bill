@@ -54,7 +54,7 @@ centavos**: $60.000 = `6000000`.
 | GET / PUT | `/api/users/me` | Ver / editar mi perfil |
 | GET / POST | `/api/groups` | Mis grupos / crear grupo |
 | GET / PUT / DELETE | `/api/groups/{id}` | Ver / editar / borrar (editar y borrar: solo el dueño) |
-| GET / POST | `/api/groups/{id}/members` | Integrantes (`?includeRemoved=true` trae también a los retirados) / agregar por nombre o por email |
+| GET / POST | `/api/groups/{id}/members` | Integrantes (`?includeRemoved=true` trae también a los retirados) / agregar por nombre (con teléfono opcional) o por email |
 | DELETE | `/api/groups/{id}/members/{userId}` | Retirar integrante (solo el dueño) |
 | GET / POST | `/api/groups/{id}/expenses` | Gastos del grupo (`?updatedSince=` trae solo lo que cambió, incluidos los borrados) / registrar gasto con sus partes |
 | POST | `/api/groups/{id}/members/{memberId}/claim` | "Soy yo": junta un integrante sin cuenta con la cuenta que inició sesión |

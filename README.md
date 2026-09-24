@@ -25,6 +25,10 @@ funciona igual sin conexión, y los cambios se suben solos cuando vuelve la red.
 escaneo del total de una factura con la cámara (CameraX + ML Kit), integrantes desde los contactos,
 varios grupos y pruebas Espresso. Documentación en [`docs/`](docs/).
 
+**Rediseño.** Pantallas nuevas según los diseños del equipo: barra inferior (Inicio, Grupos, +,
+Actividad, Perfil), un inicio con el resumen de **todos** los grupos, categoría y fecha en cada gasto,
+**Marcar como pagado** y **Compartir** en la liquidación, y el perfil editable.
+
 > **¿Primera vez?** Sigue la guía [Cómo correr todo](#cómo-correr-todo-guía-para-el-equipo): backend, app,
 > cámara, contactos y pruebas, paso a paso.
 
@@ -35,22 +39,34 @@ varios grupos y pruebas Espresso. Documentación en [`docs/`](docs/).
 | Persistencia | Room (capa sobre SQLite) |
 | Red | Retrofit 3 + Gson, token JWT cifrado con el Android Keystore |
 | Hardware | CameraX 1.6 + ML Kit Text Recognition (en el celular), contactos (`ContentResolver`) |
-| Pruebas | 57 unitarias + 31 instrumentadas (10 de interfaz con Espresso) · backend: 29 |
+| Pruebas | 61 unitarias + 37 instrumentadas (13 de interfaz con Espresso) · backend: 32 |
 
 ## Pantallas
 
 | Pantalla | Qué hace |
 |---|---|
-| `LoginActivity` | Inicio de sesión. Es la primera pantalla; si ya hay sesión, pasa directo a la principal |
+Las cuatro pestañas de la **barra inferior** (y el botón **+**, que registra un gasto en el grupo actual):
+
+| Pantalla | Qué hace |
+|---|---|
+| `HomeActivity` (Inicio) | Resumen de **todos** los grupos: total gastado, este mes, tu parte y tu balance; carrusel "Tus grupos" con tu saldo en cada uno; actividad reciente. La campana marca los cambios sin subir |
+| `GroupsActivity` (Grupos) | Tus grupos en tarjetas, con integrantes, estado (Te deben / Debes / Todos al día) y total. "Nuevo grupo" |
+| `ActivityFeedActivity` (Actividad) | Todos los gastos y pagos de todos los grupos, agrupados por día; sincronizar a mano |
+| `ProfileActivity` (Perfil) | Nombre y teléfono (se guardan en el servidor), estado de la sincronización y cerrar sesión |
+
+El resto:
+
+| Pantalla | Qué hace |
+|---|---|
+| `LoginActivity` | Inicio de sesión. Es la primera pantalla; si ya hay sesión, pasa directo al inicio |
 | `RegisterActivity` | Crear cuenta (queda con la sesión iniciada) |
-| `MainActivity` | Nombre del grupo (toca para cambiar), total, lista de gastos, estado de la sincronización, sincronizar y cerrar sesión |
-| `GroupsActivity` | Tus grupos con su total: crear, renombrar (quien lo creó) y cambiar de grupo |
-| `MembersActivity` | Alta, listado y baja de integrantes; "Agregar desde contactos" y "¿Ya estabas en la lista?" |
+| `GroupDetailActivity` | Un grupo: total, tu saldo, sus movimientos (con el ícono de su categoría) y los accesos a Liquidar e Integrantes |
+| `GroupFormActivity` | **Nuevo grupo**: nombre e integrantes (a mano o desde los contactos) y se guarda todo junto. En modo edición: renombrar (quien lo creó), agregar o quitar integrantes y "¿Ya estabas en la lista?" |
 | `ContactsActivity` | Elegir varios integrantes de la agenda, con buscador; marca los que ya están |
-| `ExpenseDetailActivity` | Detalle de un gasto: quién pagó, cuándo, cómo se dividió y cuánto le toca a cada uno (con porcentaje si se dividió así) y si ya se subió al servidor. Desde aquí se edita o elimina |
-| `AddExpenseActivity` | Registrar o editar un gasto: descripción, monto (o escanearlo), pagador, tipo de división y participantes |
+| `AddExpenseActivity` | Registrar o editar un gasto: monto (o escanearlo), descripción, pagador, tipo de división, participantes, **fecha** y **categoría**, con la **división estimada** en vivo |
+| `ExpenseDetailActivity` | Detalle de un gasto: categoría, quién pagó, cuándo, cuánto le toca a cada uno y si ya se subió al servidor. Desde aquí se edita o elimina |
 | `ScanReceiptActivity` | Foto (cámara o galería) de una factura → propone el total y deja escoger otro valor |
-| `SettlementActivity` | Saldo de cada integrante y transferencias mínimas para saldar |
+| `SettlementActivity` | Plan de pagos con el mínimo de transferencias; cada una se puede **Compartir** (WhatsApp, correo…) o **Marcar como pagada**. Saldo de cada integrante y resumen |
 | `QuickSplitActivity` | **Cuenta rápida**: divide una cuenta al momento con propina, sin registrar integrantes ni pagador; el total se puede escanear |
 
 ## Arquitectura
@@ -86,17 +102,19 @@ ue.edu.co.splitbill
 │   ├── split/                Interfaz SplitStrategy + 3 implementaciones + fábrica
 │   ├── BalanceCalculator     Saldo neto = lo pagado − lo adeudado
 │   ├── DebtSimplifier        Algoritmo voraz de liquidación
+│   ├── ExpenseCategory       Categorías del gasto; PAYMENT es un pago entre integrantes
 │   └── ReceiptParser         Encuentra el total en el texto de una factura
 ├── entity/     Entidades de Room: User, Group, GroupMember, Expense, ExpenseShare
 ├── manager/    SplitBillDatabase, DatabaseContract (todo el SQL), Converters
 ├── dao/        @Dao con las consultas y sus proyecciones
-├── model/      Repositorios sobre BaseRepository; ReceiptScanner (ML Kit)
+├── model/      Repositorios sobre BaseRepository (DashboardRepository arma el inicio); ReceiptScanner (ML Kit)
 ├── permission/ PermissionManager: permisos peligrosos desde cualquier pantalla
 ├── di/         ServiceLocator y AppExecutors (io, network, mainThread)
 ├── network/    ApiService (Retrofit), AuthInterceptor, DTO y ApiMapper
 ├── session/    SessionManager y KeystoreTokenStore (token cifrado con AES-GCM)
 ├── sync/       SyncManager (push + pull), SyncWorker + SyncScheduler (WorkManager), NetworkMonitor
-└── ui/         Activities sobre BaseActivity (auth, group, expense, settle, quick, contacts, scan)
+└── ui/         Activities sobre BaseActivity (home, group, expense, settle, feed, profile, quick, contacts,
+                scan, auth); BaseActivity maneja también la barra inferior
 ```
 
 El backend (`backend/`) sigue la estructura clásica de Spring: `controller` → `service` → `repository`
@@ -113,6 +131,7 @@ El backend (`backend/`) sigue la estructura clásica de Spring: `controller` →
 | **Inyección de dependencias manual** | `ServiceLocator` | Cada pieza se crea una vez. Las pruebas Espresso inyectan una base de datos en memoria y un servidor falso |
 | **Bandeja de salida** | `sync_status` + `SyncManager` | La base local guarda su propia cola de cambios por enviar |
 | **Observador** | `SyncListener`, `DataCallback` | El `SyncManager` y los repositorios avisan a la pantalla cuando terminan |
+| **Pestañas con Activities** | `BaseActivity.getNavItem()` | Cada pantalla principal declara su pestaña y la barra inferior se arma sola. Cambiar de pestaña reutiliza la pantalla abierta (`CLEAR_TOP`), sin Fragments |
 
 ### Modelo de datos
 
@@ -124,7 +143,7 @@ prefijo de tres letras y borrado lógico:
 | `users` | Las personas. Sin email = integrante sin cuenta, agregado por nombre o desde los contactos |
 | `groups` | Los grupos, con su dueño |
 | `group_members` | Quién está en cada grupo. Una persona puede estar en varios |
-| `expenses` | Los gastos: quién pagó, monto **en centavos**, tipo de división y fecha |
+| `expenses` | Los gastos: quién pagó, monto **en centavos**, tipo de división, fecha y **categoría**. Un pago entre integrantes es un gasto de categoría `PAYMENT` |
 | `expense_shares` | Cuánto le toca a cada participante de un gasto. Suman exactamente el monto |
 
 El detalle de cada columna, la seguridad y las pruebas está en el [manual técnico](docs/manual-tecnico.md).
@@ -145,9 +164,14 @@ hace posible trabajar sin conexión: una fila creada en el celular ya nace con s
 definitivo y el servidor la acepta tal cual, sin reconciliar ids locales contra remotos. Si un envío
 se corta y se repite, el servidor reconoce el id y no duplica el gasto.
 
-**Las migraciones se escriben a mano.** La base local va en la versión 3, y cada cambio de esquema
+**Las migraciones se escriben a mano.** La base local va en la versión 4, y cada cambio de esquema
 tiene su `Migration` con una prueba (`MigrationTest`). No se usa `fallbackToDestructiveMigration`,
 porque perder los gastos de un usuario al actualizar la app no es una opción.
+
+**Un pago es un gasto.** "Marcar como pagado" guarda un gasto de categoría `PAYMENT` que paga el
+deudor y cuya única parte es del acreedor. `BalanceCalculator` lo suma como cualquier gasto, así que
+los dos quedan en cero sin reglas nuevas, y el pago viaja por la misma sincronización. Los totales
+("Total del grupo", "Tu parte") no cuentan los pagos, porque no son gasto.
 
 **El token nunca queda en texto plano.** El JWT se guarda cifrado con AES-GCM, con una llave del
 Android Keystore (`KeystoreTokenStore`). Al cerrar sesión se borran los datos del celular.
@@ -181,7 +205,8 @@ Las pantallas **siempre** leen y escriben en Room. Cada fila guarda su `sync_sta
    renombrar) → integrantes (cada uno a su grupo) → gastos (crear, editar o borrar). Cada fila viaja
    con su UUID, así que reintentar nunca duplica nada en el servidor.
 2. **Pull**: trae la lista de grupos (aparecen los nuevos y se ocultan los que ya no están), y los
-   integrantes y gastos del grupo actual. Nunca pisa un cambio local pendiente.
+   integrantes y gastos de **cada** grupo, empezando por el actual. Así el inicio y la actividad
+   muestran datos al día de todos. Nunca pisa un cambio local pendiente.
 
 | Respuesta del servidor | Qué hace la app |
 |---|---|
@@ -190,18 +215,20 @@ Las pantallas **siempre** leen y escriben en Room. Cada fila guarda su `sync_sta
 | 5xx o sin red | Deja el cambio en la cola para el próximo intento |
 | 401 (token vencido) | Vuelve al login sin perder los cambios pendientes |
 
-Se sincroniza al abrir la pantalla principal o la de grupos, después de cada cambio, al tocar el botón
+Se sincroniza al abrir el inicio, un grupo, la lista de grupos, la actividad o el perfil, después de cada cambio, al tocar el botón
 de sincronizar y **cada vez que vuelve la conexión** (`NetworkMonitor`). Además, cada cambio deja
 programado un `SyncWorker` con **WorkManager**: si no hay red o el servidor no responde, Android lo
 reintenta solo y lo sube **aunque la app esté cerrada**.
 
-La primera sincronización trae todos los gastos del grupo; las siguientes piden solo los que
+La primera sincronización de cada grupo trae todos sus gastos; las siguientes piden solo los que
 cambiaron (`?updatedSince=`, con la hora del servidor y un minuto de margen), incluidos los que
 otro integrante borró.
 
 Al pasar de la versión 1 a la 2 de la base de datos (`MIGRATION_1_2`) no se pierde nada: al iniciar
 sesión, los gastos que ya había en el celular se suben a la cuenta. La versión 3 (`MIGRATION_2_3`)
-agrega `group_members` para los varios grupos y deja a cada persona en el grupo en el que estaba.
+agrega `group_members` para los varios grupos y deja a cada persona en el grupo en el que estaba. La
+versión 4 (`MIGRATION_3_4`, y `V2__expense_category.sql` en el servidor) agrega la categoría: los
+gastos que ya existían quedan como "Otro".
 
 ## Hardware y permisos
 
@@ -292,21 +319,25 @@ Qué hace cada línea:
 1. Con el backend encendido (paso 2), elige el emulador o tu celular y dale **Run ▶** en Android Studio.
    - **Celular físico**: activa la depuración USB (o la inalámbrica) y conéctalo. Tiene que aparecer en
      la lista de dispositivos.
-2. En la app, **Crear cuenta** con tu nombre, email y una clave de al menos 8 caracteres. Quedas dentro
-   de "Mi grupo".
-3. Recorrido sugerido para probar todo lo de la entrega 4:
-   1. **Grupos**: toca el nombre del grupo (arriba) → *Nuevo grupo* → "Viaje".
-   2. **Contactos**: *Integrantes* → *Agregar desde contactos* → permitir → marca 2 o 3 → *Agregar*.
+2. En la app, **Crear cuenta** con tu nombre, email y una clave de al menos 8 caracteres. Llegas al
+   **Inicio**, con "Mi grupo" creado.
+3. Recorrido sugerido para probar todo:
+   1. **Nuevo grupo**: *Crear grupo* (o la pestaña *Grupos* → *Nuevo grupo*) → nombre "Viaje" → agrega
+      2 integrantes a mano → *Guardar grupo*.
+   2. **Contactos**: en el mismo formulario, *Importar contactos* → permitir → marca 2 o 3 → *Agregar*.
       Si usas el emulador, primero crea unos contactos en la app Contactos.
-   3. **Escanear factura**: *Agregar gasto* → ícono de cámara en el monto.
+   3. **Escanear factura**: botón **+** → ícono de cámara del monto.
       - En un celular real, toma la foto de una factura.
       - En el emulador la cámara muestra una sala virtual, así que usa **Galería**. Para tener una
         factura ahí, arrastra una imagen a la ventana del emulador, o usa
         `adb push factura.png /sdcard/Pictures/`.
-   4. **Porcentajes**: registra otro gasto por porcentajes. Tócalo en la lista para ver el detalle, y
-      prueba *Editar*.
-   5. **Liquidar**: el plan de pagos con el mínimo de transferencias.
-   6. **Sin conexión**: detén el backend (Ctrl+C en su terminal), agrega un gasto (sale "Sin conexión ·
+   4. **Categoría, fecha y porcentajes**: registra otro gasto con categoría y fecha, dividido por
+      porcentajes (mira la *División estimada*). Tócalo en la lista para ver el detalle, y prueba *Editar*.
+   5. **Liquidar**: el plan de pagos con el mínimo de transferencias. Prueba *Compartir* y luego
+      *Pagado*: quien pagó queda en "Saldo en cero".
+   6. **Inicio, Actividad y Perfil**: el resumen de todos los grupos, la actividad por día y el cambio de
+      nombre en el perfil.
+   7. **Sin conexión**: detén el backend (Ctrl+C en su terminal), agrega un gasto (sale "Sin conexión ·
       1 cambio pendiente"), vuelve a levantar el backend y toca ⟳. El gasto se sube solo. El modo avión
       **no** sirve para esta prueba, porque `adb reverse` va por el cable o la depuración y no por la red.
 
@@ -314,11 +345,11 @@ Qué hace cada línea:
 
 ```bash
 # App (desde la raíz del proyecto)
-./gradlew :app:testDebugUnitTest            # 57 pruebas del dominio, sin emulador
-./gradlew :app:connectedDebugAndroidTest    # 31 pruebas con emulador: Room, migraciones, sincronización y Espresso
+./gradlew :app:testDebugUnitTest            # 61 pruebas del dominio, sin emulador
+./gradlew :app:connectedDebugAndroidTest    # 37 pruebas con emulador: Room, migraciones, sincronización y Espresso
 
 # Backend (desde backend/, con Docker abierto)
-./mvnw test                                 # 29 pruebas contra un PostgreSQL temporal
+./mvnw test                                 # 32 pruebas contra un PostgreSQL temporal
 ```
 
 - **Antes** de `connectedDebugAndroidTest`, desactiva las animaciones del emulador (Opciones de

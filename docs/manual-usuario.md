@@ -18,62 +18,93 @@ Si ya habías usado SplitBill sin cuenta en ese celular, tus gastos se suben a t
 Después la app te pregunta si estabas en la lista de integrantes, para que no quedes repetido (ver
 "¿Ya estabas en la lista?").
 
-## 2. Pantalla principal
+## 2. La barra de abajo
 
-- Arriba está el **nombre del grupo**. Tócalo para cambiar de grupo o crear uno nuevo.
-- Debajo, el estado de la sincronización: *Sincronizado*, *Sin conexión · 2 cambios pendientes*…
-  - El botón ⟳ sincroniza a mano.
-  - El botón de salida cierra la sesión. Si hay cambios sin subir, la app te avisa antes, porque al
-    cerrar sesión se borran los datos del celular.
-- La tarjeta muestra el **total del grupo**, con los accesos a **Liquidar** y **Cuenta rápida**.
-- La lista muestra los gastos, del más reciente al más antiguo.
-  - Toca un gasto para ver el detalle.
-  - La papelera lo borra, después de confirmar.
-- **Agregar gasto** abre el formulario. Si el grupo tiene menos de dos integrantes, primero te lleva a
-  agregarlos.
+Siempre a mano, en la parte de abajo:
 
-## 3. Grupos
+| | |
+|---|---|
+| **Inicio** | El resumen de todos tus grupos |
+| **Grupos** | La lista de tus grupos |
+| **+** (el botón del centro) | Registrar un gasto en el grupo que tienes abierto |
+| **Actividad** | Todo lo que ha pasado, en todos los grupos |
+| **Perfil** | Tus datos, la sincronización y cerrar sesión |
 
-- Cada grupo tiene sus propios integrantes, gastos y liquidación.
-- **Nuevo grupo**: le das un nombre (por ejemplo "Viaje a Cartagena"), quedas dentro de él y la app te
-  lleva a agregar a sus integrantes.
-- Toca un grupo para entrar en él.
-- Mantén presionado un grupo para **cambiarle el nombre**. Solo lo puede cambiar quien lo creó.
+## 3. Inicio
 
-## 4. Integrantes
+- Arriba, tu saludo y el estado de la sincronización. La **campana** lleva a la actividad; si tiene un
+  punto rojo, hay cambios que todavía no se han subido.
+- Las pestañas **Inicio · Grupos · Cuenta rápida** son atajos.
+- La tarjeta morada suma **todos tus grupos**:
+  - **Total gastado** y cuántos grupos y gastos tienes.
+  - **Este mes**: lo gastado desde el día 1.
+  - **Tu parte**: lo que te tocó a ti en esos gastos.
+  - **Tu balance**: en verde, lo que te deben; en rojo, lo que debes.
+- **Crear grupo** y **Cuenta rápida**.
+- **Tus grupos**: cada tarjeta muestra quiénes están y tu saldo en ese grupo (**Te deben**, **Debes** o
+  **Todos al día**). Tócala para entrar al grupo; los tres puntos abren sus integrantes y su nombre.
+- **Actividad reciente**: los últimos gastos de todos los grupos. Toca uno para ver su detalle.
 
-- Escribe el nombre (y el teléfono, si quieres) y toca **Guardar**.
-- **Agregar desde contactos**:
-  1. La primera vez, Android te pide permiso para leer tus contactos. SplitBill solo los usa para esta
-     lista y no sube tu agenda.
-  2. Busca por nombre o teléfono y marca a varios a la vez.
-  3. Toca **Agregar**. Los que ya están en el grupo salen marcados en gris.
-- **¿Ya estabas en la lista?** Si alguien te había agregado por nombre antes de que tuvieras cuenta,
-  busca tu nombre y confirma. Tus gastos pasan a tu cuenta y quedas una sola vez.
-- La papelera retira a un integrante. Sus gastos anteriores se conservan y siguen contando en los
-  saldos.
+## 4. Un grupo
+
+- Arriba está el **nombre del grupo**; tócalo para ir a la lista de grupos. Los tres puntos abren sus
+  integrantes.
+- La tarjeta muestra el **total del grupo** y **tu saldo** en él, con los accesos a **Liquidar** e
+  **Integrantes**.
+- **Movimientos**: los gastos y pagos, del más reciente al más antiguo, cada uno con el ícono de su
+  categoría. Toca uno para ver el detalle.
+
+## 5. Nuevo grupo e integrantes
+
+**Nuevo grupo** (desde *Crear grupo* en el inicio o *Nuevo grupo* en Grupos):
+
+1. Escribe el **nombre del grupo** (por ejemplo "Viaje a Cartagena").
+2. Agrega a la gente:
+   - **A mano**: nombre y teléfono (opcional) → **Agregar integrante**.
+   - **Importar contactos**: la primera vez, Android te pide permiso para leer tus contactos. SplitBill
+     solo los usa para esta lista y no sube tu agenda. Busca por nombre o teléfono, marca a varios y
+     toca **Agregar**.
+3. Tú apareces como **Administrador**; los demás, como **Integrante**. La papelera quita a alguien de
+   la lista. Con dos o más personas verás "Listo para empezar".
+4. **Guardar grupo**: se crea con toda su gente y entras en él.
+
+**Integrantes de un grupo que ya existe** (botón *Integrantes* del grupo): la misma pantalla, pero cada
+persona que agregas o quitas se guarda de una vez. Aquí también cambias el **nombre del grupo** (solo
+quien lo creó) y está **¿Ya estabas en la lista?**: si alguien te había agregado por nombre antes de
+que tuvieras cuenta, busca tu nombre y confirma. Tus gastos pasan a tu cuenta y quedas una sola vez.
+
+Retirar a un integrante no borra sus gastos anteriores: siguen contando en los saldos.
 
 Si el permiso de contactos se negó dos veces, Android ya no lo vuelve a preguntar. En ese caso la app
 te ofrece **Abrir ajustes** para activarlo a mano.
 
-## 5. Registrar un gasto
+## 6. Registrar un gasto
 
-1. **Descripción** y **monto**. El ícono de cámara del monto abre el escáner de facturas.
-2. **Quién pagó**.
-3. **Cómo se divide**:
+Toca **+** en la barra de abajo.
+
+1. **Monto total**. El botón de cámara de la derecha abre el escáner de facturas.
+2. **Descripción** (la X la borra).
+3. **Quién pagó** y **cómo se divide**:
    - **Partes iguales** entre los participantes marcados.
    - **Montos exactos**: escribes cuánto le toca a cada uno. Deben sumar el total.
    - **Porcentajes**: deben sumar 100 %.
-4. Marca los **participantes** y toca **Guardar gasto**.
+4. **Participantes**: toca cada tarjeta para marcarla o desmarcarla. **Seleccionar todos** marca (o
+   desmarca) a todos.
+5. **Fecha** (hoy, por defecto; no se puede escoger una fecha futura) y **Categoría**: comida,
+   mercado, transporte, hospedaje, entretenimiento, servicios u otro.
+6. La tarjeta **División estimada** te muestra, mientras escribes, cuánto paga cada uno (o cuánto
+   llevas asignado con montos o porcentajes).
+7. **Guardar gasto**.
 
-Si sales con cambios sin guardar, la app te pregunta antes de descartarlos.
+Si el grupo tiene menos de dos integrantes, la app te lleva primero a agregarlos, y desde ahí sigues
+con el gasto. Si sales con cambios sin guardar, la app te pregunta antes de descartarlos.
 
-**Detalle del gasto**: quién pagó, cuándo, cuánto le toca a cada uno (y su porcentaje), y si ya se
-subió al servidor. Desde aquí puedes **Editar** o **Eliminar** el gasto.
+**Detalle del gasto**: categoría, quién pagó, cuándo, cuánto le toca a cada uno (y su porcentaje), y si
+ya se subió al servidor. Desde aquí puedes **Editar** o **Eliminar** el gasto.
 
-## 6. Escanear una factura
+## 7. Escanear una factura
 
-1. Toca el ícono de **cámara** en el monto, en *Agregar gasto* o en *Cuenta rápida*.
+1. Toca el botón de **cámara** del monto, en *Registrar un gasto* o en *Cuenta rápida*.
 2. La primera vez, Android te pide permiso para usar la cámara. Si no lo das, igual puedes usar
    **Galería**.
 3. Encuadra la factura completa, con buena luz, y toca **Tomar foto**. También puedes tocar **Galería**
@@ -85,29 +116,55 @@ subió al servidor. Desde aquí puedes **Editar** o **Eliminar** el gasto.
 
 La foto se lee en el celular y no se guarda. Revisa siempre el valor antes de guardar.
 
-## 7. Liquidar
+## 8. Liquidar
 
-La pantalla **Liquidar** muestra:
-- El **saldo** de cada integrante: en verde a quién le deben, en rojo quién debe.
-- El **plan de pagos**: quién le paga a quién y cuánto. Por ejemplo, "3 transferencias en lugar de 9".
+Desde un grupo, toca **Liquidar**:
+
+- **Plan de pagos**: por ejemplo, "1 transferencia en lugar de 6".
+- **Transferencias sugeridas**: quién le paga a quién y cuánto. En cada una:
+  - **Compartir** manda el mensaje por WhatsApp, correo o la app que escojas.
+  - **Pagado** registra que esa transferencia ya se hizo.
+- **Saldo de cada integrante**: **Le deben** (verde), **Debe** (rojo) o **Saldo en cero**, y cuántas
+  transferencias recibe o hace.
+- **Resumen**: el total del grupo, cuántas personas ya están saldadas y cuántas transferencias faltan.
+- **Marcar como pagado** (abajo) registra todas las transferencias de una vez.
+
+Un pago queda en los movimientos del grupo como "Luis le pagó a Andrés", con la etiqueta **Pago**. No
+cuenta como gasto en los totales, pero sí en los saldos: por eso quien pagó queda en cero. Si lo
+marcaste por error, ábrelo y toca **Eliminar**.
 
 Si todos están en cero, el grupo está a paz y salvo.
 
-## 8. Cuenta rápida
+## 9. Actividad
+
+Todos los gastos y pagos de **todos** tus grupos, agrupados por día ("Hoy", "Ayer", "22 de sept.").
+Cada fila dice quién pagó y en qué grupo. Toca uno para ver su detalle. Arriba ves el estado de la
+sincronización, y el botón ⟳ sincroniza a mano.
+
+## 10. Perfil
+
+- Tu nombre, tu email y tu teléfono. Cambia el nombre o el teléfono y toca **Guardar cambios**: los
+  demás integrantes verán tu nombre nuevo. Para esto necesitas conexión.
+- **Sincronización**: el estado actual y el botón **Sincronizar**.
+- **Cerrar sesión**. Si hay cambios sin subir, la app te avisa antes, porque al cerrar sesión se borran
+  los datos del celular.
+
+## 11. Cuenta rápida
 
 Para dividir una cuenta en el momento, sin registrar integrantes: la cena, el taxi.
 
 1. Escribe el total, o escanéalo con la cámara, y el % de propina.
 2. Con **−** y **+** ajusta cuántas personas son. Puedes ponerles nombre.
 3. Escoge cómo se divide y toca **Calcular**.
-4. Si quieres que quede en el grupo, **Guardar como gasto** abre el formulario con el total (propina
-   incluida) y la descripción ya llenos.
+4. Si quieres que quede en el grupo, **Guardar como gasto del grupo** abre el formulario con el total
+   (propina incluida) y la descripción ya llenos.
 
-## 9. Sin conexión
+## 12. Sin conexión
 
-- Todo funciona igual: agregar, editar, borrar, crear grupos.
-- Los cambios quedan "por subir" y se envían solos cuando vuelve la red, **aunque hayas cerrado la
-  app**.
+- Todo funciona igual: agregar, editar, borrar, crear grupos, marcar pagos.
+- Los cambios quedan "por subir" (la campana del inicio muestra un punto rojo) y se envían solos cuando
+  vuelve la red, **aunque hayas cerrado la app**.
 - Si otro integrante cambió algo, lo ves al sincronizar.
 - Si el servidor rechaza un cambio (por ejemplo, un gasto que alguien más ya borró), la app te lo
   avisa y deja la versión del servidor.
+- Lo único que necesita conexión: cambiar tu perfil y "¿Ya estabas en la lista?".

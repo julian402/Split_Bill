@@ -30,17 +30,17 @@ Este documento explica cómo está construido SplitBill y por qué. Para instala
 
 | Paquete | Contenido |
 |---|---|
-| `domain` | `Money`, `SplitStrategy` (+ `EqualSplitStrategy`, `ExactAmountSplitStrategy`, `PercentageSplitStrategy`, `SplitStrategyFactory`), `BalanceCalculator`, `DebtSimplifier`, `ReceiptParser` |
+| `domain` | `Money`, `SplitStrategy` (+ `EqualSplitStrategy`, `ExactAmountSplitStrategy`, `PercentageSplitStrategy`, `SplitStrategyFactory`), `BalanceCalculator`, `DebtSimplifier`, `ExpenseCategory`, `ReceiptParser` |
 | `entity` | Entidades de Room: `User`, `Group`, `GroupMember`, `Expense`, `ExpenseShare`, `SyncStatus` |
-| `manager` | `SplitBillDatabase` (versión 3, migraciones escritas a mano), `DatabaseContract` (todo el SQL), `Converters` |
-| `dao` | `@Dao` y proyecciones (`ExpenseListItem`, `GroupListItem`, `UserAmount`…) |
-| `model` | Repositorios sobre `BaseRepository`, más `ReceiptScanner` (ML Kit) |
+| `manager` | `SplitBillDatabase` (versión 4, migraciones escritas a mano), `DatabaseContract` (todo el SQL), `Converters` |
+| `dao` | `@Dao` y proyecciones (`ExpenseListItem`, `ActivityItem`, `GroupListItem`, `UserAmount`…) |
+| `model` | Repositorios sobre `BaseRepository` (`DashboardRepository` arma el inicio y la actividad de todos los grupos), más `ReceiptScanner` (ML Kit) |
 | `network` | `ApiService` (Retrofit), `ApiClient`, `AuthInterceptor`, `ApiMapper`, DTO |
 | `session` | `SessionManager`, `TokenStore` / `KeystoreTokenStore` |
 | `sync` | `SyncManager`, `SyncWorker` + `SyncScheduler` (WorkManager), `NetworkMonitor` |
 | `permission` | `PermissionManager` |
 | `di` | `ServiceLocator`, `AppExecutors` |
-| `ui` | `BaseActivity` y las pantallas (`auth`, `group`, `expense`, `settle`, `quick`, `contacts`, `scan`) |
+| `ui` | `BaseActivity` (con la barra inferior) y las pantallas (`home`, `group`, `expense`, `settle`, `feed`, `profile`, `quick`, `contacts`, `scan`, `auth`); ayudantes `Avatar`, `Categories`, `DateText`, `SyncStatusText` |
 
 ### Convenciones del curso
 
@@ -79,7 +79,7 @@ columnas.
 | `users` | `use_id`, `use_names`, `use_email`, `use_phone` | Directorio de personas. Sin email = integrante sin cuenta |
 | `groups` | `grp_id`, `grp_name`, `grp_currency`, `grp_owner_id`, `grp_status`, `grp_sync_status` | |
 | `group_members` | `gmb_group_id`, `gmb_user_id`, `gmb_status`, `gmb_sync_status` | Llave compuesta. Quién está en cada grupo (v3) |
-| `expenses` | `exp_id`, `exp_group_id`, `exp_payer_id`, `exp_description`, `exp_amount_cents`, `exp_split_type`, `exp_date`, `exp_status`, `exp_sync_status` | Monto en **centavos** (`long`) |
+| `expenses` | `exp_id`, `exp_group_id`, `exp_payer_id`, `exp_description`, `exp_amount_cents`, `exp_split_type`, `exp_date`, `exp_category`, `exp_status`, `exp_sync_status` | Monto en **centavos** (`long`). `exp_category`: `FOOD`, `GROCERIES`, `TRANSPORT`, `LODGING`, `ENTERTAINMENT`, `SERVICES`, `OTHER` o `PAYMENT` (v4) |
 | `expense_shares` | `shr_expense_id`, `shr_user_id`, `shr_amount_cents` | Parte de cada participante. Suman exactamente el monto |
 
 - Las llaves son **UUID generados en el celular**. Una fila creada sin conexión ya tiene su id
@@ -89,6 +89,8 @@ columnas.
 - Migraciones:
   - `1→2` (entrega 3): estado de sincronización y dueño del grupo.
   - `2→3` (entrega 4): tabla `group_members`, llenada con el único grupo que existía.
+  - `3→4` (rediseño): columna `exp_category`, con `OTHER` para los gastos que ya existían. En el
+    servidor es la migración Flyway `V2__expense_category.sql`.
 
   Se prueban con `MigrationTest`. No se usa `fallbackToDestructiveMigration`: perder los datos del
   usuario no es una opción.
@@ -127,6 +129,17 @@ transferencias. La pantalla lo compara con las transferencias "directas", gasto 
 
 El usuario siempre confirma el total, y puede escoger otro de los valores encontrados.
 
+**Pagos ("Marcar como pagado").** Una transferencia hecha se guarda como un gasto de categoría
+`PAYMENT`: lo paga el deudor, con división exacta, y su única parte es del acreedor
+(`SettlementRepository.markPaid`). En la siguiente liquidación `BalanceCalculator` los deja a los dos
+en cero, sin ninguna regla especial, y el pago se sincroniza como cualquier gasto. Las consultas de
+totales y de "transferencias directas" excluyen `PAYMENT`, porque un pago no es un gasto. Un pago no se
+edita: si estuvo mal, se elimina desde su detalle.
+
+**Inicio.** `DashboardRepository` suma sobre todos los grupos activos: total gastado, lo de este mes,
+"tu parte" (tus `expense_shares`) y tu balance, que es la suma de tu saldo en cada grupo
+(lo pagado − lo que te tocaba, incluidos los pagos).
+
 ## 5. Sincronización
 
 Cada fila lleva `sync_status` (`SYNCED`, `PENDING_CREATE`, `PENDING_UPDATE`, `PENDING_DELETE`). Esa es
@@ -138,7 +151,8 @@ la cola de salida, y el `SyncManager` hace:
    3. Gastos (`POST` / `PUT` / `DELETE`).
 2. **Pull**:
    1. La lista de grupos: aparecen los nuevos y se ocultan los que el servidor ya no devuelve.
-   2. Los integrantes y gastos del grupo actual. La primera vez trae todo; después solo
+   2. Los integrantes y gastos de **cada** grupo que el servidor conoce, empezando por el actual. Cada
+      grupo tiene su propia hora de última sincronización: la primera vez trae todo; después solo
       `?updatedSince=<hora del servidor − 60 s>`, que incluye los borrados.
 
 Reglas:
@@ -148,7 +162,8 @@ Reglas:
 - **5xx o sin red**: el cambio queda en la cola. **401**: la sesión venció y se vuelve al login.
 
 Cuándo se sincroniza:
-- Al abrir la pantalla principal o la de grupos, después de cada cambio y con el botón de sincronizar.
+- Al abrir el inicio, un grupo, la lista de grupos, la actividad o el perfil, después de cada cambio y
+  con el botón de sincronizar (en Actividad y en Perfil).
 - Cuando vuelve la red (`NetworkMonitor`).
 - **Con la app cerrada**: cada cambio encola un `SyncWorker` único en WorkManager, con la restricción
   "hay red" y reintento exponencial.
@@ -199,16 +214,18 @@ normalizado o por nombre, salen marcados.
 La documentación completa está en Swagger (`/swagger-ui.html`) y en el
 [README del backend](../backend/README.md#endpoints).
 - Montos en centavos.
+- Cada gasto lleva `category` (opcional al crearlo: si no llega, queda `OTHER`).
+- El perfil propio se cambia con `PUT /api/users/me` (nombre y teléfono).
 - Errores en formato **ProblemDetail**; la app muestra el campo `detail`.
 
 ## 9. Pruebas
 
 | Tipo | Cantidad | Qué cubren |
 |---|---|---|
-| Unitarias (JVM) | 57 | `Money`, las tres estrategias, saldos, liquidación, escenario completo de la entrega 1, `ReceiptParser`, `ApiMapper` |
-| Instrumentadas | 21 | Consultas de Room, migraciones 1→2 y 2→3, `SyncManager` contra `MockWebServer` (push, pull, rechazos, sin red, token vencido, incremental, varios grupos) |
-| Interfaz (Espresso) | 10 | Login; gasto sin monto; porcentajes que no suman 100; gasto válido en lista y total; editar desde el detalle; borrar con confirmación; grupo nuevo y cambiar de grupo; liquidación mínima; cuenta rápida → gasto |
-| Backend (integración) | 29 | Endpoints con MockMvc + PostgreSQL real (Testcontainers) |
+| Unitarias (JVM) | 61 | `Money`, las tres estrategias, saldos, liquidación, escenario completo de la entrega 1, pagos que dejan todo en cero y categorías, `ReceiptParser`, `ApiMapper` |
+| Instrumentadas | 24 | Consultas de Room (incluidas las del inicio y los pagos), migraciones 1→2, 2→3 y 3→4, `SyncManager` contra `MockWebServer` (push, pull de todos los grupos, rechazos, sin red, token vencido, incremental) |
+| Interfaz (Espresso) | 13 | Login; gasto sin monto; porcentajes que no suman 100; gasto válido en lista y total; editar desde el detalle; borrar con confirmación; grupo nuevo y cambiar de grupo; nuevo grupo con integrantes en el formulario; liquidación mínima; marcar todo como pagado; cuenta rápida → gasto; barra inferior |
+| Backend (integración) | 32 | Endpoints con MockMvc + PostgreSQL real (Testcontainers), incluidas categorías y pagos |
 
 Las pruebas Espresso corren con `SplitBillTestRunner`, que arranca la app con:
 - Room en memoria.

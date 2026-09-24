@@ -11,7 +11,7 @@ e inicia sesión y sincroniza sus datos.
 | Base de datos | PostgreSQL 17, esquema versionado con Flyway |
 | Autenticación | BCrypt para las contraseñas + JWT (HS256) |
 | Documentación | Swagger UI en `/swagger-ui.html` |
-| Pruebas | 29 de integración con MockMvc + Testcontainers (Postgres real) |
+| Pruebas | 32 de integración con MockMvc + Testcontainers (Postgres real) |
 
 ## Cómo levantarlo
 
@@ -59,6 +59,11 @@ centavos**: $60.000 = `6000000`.
 | GET / POST | `/api/groups/{id}/expenses` | Gastos del grupo (`?updatedSince=` trae solo lo que cambió, incluidos los borrados) / registrar gasto con sus partes |
 | POST | `/api/groups/{id}/members/{memberId}/claim` | "Soy yo": junta un integrante sin cuenta con la cuenta que inició sesión |
 | GET / PUT / DELETE | `/api/groups/{id}/expenses/{expenseId}` | Ver / editar / borrar gasto |
+
+Cada gasto lleva `category` (`FOOD`, `GROCERIES`, `TRANSPORT`, `LODGING`, `ENTERTAINMENT`, `SERVICES`,
+`OTHER` o `PAYMENT`). Es opcional al crearlo: si no llega, queda `OTHER`. `PAYMENT` es un pago entre
+integrantes ("Marcar como pagado" en la app): lo paga el deudor y su única parte es del acreedor, con
+las mismas reglas de cualquier gasto. La columna llegó con la migración `V2__expense_category.sql`.
 
 Los errores siempre tienen la misma forma (`ProblemDetail`, RFC 9457):
 

@@ -137,10 +137,10 @@ el computador visto **desde el emulador**. Esa dirección no existe en un celula
    celular se reconecta.
 3. Volver a instalar la app.
 
-> **Proyecto dentro de OneDrive:** la sincronización bloquea los archivos de `appuild` mientras Gradle
+> **Proyecto dentro de OneDrive:** la sincronización bloquea los archivos de `app\build` mientras Gradle
 > compila, y falla con `Unable to delete directory` o en `dexBuilderDebug`. No es un error del código.
 > Solución: agregar a `local.properties` la línea `splitbill.buildDir=C:/Temp/splitbill-build`,
-> sincronizar Gradle (**Sync Now**) y borrar la carpeta `appuild` vieja. Las salidas quedan fuera de OneDrive.
+> sincronizar Gradle (**Sync Now**) y borrar la carpeta `app\build` vieja. Las salidas quedan fuera de OneDrive.
 
 ## Pendiente
 

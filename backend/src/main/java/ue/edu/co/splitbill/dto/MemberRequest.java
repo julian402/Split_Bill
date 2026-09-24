@@ -10,6 +10,7 @@ import java.util.UUID;
  * - Con email: se agrega a una persona que ya tiene cuenta.
  * - Con nombre: se crea un integrante sin cuenta, como en la app de la entrega 1. En ese caso el id
  *   es opcional y lo puede mandar la app para conservar el UUID que ya tenia en el celular.
+ *   El telefono tambien es opcional (la app lo trae de la agenda).
  */
 public record MemberRequest(
         UUID id,
@@ -18,5 +19,8 @@ public record MemberRequest(
         String names,
 
         @Email(message = "El email no es válido")
-        String email) {
+        String email,
+
+        @Size(max = 30, message = "El teléfono no puede tener más de 30 caracteres")
+        String phone) {
 }

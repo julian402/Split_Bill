@@ -45,7 +45,8 @@ public final class ApiMapper {
 
     /** Un integrante local se sube por nombre, conservando su UUID. */
     public static MemberRequest toMemberRequest(User user) {
-        return new MemberRequest(user.getId(), user.getNames(), null);
+        String phone = user.getPhone() == null || user.getPhone().trim().isEmpty() ? null : user.getPhone().trim();
+        return new MemberRequest(user.getId(), user.getNames(), null, phone);
     }
 
     public static User toEntity(UserDto dto) {

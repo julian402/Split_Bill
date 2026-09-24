@@ -88,6 +88,16 @@
                     android:text="@string/btnSaveMember"
                     app:icon="@drawable/ic_person_add" />
             </LinearLayout>
+
+            <!-- Atajo: elegir varios integrantes de la agenda del celular (pide el permiso de contactos) -->
+            <Button
+                android:id="@+id/btnAddFromContacts"
+                style="@style/Widget.SplitBill.Button.Tonal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btnAddFromContacts"
+                app:icon="@drawable/ic_contacts" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

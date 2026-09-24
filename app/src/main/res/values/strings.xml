@@ -162,4 +162,30 @@
     <string name="dlgSuggestClaimMessage">Si antes de crear tu cuenta te habías agregado como integrante, búscate en Integrantes con «¿Ya estabas en la lista?» para no aparecer dos veces.</string>
     <string name="btnSeeMembers">Ver integrantes</string>
     <string name="btnNotNow">Ahora no</string>
+
+    <!-- Entrega 4: permisos -->
+    <string name="dlgPermissionTitle">Necesitamos un permiso</string>
+    <string name="dlgPermissionDeniedTitle">Permiso desactivado</string>
+    <string name="dlgPermissionDeniedMessage">Lo negaste antes, así que Android ya no lo vuelve a preguntar. Puedes activarlo en Ajustes → Permisos.</string>
+    <string name="btnOpenSettings">Abrir ajustes</string>
+    <string name="btnContinue">Continuar</string>
+
+    <!-- Entrega 4: contactos -->
+    <string name="btnAddFromContacts">Agregar desde contactos</string>
+    <string name="msgContactsRationale">SplitBill usa tus contactos solo para que agregues integrantes sin escribir su nombre y teléfono. No se sube tu agenda a ningún lado.</string>
+    <string name="tvTitleContacts">Elegir contactos</string>
+    <string name="etSearchContact">Buscar por nombre o teléfono</string>
+    <string name="tvEmptyContacts">No hay contactos con teléfono que coincidan.</string>
+    <string name="tvAlreadyMember">%1$s · Ya está en el grupo</string>
+    <string name="cdSelectContact">Elegir contacto</string>
+    <string name="dlgDiscardContactsMessage">Los contactos que elegiste no se agregarán al grupo.</string>
+    <string name="btnAddContactsNone">Elige uno o más contactos</string>
+    <plurals name="btnAddContacts">
+        <item quantity="one">Agregar %d integrante</item>
+        <item quantity="other">Agregar %d integrantes</item>
+    </plurals>
+    <plurals name="msgContactsAdded">
+        <item quantity="one">%d integrante agregado</item>
+        <item quantity="other">%d integrantes agregados</item>
+    </plurals>
 </resources>

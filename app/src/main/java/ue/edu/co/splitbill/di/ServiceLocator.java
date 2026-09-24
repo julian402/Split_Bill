@@ -6,6 +6,7 @@ import ue.edu.co.splitbill.BuildConfig;
 import ue.edu.co.splitbill.domain.BalanceCalculator;
 import ue.edu.co.splitbill.domain.DebtSimplifier;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
+import ue.edu.co.splitbill.model.ContactRepository;
 import ue.edu.co.splitbill.model.ExpenseRepository;
 import ue.edu.co.splitbill.model.SessionRepository;
 import ue.edu.co.splitbill.model.SettlementRepository;
@@ -43,6 +44,7 @@ public class ServiceLocator {
     private ExpenseRepository expenseRepository;
     private SettlementRepository settlementRepository;
     private SessionRepository sessionRepository;
+    private ContactRepository contactRepository;
 
     public ServiceLocator(Context context) {
         this.context = context.getApplicationContext();
@@ -125,5 +127,13 @@ public class ServiceLocator {
                     getSessionManager(), getSyncManager());
         }
         return this.sessionRepository;
+    }
+
+    public synchronized ContactRepository getContactRepository() {
+        if (this.contactRepository == null) {
+            this.contactRepository = new ContactRepository(getDatabase(), getExecutors(),
+                    this.context.getContentResolver());
+        }
+        return this.contactRepository;
     }
 }

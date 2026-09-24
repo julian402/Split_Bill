@@ -18,8 +18,10 @@ import java.util.List;
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.model.UserRepository;
+import ue.edu.co.splitbill.permission.PermissionManager;
 import ue.edu.co.splitbill.ui.BaseActivity;
 import ue.edu.co.splitbill.ui.adapter.MemberAdapter;
+import ue.edu.co.splitbill.ui.contacts.ContactsActivity;
 import ue.edu.co.splitbill.ui.expense.AddExpenseActivity;
 
 /**
@@ -46,11 +48,13 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
     private Button btnClear;
     private Button btnContinueExpense;
     private Button btnClaimMember;
+    private Button btnAddFromContacts;
     private TextView tvEmptyMembers;
     private RecyclerView rvMembers;
 
     private MemberAdapter memberAdapter;
     private UserRepository userRepository;
+    private PermissionManager permissionManager;
     private User user;
 
     /** Integrantes agregados por nombre (sin cuenta): entre ellos puede estar quien inicio sesion. */
@@ -67,6 +71,7 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
         this.btnClear.setOnClickListener(this::clearFieldsDB);
         this.btnContinueExpense.setOnClickListener(this::continueToExpense);
         this.btnClaimMember.setOnClickListener(this::pickMemberToClaim);
+        this.btnAddFromContacts.setOnClickListener(this::openContacts);
 
         //si escribio un nombre y no lo guardo, se pregunta antes de salir
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -133,6 +138,15 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
                 btnClaimMember.setVisibility(claimableMembers.isEmpty() ? View.GONE : View.VISIBLE);
             }
         });
+    }
+
+    /**
+     * La agenda es informacion privada: se pide el permiso solo cuando el usuario toca el boton, y
+     * con el permiso concedido se abre el selector.
+     */
+    private void openContacts(View view) {
+        this.permissionManager.request(PermissionManager.CONTACTS, R.string.msgContactsRationale,
+                () -> startActivity(new Intent(this, ContactsActivity.class)));
     }
 
     /** Vuelve al formulario del gasto con lo que el usuario ya traia (descripcion y monto). */
@@ -214,10 +228,12 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
         this.btnClear = findViewById(R.id.btnClear);
         this.btnContinueExpense = findViewById(R.id.btnContinueExpense);
         this.btnClaimMember = findViewById(R.id.btnClaimMember);
+        this.btnAddFromContacts = findViewById(R.id.btnAddFromContacts);
         this.tvEmptyMembers = findViewById(R.id.tvEmptyMembers);
         this.rvMembers = findViewById(R.id.rvMembers);
 
         this.userRepository = getServiceLocator().getUserRepository();
+        this.permissionManager = new PermissionManager(this);
         this.memberAdapter = new MemberAdapter(this, this.userRepository.getCurrentUserId());
         this.rvMembers.setLayoutManager(new LinearLayoutManager(this));
         this.rvMembers.setAdapter(this.memberAdapter);

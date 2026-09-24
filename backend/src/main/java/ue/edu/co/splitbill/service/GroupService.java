@@ -278,6 +278,9 @@ public class GroupService {
             }
         }
         User member = new User(request.names().trim());
+        if (request.phone() != null && !request.phone().isBlank()) {
+            member.setPhone(request.phone().trim());
+        }
         if (request.id() != null) {
             member.setId(request.id());
         }

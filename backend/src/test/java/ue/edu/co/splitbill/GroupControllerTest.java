@@ -47,7 +47,12 @@ class GroupControllerTest extends ApiTestSupport {
         UUID groupId = createGroup(julian, "Paseo");
 
         addMemberByName(julian, groupId, "Juan");
-        addMemberByName(julian, groupId, "Sofia");
+        //el telefono se guarda (la app lo trae de la agenda del celular)
+        doPost(julian, "/api/groups/" + groupId + "/members", """
+                {"names": "Sofia", "phone": "310 222 3344"}
+                """)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.phone").value("310 222 3344"));
         doPost(julian, "/api/groups/" + groupId + "/members", """
                 {"email": "%s"}
                 """.formatted(diomar.email()))

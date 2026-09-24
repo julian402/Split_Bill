@@ -81,6 +81,33 @@ public class UserRepository extends BaseRepository {
         }, callback);
     }
 
+    /**
+     * Registra varios integrantes de una vez (los elegidos de la agenda). Es todo o nada: si uno no
+     * pasa la validacion, no se guarda ninguno.
+     *
+     * @param callback recibe cuantos se agregaron
+     */
+    public void insertUsers(final List<User> users, DataCallback<Integer> callback) {
+        runAsync(new Callable<Integer>() {
+            @Override
+            public Integer call() {
+                for (User user : users) {
+                    user.validar();
+                }
+                database.runInTransaction(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (User user : users) {
+                            database.userDao().insert(user);
+                        }
+                    }
+                });
+                syncManager.notifyLocalChange();
+                return users.size();
+            }
+        }, callback);
+    }
+
     public void getActiveUsers(DataCallback<List<User>> callback) {
         runAsync(new Callable<List<User>>() {
             @Override

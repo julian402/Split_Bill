@@ -1,0 +1,303 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "2da2706a90c45b628a202adafc2a94c4",
+    "entities": [
+      {
+        "tableName": "users",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`use_id` TEXT NOT NULL, `use_names` TEXT, `use_email` TEXT, `use_phone` TEXT, `use_status` INTEGER NOT NULL, `use_sync_status` TEXT, PRIMARY KEY(`use_id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "use_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "names",
+            "columnName": "use_names",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "use_email",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "use_phone",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "use_status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "use_sync_status",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "use_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_users_use_names",
+            "unique": false,
+            "columnNames": [
+              "use_names"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_users_use_names` ON `${TABLE_NAME}` (`use_names`)"
+          }
+        ]
+      },
+      {
+        "tableName": "groups",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`grp_id` TEXT NOT NULL, `grp_name` TEXT, `grp_currency` TEXT, `grp_created_at` INTEGER, `grp_status` INTEGER NOT NULL, `grp_sync_status` TEXT, `grp_owner_id` TEXT, PRIMARY KEY(`grp_id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "grp_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "grp_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "currency",
+            "columnName": "grp_currency",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "grp_created_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "grp_status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "grp_sync_status",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ownerId",
+            "columnName": "grp_owner_id",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "grp_id"
+          ]
+        }
+      },
+      {
+        "tableName": "expenses",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`exp_id` TEXT NOT NULL, `exp_group_id` TEXT NOT NULL, `exp_payer_id` TEXT NOT NULL, `exp_description` TEXT, `exp_amount_cents` INTEGER NOT NULL, `exp_split_type` TEXT, `exp_date` INTEGER, `exp_status` INTEGER NOT NULL, `exp_sync_status` TEXT, PRIMARY KEY(`exp_id`), FOREIGN KEY(`exp_group_id`) REFERENCES `groups`(`grp_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`exp_payer_id`) REFERENCES `users`(`use_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "exp_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupId",
+            "columnName": "exp_group_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payerId",
+            "columnName": "exp_payer_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "exp_description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "amountCents",
+            "columnName": "exp_amount_cents",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "splitType",
+            "columnName": "exp_split_type",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "exp_date",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "exp_status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "exp_sync_status",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "exp_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_expenses_exp_group_id",
+            "unique": false,
+            "columnNames": [
+              "exp_group_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_expenses_exp_group_id` ON `${TABLE_NAME}` (`exp_group_id`)"
+          },
+          {
+            "name": "index_expenses_exp_payer_id",
+            "unique": false,
+            "columnNames": [
+              "exp_payer_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_expenses_exp_payer_id` ON `${TABLE_NAME}` (`exp_payer_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "groups",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "exp_group_id"
+            ],
+            "referencedColumns": [
+              "grp_id"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "exp_payer_id"
+            ],
+            "referencedColumns": [
+              "use_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "expense_shares",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shr_id` TEXT NOT NULL, `shr_expense_id` TEXT NOT NULL, `shr_user_id` TEXT NOT NULL, `shr_amount_cents` INTEGER NOT NULL, PRIMARY KEY(`shr_id`), FOREIGN KEY(`shr_expense_id`) REFERENCES `expenses`(`exp_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`shr_user_id`) REFERENCES `users`(`use_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "shr_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseId",
+            "columnName": "shr_expense_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "shr_user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amountCents",
+            "columnName": "shr_amount_cents",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "shr_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_expense_shares_shr_expense_id",
+            "unique": false,
+            "columnNames": [
+              "shr_expense_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_expense_shares_shr_expense_id` ON `${TABLE_NAME}` (`shr_expense_id`)"
+          },
+          {
+            "name": "index_expense_shares_shr_user_id",
+            "unique": false,
+            "columnNames": [
+              "shr_user_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_expense_shares_shr_user_id` ON `${TABLE_NAME}` (`shr_user_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "expenses",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shr_expense_id"
+            ],
+            "referencedColumns": [
+              "exp_id"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shr_user_id"
+            ],
+            "referencedColumns": [
+              "use_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2da2706a90c45b628a202adafc2a94c4')"
+    ]
+  }
+}

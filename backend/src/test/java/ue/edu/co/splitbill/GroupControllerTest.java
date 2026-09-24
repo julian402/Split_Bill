@@ -106,6 +106,11 @@ class GroupControllerTest extends ApiTestSupport {
                 .andExpect(status().isNoContent());
         doGet(julian, "/api/groups/" + groupId + "/members")
                 .andExpect(jsonPath("$", hasSize(1)));
+        //la app pide tambien a los retirados, porque sus gastos viejos los siguen referenciando
+        doGet(julian, "/api/groups/" + groupId + "/members?includeRemoved=true")
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[?(@.id == '" + juan + "')].active").value(false))
+                .andExpect(jsonPath("$[?(@.id == '" + julian.id() + "')].active").value(true));
     }
 
     @Test

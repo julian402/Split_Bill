@@ -46,16 +46,42 @@
                     android:textColor="@color/colorTextPrimary"
                     android:textSize="26sp"
                     android:fontFamily="sans-serif-medium" />
+
+                <!-- Estado de la sincronizacion con el servidor -->
+                <TextView
+                    android:id="@+id/tvSyncStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle"
+                    tools:text="@string/tvSynced" />
             </LinearLayout>
 
             <Button
-                android:id="@+id/btnMembers"
-                style="@style/Widget.SplitBill.Button.Text"
+                android:id="@+id/btnSync"
+                style="@style/Widget.SplitBill.Button.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btnMembers"
-                app:icon="@drawable/ic_group" />
+                android:contentDescription="@string/cdSync"
+                app:icon="@drawable/ic_sync" />
+
+            <Button
+                android:id="@+id/btnLogout"
+                style="@style/Widget.SplitBill.Button.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/cdLogout"
+                app:icon="@drawable/ic_logout" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnMembers"
+            style="@style/Widget.SplitBill.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/btnMembers"
+            app:icon="@drawable/ic_group" />
 
         <!-- Tarjeta destacada con el total del grupo -->
         <LinearLayout

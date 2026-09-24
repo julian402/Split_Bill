@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
+import androidx.room.Upsert;
 
 import java.util.List;
 
@@ -36,4 +37,25 @@ public interface ExpenseDao {
     /** Borrado logico: el gasto se marca inactivo y deja de contar en los saldos. */
     @Query(DatabaseContract.Expenses.SOFT_DELETE)
     int softDelete(String expenseId);
+
+    @Upsert
+    void upsert(Expense expense);
+
+    @Query(DatabaseContract.Expenses.SELECT_PENDING)
+    List<Expense> findPending();
+
+    @Query(DatabaseContract.Expenses.COUNT_PENDING)
+    int countPending();
+
+    @Query(DatabaseContract.Expenses.COUNT_ALL)
+    int countAll();
+
+    @Query(DatabaseContract.Expenses.MARK_SYNCED)
+    void markSynced(String expenseId, int status);
+
+    @Query(DatabaseContract.Expenses.SELECT_SYNCED_ACTIVE_IDS)
+    List<String> findSyncedActiveIds(String groupId);
+
+    @Query(DatabaseContract.Expenses.MARK_DELETED_BY_SERVER)
+    void markDeletedByServer(String expenseId);
 }

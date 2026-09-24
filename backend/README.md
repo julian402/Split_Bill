@@ -1,8 +1,8 @@
 # SplitBill API (backend)
 
 Servidor de SplitBill: cuentas con login seguro, grupos con sus integrantes y gastos con sus partes.
-Es la **entrega 2** del proyecto. La app Android (`../app`) todavía no lo usa; la conexión llega en la
-entrega 3.
+Se construyó en la **entrega 2**; desde la **entrega 3** la app Android (`../app`) se conecta a él
+e inicia sesión y sincroniza sus datos.
 
 | | |
 |---|---|
@@ -54,7 +54,7 @@ centavos**: $60.000 = `6000000`.
 | GET / PUT | `/api/users/me` | Ver / editar mi perfil |
 | GET / POST | `/api/groups` | Mis grupos / crear grupo |
 | GET / PUT / DELETE | `/api/groups/{id}` | Ver / editar / borrar (editar y borrar: solo el dueño) |
-| GET / POST | `/api/groups/{id}/members` | Integrantes / agregar por nombre o por email |
+| GET / POST | `/api/groups/{id}/members` | Integrantes (`?includeRemoved=true` trae también a los retirados) / agregar por nombre o por email |
 | DELETE | `/api/groups/{id}/members/{userId}` | Retirar integrante (solo el dueño) |
 | GET / POST | `/api/groups/{id}/expenses` | Gastos del grupo / registrar gasto con sus partes |
 | GET / PUT / DELETE | `/api/groups/{id}/expenses/{expenseId}` | Ver / editar / borrar gasto |

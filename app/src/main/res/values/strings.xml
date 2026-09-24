@@ -83,4 +83,44 @@
         <item>Montos exactos</item>
         <item>Porcentajes</item>
     </string-array>
+
+    <!-- Entrega 3: inicio de sesion, registro y sincronizacion -->
+    <string name="tvLoginSubtitle">Divide los gastos del grupo sin enredos</string>
+    <string name="tvSectionLogin">Iniciar sesión</string>
+    <string name="etEmail">Email</string>
+    <string name="etPassword">Contraseña</string>
+    <string name="btnLogin">Entrar</string>
+    <string name="btnGoToRegister">¿No tienes cuenta? Regístrate</string>
+    <string name="tvTitleRegister">Crear cuenta</string>
+    <string name="etNames">Nombre</string>
+    <string name="etPhone">Teléfono (opcional)</string>
+    <string name="etConfirmPassword">Confirmar contraseña</string>
+    <string name="tvPasswordHint">Mínimo 8 caracteres</string>
+    <string name="btnRegister">Crear cuenta</string>
+    <string name="msgPasswordsDontMatch">Las contraseñas no coinciden</string>
+    <string name="msgWelcome">Hola, %1$s</string>
+    <string name="msgSessionExpired">Tu sesión venció. Vuelve a iniciar sesión</string>
+    <string name="tvGreetingUser">Hola, %1$s</string>
+    <string name="cdSync">Sincronizar</string>
+    <string name="cdLogout">Cerrar sesión</string>
+    <string name="tvSyncing">Sincronizando…</string>
+    <string name="tvSynced">Sincronizado</string>
+    <string name="tvOffline">Sin conexión · los cambios se guardan en el celular</string>
+    <plurals name="tvOfflinePending">
+        <item quantity="one">Sin conexión · %1$d cambio pendiente</item>
+        <item quantity="other">Sin conexión · %1$d cambios pendientes</item>
+    </plurals>
+    <plurals name="tvServerErrorPending">
+        <item quantity="one">El servidor no respondió · %1$d cambio pendiente</item>
+        <item quantity="other">El servidor no respondió · %1$d cambios pendientes</item>
+    </plurals>
+    <string name="msgChangeRejected">El servidor rechazó un cambio: %1$s</string>
+    <string name="dlgLogoutTitle">¿Cerrar sesión?</string>
+    <string name="dlgLogoutMessage">Los datos de este celular se borrarán. Lo que ya está sincronizado sigue a salvo en tu cuenta.</string>
+    <plurals name="dlgLogoutPending">
+        <item quantity="one">Ojo: tienes %1$d cambio sin sincronizar y se perderá.</item>
+        <item quantity="other">Ojo: tienes %1$d cambios sin sincronizar y se perderán.</item>
+    </plurals>
+    <string name="btnLogout">Cerrar sesión</string>
+    <string name="btnCancel">Cancelar</string>
 </resources>

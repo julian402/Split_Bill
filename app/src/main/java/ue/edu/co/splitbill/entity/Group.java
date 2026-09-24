@@ -38,12 +38,21 @@ public class Group {
     @ColumnInfo(name = DatabaseContract.Groups.COLUMN_STATUS)
     private int status;
 
+    /** Agregada en la version 2 del esquema, junto con ownerId (ver SplitBillDatabase.MIGRATION_1_2). */
+    @ColumnInfo(name = DatabaseContract.Groups.COLUMN_SYNC_STATUS)
+    private SyncStatus syncStatus;
+
+    /** Id en el servidor de quien creo el grupo. Null mientras el grupo no se haya subido. */
+    @ColumnInfo(name = DatabaseContract.Groups.COLUMN_OWNER_ID)
+    private String ownerId;
+
     /** Constructor vacio: es el que usa Room para reconstruir la fila. */
     public Group() {
         this.id = UUID.randomUUID().toString();
         this.createdAt = new Date();
         this.currency = DatabaseContract.DEFAULT_GROUP_CURRENCY;
         this.status = DatabaseContract.STATUS_ACTIVE;
+        this.syncStatus = SyncStatus.PENDING_CREATE;
     }
 
     @Ignore
@@ -104,12 +113,29 @@ public class Group {
         this.status = status;
     }
 
+    public SyncStatus getSyncStatus() {
+        return this.syncStatus;
+    }
+
+    public void setSyncStatus(SyncStatus syncStatus) {
+        this.syncStatus = syncStatus;
+    }
+
+    public String getOwnerId() {
+        return this.ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Group{");
         sb.append("id=").append(id);
         sb.append(", name=").append(name);
         sb.append(", currency=").append(currency);
+        sb.append(", syncStatus=").append(syncStatus);
         sb.append('}');
         return sb.toString();
     }

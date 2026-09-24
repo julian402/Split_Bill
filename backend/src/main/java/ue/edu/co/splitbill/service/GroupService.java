@@ -4,7 +4,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -109,11 +112,31 @@ public class GroupService {
 
     @Transactional(readOnly = true)
     public List<UserResponse> listMembers(UUID userId, UUID groupId) {
+        return listMembers(userId, groupId, false);
+    }
+
+    /**
+     * Integrantes del grupo. Con includeRemoved tambien vienen los retirados, marcados active=false:
+     * la app los necesita porque los gastos viejos todavia los referencian.
+     */
+    @Transactional(readOnly = true)
+    public List<UserResponse> listMembers(UUID userId, UUID groupId, boolean includeRemoved) {
         requireMembership(groupId, userId);
         List<UserResponse> result = new ArrayList<>();
-        for (User member : this.userRepository.findActiveMembersOfGroup(groupId)) {
-            result.add(UserResponse.from(member));
+        if (!includeRemoved) {
+            for (User member : this.userRepository.findActiveMembersOfGroup(groupId)) {
+                result.add(UserResponse.from(member));
+            }
+            return result;
         }
+        Map<UUID, Boolean> activeByUser = new HashMap<>();
+        for (GroupMember membership : this.groupMemberRepository.findByIdGroupId(groupId)) {
+            activeByUser.put(membership.getUserId(), membership.isActive());
+        }
+        for (User member : this.userRepository.findAllById(activeByUser.keySet())) {
+            result.add(UserResponse.from(member, member.isActive() && activeByUser.get(member.getId())));
+        }
+        result.sort(Comparator.comparing(UserResponse::names));
         return result;
     }
 

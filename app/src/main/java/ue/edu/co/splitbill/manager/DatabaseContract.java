@@ -14,13 +14,22 @@ package ue.edu.co.splitbill.manager;
 public final class DatabaseContract {
 
     public static final String DATABASE_NAME = "splitbill.db";
-    public static final int DATABASE_VERSION = 1;
+    /** Version 2 (entrega 3): la tabla groups gana grp_sync_status y grp_owner_id. */
+    public static final int DATABASE_VERSION = 2;
 
     /** Borrado logico: las filas no se eliminan, se marcan como inactivas. */
     public static final int STATUS_ACTIVE = 1;
     public static final int STATUS_INACTIVE = 0;
 
-    /** Grupo por defecto que se siembra al crear la base de datos. */
+    /** Valores de sync_status tal como los guarda Converters (el nombre del enum SyncStatus). */
+    public static final String SYNCED = "'SYNCED'";
+    public static final String PENDING_CREATE = "'PENDING_CREATE'";
+    public static final String PENDING_DELETE = "'PENDING_DELETE'";
+
+    /**
+     * Grupo por defecto que se siembra al crear la base de datos. Todas las instalaciones lo crean
+     * con el mismo id, por eso al iniciar sesion recibe un UUID propio antes de subirse al servidor.
+     */
     public static final String DEFAULT_GROUP_ID = "00000000-0000-0000-0000-000000000001";
     public static final String DEFAULT_GROUP_NAME = "Mi grupo";
     public static final String DEFAULT_GROUP_CURRENCY = "COP";
@@ -49,8 +58,30 @@ public final class DatabaseContract {
         public static final String SELECT_COUNT_ACTIVE =
                 "SELECT COUNT(*) FROM users WHERE use_status = 1";
 
+        /**
+         * Borrado logico que ademas deja el cambio en la cola de sincronizacion. Si la fila nunca se
+         * subio, sigue como PENDING_CREATE: el SyncManager la crea y luego la retira en el servidor.
+         */
         public static final String SOFT_DELETE =
-                "UPDATE users SET use_status = 0 WHERE use_id = :userId";
+                "UPDATE users SET use_status = 0, use_sync_status = CASE "
+                + "WHEN use_sync_status = " + PENDING_CREATE + " THEN " + PENDING_CREATE
+                + " ELSE " + PENDING_DELETE + " END WHERE use_id = :userId";
+
+        public static final String SELECT_PENDING =
+                "SELECT * FROM users WHERE use_sync_status <> " + SYNCED;
+
+        public static final String COUNT_PENDING =
+                "SELECT COUNT(*) FROM users WHERE use_sync_status <> " + SYNCED;
+
+        public static final String COUNT_ALL =
+                "SELECT COUNT(*) FROM users";
+
+        /**
+         * Se marca sincronizada solo si nadie la borro mientras se subia (use_status sigue igual);
+         * si la borraron, queda pendiente y el siguiente ciclo sube el borrado.
+         */
+        public static final String MARK_SYNCED =
+                "UPDATE users SET use_sync_status = " + SYNCED + " WHERE use_id = :userId AND use_status = :status";
 
         private Users() {
             //impide crear objetos de esta clase
@@ -66,10 +97,37 @@ public final class DatabaseContract {
         public static final String COLUMN_CURRENCY = "grp_currency";
         public static final String COLUMN_CREATED_AT = "grp_created_at";
         public static final String COLUMN_STATUS = "grp_status";
+        public static final String COLUMN_SYNC_STATUS = "grp_sync_status";
+        public static final String COLUMN_OWNER_ID = "grp_owner_id";
 
         //groups va entre acentos graves porque GROUPS es palabra reservada de SQLite
         public static final String SELECT_BY_ID =
                 "SELECT * FROM `groups` WHERE grp_id = :groupId";
+
+        public static final String SELECT_PENDING =
+                "SELECT * FROM `groups` WHERE grp_sync_status <> " + SYNCED;
+
+        public static final String COUNT_PENDING =
+                "SELECT COUNT(*) FROM `groups` WHERE grp_sync_status <> " + SYNCED;
+
+        public static final String MARK_SYNCED =
+                "UPDATE `groups` SET grp_sync_status = " + SYNCED + " WHERE grp_id = :groupId";
+
+        /**
+         * Tres pasos para cambiarle el id al grupo sembrado sin romper las llaves foraneas: se crea
+         * una copia con el id nuevo, se mueven los gastos a la copia y se borra el original.
+         */
+        public static final String COPY_WITH_NEW_ID =
+                "INSERT INTO `groups` (grp_id, grp_name, grp_currency, grp_created_at, grp_status, "
+                + "grp_sync_status, grp_owner_id) "
+                + "SELECT :newId, grp_name, grp_currency, grp_created_at, grp_status, "
+                + PENDING_CREATE + ", :ownerId FROM `groups` WHERE grp_id = :oldId";
+
+        public static final String MOVE_EXPENSES =
+                "UPDATE expenses SET exp_group_id = :newId WHERE exp_group_id = :oldId";
+
+        public static final String DELETE_BY_ID =
+                "DELETE FROM `groups` WHERE grp_id = :groupId";
 
         private Groups() {
             //impide crear objetos de esta clase
@@ -113,8 +171,33 @@ public final class DatabaseContract {
                 "SELECT COALESCE(SUM(exp_amount_cents), 0) FROM expenses "
                 + "WHERE exp_group_id = :groupId AND exp_status = 1";
 
+        /** Igual que en users: el borrado queda en la cola de sincronizacion. */
         public static final String SOFT_DELETE =
-                "UPDATE expenses SET exp_status = 0 WHERE exp_id = :expenseId";
+                "UPDATE expenses SET exp_status = 0, exp_sync_status = CASE "
+                + "WHEN exp_sync_status = " + PENDING_CREATE + " THEN " + PENDING_CREATE
+                + " ELSE " + PENDING_DELETE + " END WHERE exp_id = :expenseId";
+
+        public static final String SELECT_PENDING =
+                "SELECT * FROM expenses WHERE exp_sync_status <> " + SYNCED;
+
+        public static final String COUNT_PENDING =
+                "SELECT COUNT(*) FROM expenses WHERE exp_sync_status <> " + SYNCED;
+
+        public static final String COUNT_ALL =
+                "SELECT COUNT(*) FROM expenses";
+
+        /** Igual que en users: solo si el gasto no se borro mientras se subia. */
+        public static final String MARK_SYNCED =
+                "UPDATE expenses SET exp_sync_status = " + SYNCED + " WHERE exp_id = :expenseId AND exp_status = :status";
+
+        /** Gastos del grupo que ya estaban sincronizados: el pull compara esta lista con la del servidor. */
+        public static final String SELECT_SYNCED_ACTIVE_IDS =
+                "SELECT exp_id FROM expenses WHERE exp_group_id = :groupId AND exp_status = 1 "
+                + "AND exp_sync_status = " + SYNCED;
+
+        /** Otro integrante borro el gasto en el servidor: aqui tambien deja de contar. */
+        public static final String MARK_DELETED_BY_SERVER =
+                "UPDATE expenses SET exp_status = 0 WHERE exp_id = :expenseId AND exp_sync_status = " + SYNCED;
 
         /**
          * Cuanto puso cada integrante: se agrupa por quien pago y se suman los montos.

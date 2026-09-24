@@ -13,6 +13,7 @@ import ue.edu.co.splitbill.domain.split.SplitStrategyFactory;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
+import ue.edu.co.splitbill.sync.SyncManager;
 
 /**
  * Repositorio de gastos.
@@ -25,8 +26,12 @@ public class ExpenseRepository extends BaseRepository {
 
     private static final String TAG = "ExpenseRepository";
 
-    public ExpenseRepository(SplitBillDatabase database, AppExecutors executors) {
+    private final SyncManager syncManager;
+
+    /** @param syncManager se le avisa despues de cada cambio para que lo suba al servidor cuando pueda */
+    public ExpenseRepository(SplitBillDatabase database, AppExecutors executors, SyncManager syncManager) {
         super(database, executors);
+        this.syncManager = syncManager;
     }
 
     @Override
@@ -59,7 +64,7 @@ public class ExpenseRepository extends BaseRepository {
                     expenseShares.add(new ExpenseShare(expense.getId(), share));
                 }
 
-                return database.runInTransaction(new Callable<Expense>() {
+                Expense saved = database.runInTransaction(new Callable<Expense>() {
                     @Override
                     public Expense call() {
                         database.expenseDao().insert(expense);
@@ -67,6 +72,9 @@ public class ExpenseRepository extends BaseRepository {
                         return expense;
                     }
                 });
+                //el gasto ya esta guardado en el celular; subirlo al servidor ocurre por detras
+                syncManager.requestSync();
+                return saved;
             }
         }, callback);
     }
@@ -113,6 +121,7 @@ public class ExpenseRepository extends BaseRepository {
                 if (rowsAffected == 0) {
                     throw new IllegalArgumentException("No se encontro el gasto");
                 }
+                syncManager.requestSync();
                 return rowsAffected;
             }
         }, callback);

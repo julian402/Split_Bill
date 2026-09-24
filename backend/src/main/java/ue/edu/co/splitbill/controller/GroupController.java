@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -72,9 +73,11 @@ public class GroupController {
     }
 
     @GetMapping("/{groupId}/members")
-    @Operation(summary = "Listar integrantes")
-    public List<UserResponse> listMembers(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId) {
-        return this.groupService.listMembers(CurrentUser.id(jwt), groupId);
+    @Operation(summary = "Listar integrantes",
+            description = "Con includeRemoved=true tambien trae a los retirados (active=false).")
+    public List<UserResponse> listMembers(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId,
+                                          @RequestParam(defaultValue = "false") boolean includeRemoved) {
+        return this.groupService.listMembers(CurrentUser.id(jwt), groupId, includeRemoved);
     }
 
     @PostMapping("/{groupId}/members")

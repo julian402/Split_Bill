@@ -22,7 +22,6 @@ import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.domain.split.SplitRequest;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.User;
-import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.model.ExpenseRepository;
 import ue.edu.co.splitbill.model.UserRepository;
 import ue.edu.co.splitbill.ui.BaseActivity;
@@ -205,7 +204,7 @@ public class AddExpenseActivity extends BaseActivity {
         this.rvParticipants = findViewById(R.id.rvParticipants);
         this.btnSaveExpense = findViewById(R.id.btnSaveExpense);
 
-        this.groupId = DatabaseContract.DEFAULT_GROUP_ID;
+        this.groupId = getServiceLocator().getSessionManager().getCurrentGroupId();
         this.expenseRepository = getServiceLocator().getExpenseRepository();
         this.userRepository = getServiceLocator().getUserRepository();
 

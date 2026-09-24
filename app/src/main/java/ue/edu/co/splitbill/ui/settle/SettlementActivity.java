@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ue.edu.co.splitbill.R;
-import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.model.SettlementRepository;
 import ue.edu.co.splitbill.model.SettlementResult;
 import ue.edu.co.splitbill.ui.BaseActivity;
@@ -82,7 +81,7 @@ public class SettlementActivity extends BaseActivity {
         this.rvBalances = findViewById(R.id.rvBalances);
         this.rvTransfers = findViewById(R.id.rvTransfers);
 
-        this.groupId = DatabaseContract.DEFAULT_GROUP_ID;
+        this.groupId = getServiceLocator().getSessionManager().getCurrentGroupId();
         this.settlementRepository = getServiceLocator().getSettlementRepository();
 
         this.balanceAdapter = new BalanceAdapter();

@@ -3,6 +3,7 @@ package ue.edu.co.splitbill;
 import android.app.Application;
 
 import ue.edu.co.splitbill.di.ServiceLocator;
+import ue.edu.co.splitbill.sync.SyncManager;
 
 /**
  * Punto de arranque de la aplicacion.
@@ -21,6 +22,10 @@ public class SplitBillApplication extends Application {
     public void onCreate() {
         super.onCreate();
         this.serviceLocator = new ServiceLocator(this);
+
+        //cada vez que el celular recupera la conexion, se suben los cambios hechos sin ella
+        final SyncManager syncManager = this.serviceLocator.getSyncManager();
+        this.serviceLocator.getNetworkMonitor().start(syncManager::requestSync);
     }
 
     public ServiceLocator getServiceLocator() {

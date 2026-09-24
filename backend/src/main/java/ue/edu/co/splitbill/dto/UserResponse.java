@@ -9,11 +9,17 @@ import ue.edu.co.splitbill.entity.User;
  * controladores nunca devuelven la entidad User directamente.
  *
  * @param registered true si la persona tiene cuenta; false si es un integrante agregado por nombre
+ * @param active     false si la persona fue retirada del grupo (solo aparece con includeRemoved=true)
  */
-public record UserResponse(UUID id, String names, String email, String phone, boolean registered) {
+public record UserResponse(UUID id, String names, String email, String phone, boolean registered,
+                           boolean active) {
 
     public static UserResponse from(User user) {
+        return from(user, user.isActive());
+    }
+
+    public static UserResponse from(User user, boolean active) {
         return new UserResponse(user.getId(), user.getNames(), user.getEmail(), user.getPhone(),
-                user.hasAccount());
+                user.hasAccount(), active);
     }
 }

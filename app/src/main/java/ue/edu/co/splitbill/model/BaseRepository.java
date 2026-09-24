@@ -2,10 +2,13 @@ package ue.edu.co.splitbill.model;
 
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 
 import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
+import ue.edu.co.splitbill.network.ApiException;
 
 /**
  * Base de todos los repositorios.
@@ -17,8 +20,9 @@ import ue.edu.co.splitbill.manager.SplitBillDatabase;
  * Es el patron metodo plantilla: el padre fija el esqueleto de la operacion y el hijo llena el hueco,
  * que aqui es el Callable con el trabajo concreto.
  *
- * En la entrega que agrega la API, a esta misma clase se le suman los ganchos pushPendingChanges()
- * y pullRemoteChanges() con el metodo sync() final, sin tocar las subclases ya escritas.
+ * Desde la entrega 3 tiene tambien runNetwork(), el mismo esqueleto pero en el hilo de red, para
+ * las operaciones que necesitan al servidor (iniciar sesion, registrarse). La sincronizacion de los
+ * datos no pasa por aqui: la hace SyncManager por detras, sin que la pantalla espere.
  */
 public abstract class BaseRepository {
 
@@ -40,7 +44,18 @@ public abstract class BaseRepository {
      * @param callback quien recibe el resultado o el error
      */
     protected <T> void runAsync(final Callable<T> work, final DataCallback<T> callback) {
-        this.executors.io().execute(new Runnable() {
+        run(this.executors.io(), work, callback);
+    }
+
+    /**
+     * Igual que runAsync, pero en el hilo de red: para operaciones que esperan respuesta del servidor.
+     */
+    protected <T> void runNetwork(final Callable<T> work, final DataCallback<T> callback) {
+        run(this.executors.network(), work, callback);
+    }
+
+    private <T> void run(Executor executor, final Callable<T> work, final DataCallback<T> callback) {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -52,7 +67,7 @@ public abstract class BaseRepository {
                         }
                     });
                 } catch (final Exception e) {
-                    Log.e(getTag(), "ERROR AL EJECUTAR LA OPERACION EN LA BASE DE DATOS", e);
+                    Log.e(getTag(), "ERROR AL EJECUTAR LA OPERACION", e);
                     executors.mainThread().execute(new Runnable() {
                         @Override
                         public void run() {
@@ -71,8 +86,13 @@ public abstract class BaseRepository {
      * cualquier otra falla se reporta de forma generica y el detalle queda en el Log.
      */
     private String describirError(Exception e) {
-        if (e instanceof IllegalArgumentException || e instanceof IllegalStateException) {
+        if (e instanceof IllegalArgumentException || e instanceof IllegalStateException
+                || e instanceof ApiException) {
+            //ApiException trae el mensaje que escribio el servidor, por ejemplo "Email o contrasena incorrectos"
             return e.getMessage();
+        }
+        if (e instanceof IOException) {
+            return "No hay conexion con el servidor. Revisa tu internet e intenta de nuevo";
         }
         return "No fue posible completar la operacion";
     }

@@ -16,20 +16,26 @@ Acta de Constitución `SPLITBILL-v1`.
 **Entrega 1 completada.** La app funciona de punta a punta y 100 % sin conexión, sobre SQLite local.
 
 **Entrega 2 completada.** El backend (Spring Boot + PostgreSQL + JWT) vive en [`backend/`](backend/README.md).
-La app todavía no se conecta a él: eso, la cámara y los contactos llegan en las entregas siguientes.
+
+**Entrega 3 completada.** La app se conecta al backend: registro e inicio de sesión reales, y
+sincronización **offline-first**. Todo se sigue guardando primero en el celular, así que la app
+funciona igual sin conexión, y los cambios se suben solos cuando vuelve la red.
 
 | | |
 |---|---|
 | Lenguaje | Java 11 |
 | `minSdk` / `targetSdk` | 26 / 36 |
 | Persistencia | Room (capa sobre SQLite) |
-| Pruebas | 43 unitarias + 6 instrumentadas |
+| Red | Retrofit 3 + Gson, token JWT cifrado con el Android Keystore |
+| Pruebas | 50 unitarias + 13 instrumentadas |
 
 ## Pantallas
 
 | Pantalla | Qué hace |
 |---|---|
-| `MainActivity` | Total del grupo y lista de gastos |
+| `LoginActivity` | Inicio de sesión. Es la primera pantalla; si ya hay sesión, pasa directo a la principal |
+| `RegisterActivity` | Crear cuenta (queda con la sesión iniciada) |
+| `MainActivity` | Total del grupo, lista de gastos, estado de la sincronización, sincronizar y cerrar sesión |
 | `MembersActivity` | Alta, listado y baja de integrantes |
 | `AddExpenseActivity` | Registrar un gasto: descripción, monto, pagador, tipo de división y participantes |
 | `SettlementActivity` | Saldo de cada integrante y transferencias mínimas para saldar |
@@ -48,7 +54,10 @@ ue.edu.co.splitbill
 ├── manager/    SplitBillDatabase, DatabaseContract (todo el SQL), Converters
 ├── dao/        @Dao con las consultas y sus proyecciones
 ├── model/      Repositorios sobre BaseRepository
-├── di/         ServiceLocator y AppExecutors
+├── di/         ServiceLocator y AppExecutors (io, network, mainThread)
+├── network/    ApiService (Retrofit), AuthInterceptor, DTO y ApiMapper
+├── session/    SessionManager y KeystoreTokenStore (token cifrado con AES-GCM)
+├── sync/       SyncManager (push + pull) y NetworkMonitor
 └── ui/         Activities sobre BaseActivity, y adaptadores de RecyclerView
 ```
 
@@ -86,6 +95,24 @@ Resultado   3 transferencias en lugar de 9
             Juan  → Julián    $3.000
 ```
 
+## Sincronización sin conexión
+
+Las pantallas **siempre** leen y escriben en Room. Cada fila guarda su `sync_status`
+(`PENDING_CREATE`, `PENDING_DELETE`, `SYNCED`), y esa es la cola de cambios por enviar. El
+`SyncManager` trabaja por detrás:
+
+1. **Push**: sube la cola en orden (grupo → integrantes → gastos). Cada fila viaja con su UUID, así
+   que reintentar nunca duplica nada en el servidor.
+2. **Pull**: trae lo que otros integrantes cambiaron. Nunca pisa un cambio local pendiente.
+
+Se sincroniza al abrir la pantalla principal, después de cada cambio, al tocar el botón de
+sincronizar y **cada vez que vuelve la conexión** (`NetworkMonitor`). Si el servidor rechaza un
+cambio (por ejemplo, partes que no suman el total), el cambio se descarta y se le avisa al usuario.
+Si el token vence, la app vuelve al login sin cerrarse.
+
+Al pasar de la versión 1 a la 2 de la base de datos (`MIGRATION_1_2`) no se pierde nada: al iniciar
+sesión, los gastos que ya había en el celular se suben a la cuenta.
+
 ## Cómo compilar
 
 Requiere Android Studio y un dispositivo o emulador con API 26 o superior.
@@ -94,8 +121,12 @@ Requiere Android Studio y un dispositivo o emulador con API 26 o superior.
 ./gradlew :app:assembleDebug        # compilar
 ./gradlew :app:installDebug         # instalar
 ./gradlew :app:testDebugUnitTest    # pruebas del dominio, sin emulador
-./gradlew :app:connectedDebugAndroidTest   # pruebas de SQLite, con emulador
+./gradlew :app:connectedDebugAndroidTest   # SQLite, migración y sincronización, con emulador
 ```
+
+Para usar la app hay que tener el backend corriendo en el mismo computador (ver
+[`backend/README.md`](backend/README.md)). Desde el emulador, el computador es `10.0.2.2:8080`;
+la dirección está en `API_BASE_URL` de `app/build.gradle.kts`.
 
 > Si el proyecto está dentro de una carpeta sincronizada con OneDrive, compilar desde la terminal puede
 > fallar con `Unable to delete directory ...\app\build\...`. Es un bloqueo de archivos de OneDrive, no un
@@ -103,5 +134,4 @@ Requiere Android Studio y un dispositivo o emulador con API 26 o superior.
 
 ## Pendiente
 
-- **Entrega 3** — Retrofit y sincronización offline-first.
 - **Entrega 4** — Cámara con OCR de facturas (ML Kit), lectura de contactos y varios grupos.

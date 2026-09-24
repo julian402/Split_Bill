@@ -15,23 +15,35 @@ import java.util.concurrent.Executors;
  * ejecutores: uno para el trabajo de disco y otro que devuelve el resultado al hilo principal.
  *
  * Los repositorios reciben esta clase por constructor, asi que ninguna Activity crea hilos.
- * En la entrega que agrega la API se sumara aqui un ejecutor network() para las peticiones HTTP.
+ * Desde la entrega 3 hay un tercer ejecutor, network(), para las peticiones HTTP al backend.
  */
 public class AppExecutors {
 
     private static final int IO_THREADS = 3;
 
+    private static final int NETWORK_THREADS = 2;
+
     private final ExecutorService io;
+    private final ExecutorService network;
     private final Executor mainThread;
 
     public AppExecutors() {
         this.io = Executors.newFixedThreadPool(IO_THREADS);
+        this.network = Executors.newFixedThreadPool(NETWORK_THREADS);
         this.mainThread = new MainThreadExecutor();
     }
 
     /** Hilos para leer y escribir en la base de datos. */
     public Executor io() {
         return this.io;
+    }
+
+    /**
+     * Hilos para las peticiones HTTP. Van aparte de io() porque una peticion puede tardar segundos
+     * esperando al servidor, y mientras tanto la lectura de la base de datos no debe quedar en cola.
+     */
+    public Executor network() {
+        return this.network;
     }
 
     /** Hilo principal: el unico desde el que se pueden actualizar las vistas. */

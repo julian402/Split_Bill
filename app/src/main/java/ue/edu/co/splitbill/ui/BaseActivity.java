@@ -1,5 +1,6 @@
 package ue.edu.co.splitbill.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.SplitBillApplication;
 import ue.edu.co.splitbill.di.ServiceLocator;
 import ue.edu.co.splitbill.model.DataCallback;
+import ue.edu.co.splitbill.ui.auth.LoginActivity;
 
 /**
  * Base de todas las pantallas de la aplicacion.
@@ -27,18 +29,53 @@ import ue.edu.co.splitbill.model.DataCallback;
  * Es el patron metodo plantilla: onCreate define el orden de arranque de cualquier pantalla
  * (inflar el layout, aplicar margenes, enlazar vistas, enlazar listeners) y cada hija solo llena
  * los huecos. Asi ninguna pantalla vuelve a copiar el bloque de insets.
+ *
+ * Desde la entrega 3 tambien protege las pantallas: si no hay sesion (o el token vencio), manda al
+ * login. Las pantallas de login y registro lo desactivan sobrescribiendo requiresSession().
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (requiresSession() && !hasSession()) {
+            //finish() dentro de onCreate hace que Android no llegue a onResume de esta pantalla
+            goToLogin(false);
+            return;
+        }
         EdgeToEdge.enable(this);
         setContentView(getLayoutResourceId());
         applyWindowInsets();
         initToolbar();
         initObjects();
         initListeners();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //el token pudo vencer mientras la pantalla estaba abierta (AuthInterceptor lo detecta)
+        if (requiresSession() && !hasSession()) {
+            goToLogin(true);
+        }
+    }
+
+    /** Casi todas las pantallas necesitan sesion; login y registro responden false. */
+    protected boolean requiresSession() {
+        return true;
+    }
+
+    private boolean hasSession() {
+        return getServiceLocator().getSessionManager().isLoggedIn();
+    }
+
+    /** Abre el login y cierra todas las pantallas anteriores, para que "atras" no regrese aqui. */
+    protected void goToLogin(boolean sessionExpired) {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.putExtra(LoginActivity.EXTRA_SESSION_EXPIRED, sessionExpired);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     /** Layout que infla la pantalla. Su vista raiz debe llevar android:id="@+id/main". */

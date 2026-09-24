@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
+import ue.edu.co.splitbill.sync.SyncManager;
 
 /**
  * Repositorio de integrantes del grupo.
@@ -17,8 +18,12 @@ public class UserRepository extends BaseRepository {
 
     private static final String TAG = "UserRepository";
 
-    public UserRepository(SplitBillDatabase database, AppExecutors executors) {
+    private final SyncManager syncManager;
+
+    /** @param syncManager se le avisa despues de cada cambio para que lo suba al servidor cuando pueda */
+    public UserRepository(SplitBillDatabase database, AppExecutors executors, SyncManager syncManager) {
         super(database, executors);
+        this.syncManager = syncManager;
     }
 
     @Override
@@ -33,6 +38,7 @@ public class UserRepository extends BaseRepository {
             public User call() {
                 user.validar();
                 database.userDao().insert(user);
+                syncManager.requestSync();
                 return user;
             }
         }, callback);
@@ -80,6 +86,7 @@ public class UserRepository extends BaseRepository {
                 if (rowsAffected == 0) {
                     throw new IllegalArgumentException("No se encontro el integrante");
                 }
+                syncManager.requestSync();
                 return rowsAffected;
             }
         }, callback);

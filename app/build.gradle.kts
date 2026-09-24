@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -19,9 +21,17 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Direccion del backend. 10.0.2.2 es el computador visto desde el emulador de Android.
+        // Direccion del backend. Por defecto 10.0.2.2, que es el computador visto desde el emulador.
+        // Cada quien puede cambiarla en su local.properties (no se sube a git), por ejemplo para un
+        // celular fisico: splitbill.apiBaseUrl=http://localhost:8080/ junto con adb reverse tcp:8080 tcp:8080.
         // Cuando el backend este desplegado, el buildType release apuntara a su URL publica.
-        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/\"")
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        }
+        val apiBaseUrl = localProperties.getProperty("splitbill.apiBaseUrl", "http://10.0.2.2:8080/")
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
 
         // Exporta el esquema de Room a app/schemas para poder revisar el SQL generado
         javaCompileOptions {

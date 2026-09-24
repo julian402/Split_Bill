@@ -125,8 +125,16 @@ Requiere Android Studio y un dispositivo o emulador con API 26 o superior.
 ```
 
 Para usar la app hay que tener el backend corriendo en el mismo computador (ver
-[`backend/README.md`](backend/README.md)). Desde el emulador, el computador es `10.0.2.2:8080`;
-la dirección está en `API_BASE_URL` de `app/build.gradle.kts`.
+[`backend/README.md`](backend/README.md)). Por defecto la app lo busca en `10.0.2.2:8080`, que es
+el computador visto **desde el emulador**. Esa dirección no existe en un celular real.
+
+**En un celular físico** (o para usar la misma dirección en todos los dispositivos):
+
+1. Agregar a `local.properties` (no se sube a git): `splitbill.apiBaseUrl=http://localhost:8080/`
+2. Con el celular conectado por USB o depuración inalámbrica: `adb reverse tcp:8080 tcp:8080`.
+   Así, el `localhost:8080` del celular llega al backend del PC. Hay que repetirlo cada vez que el
+   celular se reconecta.
+3. Volver a instalar la app.
 
 > Si el proyecto está dentro de una carpeta sincronizada con OneDrive, compilar desde la terminal puede
 > fallar con `Unable to delete directory ...\app\build\...`. Es un bloqueo de archivos de OneDrive, no un

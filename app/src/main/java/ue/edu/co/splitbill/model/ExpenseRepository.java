@@ -12,6 +12,7 @@ import ue.edu.co.splitbill.domain.split.SplitRequest;
 import ue.edu.co.splitbill.domain.split.SplitStrategyFactory;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
+import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
 import ue.edu.co.splitbill.sync.SyncManager;
@@ -74,6 +75,52 @@ public class ExpenseRepository extends BaseRepository {
                     }
                 });
                 //el gasto ya esta guardado en el celular; subirlo al servidor ocurre por detras
+                syncManager.requestSync();
+                return saved;
+            }
+        }, callback);
+    }
+
+    /**
+     * Guarda los cambios de un gasto que ya existe y vuelve a repartirlo.
+     *
+     * Igual que al crear, el gasto y sus partes se guardan en una sola transaccion. Las partes viejas
+     * se borran y se escriben las nuevas: es mas simple y seguro que comparar una por una. El gasto
+     * queda como PENDING_UPDATE para que el SyncManager suba el cambio; si todavia no se habia subido
+     * (PENDING_CREATE), sigue asi y se sube de una vez con los datos nuevos.
+     */
+    public void updateExpense(final Expense expense, final SplitRequest request,
+                              DataCallback<Expense> callback) {
+        runAsync(new Callable<Expense>() {
+            @Override
+            public Expense call() {
+                expense.validar();
+                final Expense current = database.expenseDao().findById(expense.getId());
+                if (current == null || !current.isActive()) {
+                    throw new IllegalArgumentException("Este gasto ya no existe");
+                }
+
+                List<Share> shares = SplitStrategyFactory.create(expense.getSplitType()).split(request);
+                final List<ExpenseShare> expenseShares = new ArrayList<>(shares.size());
+                for (Share share : shares) {
+                    expenseShares.add(new ExpenseShare(expense.getId(), share));
+                }
+
+                //la fecha y el grupo no se editan; el estado de sincronizacion depende de si ya se subio
+                expense.setDate(current.getDate());
+                expense.setGroupId(current.getGroupId());
+                expense.setSyncStatus(current.getSyncStatus() == SyncStatus.PENDING_CREATE
+                        ? SyncStatus.PENDING_CREATE : SyncStatus.PENDING_UPDATE);
+
+                Expense saved = database.runInTransaction(new Callable<Expense>() {
+                    @Override
+                    public Expense call() {
+                        database.expenseDao().update(expense);
+                        database.expenseShareDao().deleteByExpense(expense.getId());
+                        database.expenseShareDao().insertAll(expenseShares);
+                        return expense;
+                    }
+                });
                 syncManager.requestSync();
                 return saved;
             }

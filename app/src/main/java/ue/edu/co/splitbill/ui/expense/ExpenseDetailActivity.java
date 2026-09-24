@@ -1,5 +1,6 @@
 package ue.edu.co.splitbill.ui.expense;
 
+import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -41,6 +42,7 @@ public class ExpenseDetailActivity extends BaseActivity implements SyncListener 
     private TextView tvDetailMeta;
     private TextView tvDetailSyncState;
     private RecyclerView rvShares;
+    private Button btnEditExpense;
     private Button btnDeleteExpense;
 
     private ExpenseShareAdapter shareAdapter;
@@ -56,6 +58,7 @@ public class ExpenseDetailActivity extends BaseActivity implements SyncListener 
 
     @Override
     protected void initListeners() {
+        this.btnEditExpense.setOnClickListener(this::openEdit);
         this.btnDeleteExpense.setOnClickListener(this::confirmDelete);
     }
 
@@ -106,6 +109,13 @@ public class ExpenseDetailActivity extends BaseActivity implements SyncListener 
         this.shareAdapter.setDetail(expense, detail.getPayerNames(), detail.getShares());
     }
 
+    /** Abre el mismo formulario de "Nuevo gasto", pero lleno con este gasto. Al guardar vuelve aqui. */
+    private void openEdit(View view) {
+        Intent intent = new Intent(this, AddExpenseActivity.class);
+        intent.putExtra(AddExpenseActivity.EXTRA_EXPENSE_ID, this.expenseId);
+        startActivity(intent);
+    }
+
     private void confirmDelete(View view) {
         confirm(getString(R.string.dlgDeleteExpenseTitle, this.description),
                 getString(R.string.dlgDeleteExpenseMessage),
@@ -144,6 +154,7 @@ public class ExpenseDetailActivity extends BaseActivity implements SyncListener 
         this.tvDetailMeta = findViewById(R.id.tvDetailMeta);
         this.tvDetailSyncState = findViewById(R.id.tvDetailSyncState);
         this.rvShares = findViewById(R.id.rvShares);
+        this.btnEditExpense = findViewById(R.id.btnEditExpense);
         this.btnDeleteExpense = findViewById(R.id.btnDeleteExpense);
 
         this.expenseId = getIntent().getStringExtra(EXTRA_EXPENSE_ID);

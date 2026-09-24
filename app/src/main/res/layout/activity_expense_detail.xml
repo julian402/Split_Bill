@@ -110,11 +110,19 @@
                 tools:listitem="@layout/item_expense_share" />
 
             <Button
+                android:id="@+id/btnEditExpense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/btnEditExpense"
+                app:icon="@drawable/ic_receipt" />
+
+            <Button
                 android:id="@+id/btnDeleteExpense"
                 style="@style/Widget.SplitBill.Button.Tonal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/btnDeleteExpense"
                 android:textColor="@color/colorDebtor"
                 app:icon="@drawable/ic_delete"

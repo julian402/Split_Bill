@@ -169,6 +169,11 @@ public class SyncManager {
                     ExpenseDto dto = ApiMapper.toDto(expense,
                             this.database.expenseShareDao().findByExpense(expense.getId()));
                     ApiClient.execute(this.api.createExpense(expense.getGroupId(), dto));
+                } else if (expense.getSyncStatus() == SyncStatus.PENDING_UPDATE && expense.isActive()) {
+                    //si otro integrante ya lo borro, el servidor responde 404: se descarta y el pull lo quita
+                    ExpenseDto dto = ApiMapper.toDto(expense,
+                            this.database.expenseShareDao().findByExpense(expense.getId()));
+                    ApiClient.execute(this.api.updateExpense(expense.getGroupId(), expense.getId(), dto));
                 }
                 if (!expense.isActive()) {
                     deleteIgnoringNotFound(this.api.deleteExpense(expense.getGroupId(), expense.getId()));

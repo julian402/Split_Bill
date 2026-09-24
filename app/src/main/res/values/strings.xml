@@ -140,4 +140,13 @@
     <string name="dlgDeleteMemberTitle">¿Eliminar a %1$s?</string>
     <string name="dlgDeleteMemberMessage">Sus gastos anteriores se conservan y siguen contando en los saldos.</string>
     <string name="btnContinueExpense">Continuar con el gasto</string>
+
+    <!-- Editar un gasto y descartar cambios -->
+    <string name="tvTitleEditExpense">Editar gasto</string>
+    <string name="btnEditExpense">Editar gasto</string>
+    <string name="btnSaveChanges">Guardar cambios</string>
+    <string name="msgExpenseUpdated">Gasto actualizado</string>
+    <string name="dlgDiscardTitle">¿Descartar los cambios?</string>
+    <string name="dlgDiscardMessage">Lo que escribiste en este formulario se perderá.</string>
+    <string name="btnDiscard">Descartar</string>
 </resources>

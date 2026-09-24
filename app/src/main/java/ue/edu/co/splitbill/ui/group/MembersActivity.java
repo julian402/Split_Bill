@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -58,6 +59,21 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
         this.btnSaveMember.setOnClickListener(this::addMemberDB);
         this.btnClear.setOnClickListener(this::clearFieldsDB);
         this.btnContinueExpense.setOnClickListener(this::continueToExpense);
+
+        //si escribio un nombre y no lo guardo, se pregunta antes de salir
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                boolean typed = !etMemberNames.getText().toString().trim().isEmpty()
+                        || !etMemberPhone.getText().toString().trim().isEmpty();
+                if (!typed) {
+                    finish();
+                    return;
+                }
+                confirm(getString(R.string.dlgDiscardTitle), getString(R.string.dlgDiscardMessage),
+                        R.string.btnDiscard, MembersActivity.this::finish);
+            }
+        });
     }
 
     @Override

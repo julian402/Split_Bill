@@ -176,6 +176,43 @@ public class SyncManagerTest {
     }
 
     @Test
+    public void anEditedExpenseIsSentWithPut() throws Exception {
+        //todo sincronizado; luego el usuario edita el almuerzo
+        this.database.groupDao().markSynced(this.group.getId());
+        this.database.userDao().markSynced(this.diomar.getId(), this.diomar.getStatus());
+        this.almuerzo.setDescription("Almuerzo corregido");
+        this.almuerzo.setSyncStatus(SyncStatus.PENDING_UPDATE);
+        this.database.expenseDao().update(this.almuerzo);
+        enqueue(200, expenseJson(this.almuerzo));
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+
+        SyncResult result = this.syncManager.syncNow();
+
+        assertEquals(SyncResult.State.SYNCED, result.getState());
+        RecordedRequest put = assertRequest("PUT",
+                "/api/groups/" + this.group.getId() + "/expenses/" + this.almuerzo.getId());
+        assertTrue(put.getBody().readUtf8().contains("Almuerzo corregido"));
+        assertEquals(0, result.getPendingChanges());
+    }
+
+    @Test
+    public void editingAnExpenseDeletedByOthersIsDiscarded() throws Exception {
+        this.database.groupDao().markSynced(this.group.getId());
+        this.database.userDao().markSynced(this.diomar.getId(), this.diomar.getStatus());
+        this.almuerzo.setSyncStatus(SyncStatus.PENDING_UPDATE);
+        this.database.expenseDao().update(this.almuerzo);
+        enqueue(404, "{\"status\":404,\"detail\":\"Gasto no encontrado\"}");
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        enqueue(200, "[]");
+
+        SyncResult result = this.syncManager.syncNow();
+
+        assertEquals(Arrays.asList("Gasto no encontrado"), result.getRejectedMessages());
+        assertTrue(!this.database.expenseDao().findById(this.almuerzo.getId()).isActive());
+    }
+
+    @Test
     public void anExpiredTokenStopsTheSyncAndClosesTheSession() {
         enqueue(401, "");
 

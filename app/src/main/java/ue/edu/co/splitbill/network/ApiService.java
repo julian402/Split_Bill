@@ -7,6 +7,7 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import ue.edu.co.splitbill.network.dto.ExpenseDto;
@@ -52,6 +53,10 @@ public interface ApiService {
 
     @POST("api/groups/{groupId}/expenses")
     Call<ExpenseDto> createExpense(@Path("groupId") String groupId, @Body ExpenseDto expense);
+
+    @PUT("api/groups/{groupId}/expenses/{expenseId}")
+    Call<ExpenseDto> updateExpense(@Path("groupId") String groupId, @Path("expenseId") String expenseId,
+                                   @Body ExpenseDto expense);
 
     @DELETE("api/groups/{groupId}/expenses/{expenseId}")
     Call<Void> deleteExpense(@Path("groupId") String groupId, @Path("expenseId") String expenseId);

@@ -88,6 +88,27 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         notifyDataSetChanged();
     }
 
+    /**
+     * Marca a los participantes y llena sus valores, para editar un gasto que ya existe. Se llama
+     * despues de setParticipants, cuando la lista de integrantes ya esta cargada.
+     */
+    public void preload(Set<String> ids, Map<String, String> values) {
+        this.selectedIds.clear();
+        this.selectedIds.addAll(ids);
+        this.typedValues.clear();
+        this.typedValues.putAll(values);
+        this.loaded = true;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Resumen de lo marcado y lo digitado. La pantalla lo compara con el de cuando abrio el formulario
+     * para saber si hay cambios sin guardar.
+     */
+    public String snapshot() {
+        return getSelectedUserIds().toString() + this.typedValues.toString();
+    }
+
     public void setSplitType(SplitType splitType) {
         this.splitType = splitType;
         notifyDataSetChanged();

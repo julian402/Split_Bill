@@ -188,4 +188,24 @@
         <item quantity="one">%d integrante agregado</item>
         <item quantity="other">%d integrantes agregados</item>
     </plurals>
+
+    <!-- Entrega 4: escanear factura -->
+    <string name="tvTitleScan">Escanear factura</string>
+    <string name="cdScanReceipt">Escanear factura</string>
+    <string name="cdCameraPreview">Vista de la cámara</string>
+    <string name="helperScanReceipt">Toca la cámara para leer el total de una factura</string>
+    <string name="tvScanHint">Encuadra la factura completa, con buena luz, y toma la foto</string>
+    <string name="btnPickImage">Galería</string>
+    <string name="btnCapture">Tomar foto</string>
+    <string name="tvNoCamera">Sin permiso de cámara. Puedes elegir una foto de la galería.</string>
+    <string name="btnAllowCamera">Permitir la cámara</string>
+    <string name="msgCameraRationale">SplitBill usa la cámara solo para leer el total de tus facturas. La foto se procesa en el celular y no se guarda.</string>
+    <string name="msgCameraUnavailable">No se pudo usar la cámara. Elige una foto de la galería</string>
+    <string name="msgImageUnreadable">No se pudo abrir la foto</string>
+    <string name="msgNoAmountFound">No encontramos valores en la foto. Intenta con más luz o más cerca</string>
+    <string name="tvScanTotalLabel">Total encontrado</string>
+    <string name="tvOtherAmounts">¿No es este? Elige otro valor de la factura</string>
+    <string name="btnUseAmount">Usar este valor</string>
+    <string name="btnRescan">Volver a escanear</string>
+    <string name="msgAmountScanned">Total tomado de la factura. Revísalo antes de guardar</string>
 </resources>

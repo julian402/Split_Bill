@@ -10,10 +10,14 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,6 +40,7 @@ import ue.edu.co.splitbill.model.UserRepository;
 import ue.edu.co.splitbill.ui.BaseActivity;
 import ue.edu.co.splitbill.ui.adapter.ParticipantAdapter;
 import ue.edu.co.splitbill.ui.group.MainActivity;
+import ue.edu.co.splitbill.ui.scan.ScanReceiptActivity;
 import ue.edu.co.splitbill.ui.group.MembersActivity;
 
 /**
@@ -68,6 +73,7 @@ public class AddExpenseActivity extends BaseActivity {
     private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
 
     private EditText etDescription;
+    private TextInputLayout tilAmount;
     private EditText etAmount;
     private Spinner spPayer;
     private Spinner spSplitType;
@@ -89,6 +95,9 @@ public class AddExpenseActivity extends BaseActivity {
 
     /** Como estaba el formulario al abrirse; si al salir es distinto, hay cambios sin guardar. */
     private String initialSnapshot;
+
+    /** Abre el escaner de facturas y recibe el total que el usuario confirmo. */
+    private ActivityResultLauncher<Intent> scanLauncher;
 
     @Override
     protected int getLayoutResourceId() {
@@ -137,6 +146,7 @@ public class AddExpenseActivity extends BaseActivity {
     @Override
     protected void initListeners() {
         this.btnSaveExpense.setOnClickListener(this::saveExpenseDB);
+        this.tilAmount.setEndIconOnClickListener(this::scanReceipt);
         this.spSplitType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -157,6 +167,27 @@ public class AddExpenseActivity extends BaseActivity {
                 confirmExitIfChanged();
             }
         });
+    }
+
+    private void scanReceipt(View view) {
+        this.scanLauncher.launch(new Intent(this, ScanReceiptActivity.class));
+    }
+
+    /**
+     * El escaner solo llena el monto (y la descripcion si estaba vacia, con el nombre del comercio):
+     * no toca el pagador, los participantes ni la division.
+     */
+    private void onReceiptScanned(ActivityResult result) {
+        if (result.getResultCode() != RESULT_OK || result.getData() == null) {
+            return;
+        }
+        long cents = result.getData().getLongExtra(ScanReceiptActivity.EXTRA_AMOUNT_CENTS, 0L);
+        this.etAmount.setText(toPlainAmount(cents));
+        String merchant = result.getData().getStringExtra(ScanReceiptActivity.EXTRA_MERCHANT);
+        if (merchant != null && this.etDescription.getText().toString().trim().isEmpty()) {
+            this.etDescription.setText(merchant);
+        }
+        showToast(R.string.msgAmountScanned);
     }
 
     @Override
@@ -373,6 +404,7 @@ public class AddExpenseActivity extends BaseActivity {
     @Override
     protected void initObjects() {
         this.etDescription = findViewById(R.id.etDescription);
+        this.tilAmount = findViewById(R.id.tilAmount);
         this.etAmount = findViewById(R.id.etAmount);
         this.spPayer = findViewById(R.id.spPayer);
         this.spSplitType = findViewById(R.id.spSplitType);
@@ -383,6 +415,8 @@ public class AddExpenseActivity extends BaseActivity {
         this.editingExpenseId = getIntent().getStringExtra(EXTRA_EXPENSE_ID);
         this.expenseRepository = getServiceLocator().getExpenseRepository();
         this.userRepository = getServiceLocator().getUserRepository();
+        this.scanLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                this::onReceiptScanned);
 
         if (isEditing()) {
             MaterialToolbar toolbar = findViewById(R.id.toolbar);

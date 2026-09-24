@@ -37,10 +37,15 @@
             android:paddingEnd="16dp"
             android:paddingBottom="16dp">
 
+            <!-- El icono de camara abre el escaner de facturas y llena el monto -->
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilAmount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/etAmount"
+                app:endIconContentDescription="@string/cdScanReceipt"
+                app:endIconDrawable="@drawable/ic_camera"
+                app:endIconMode="custom"
                 app:prefixText="@string/prefixCurrency">
 
                 <com.google.android.material.textfield.TextInputEditText

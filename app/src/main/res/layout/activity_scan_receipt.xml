@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.scan.ScanReceiptActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/cdBack"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/tvTitleScan" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/pbLoading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <!-- Paso 1: la camara (o el aviso de que no hay permiso) -->
+    <LinearLayout
+        android:id="@+id/layoutCamera"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_input">
+
+            <androidx.camera.view.PreviewView
+                android:id="@+id/pvCamera"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/cdCameraPreview" />
+
+            <LinearLayout
+                android:id="@+id/layoutNoCamera"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="12dp"
+                    android:text="@string/tvNoCamera"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorTextSecondary"
+                    app:drawableTint="@color/colorStroke"
+                    app:drawableTopCompat="@drawable/ic_camera" />
+
+                <Button
+                    android:id="@+id/btnAllowCamera"
+                    style="@style/Widget.SplitBill.Button.Tonal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/btnAllowCamera" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="20dp"
+            android:text="@string/tvScanHint"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <Button
+                android:id="@+id/btnPickImage"
+                style="@style/Widget.SplitBill.Button.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:text="@string/btnPickImage"
+                app:icon="@drawable/ic_image" />
+
+            <Button
+                android:id="@+id/btnCapture"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:text="@string/btnCapture"
+                app:icon="@drawable/ic_camera" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Paso 2: el total que se encontro y los demas valores por si hay que corregirlo -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/layoutResult"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_hero"
+                android:elevation="4dp"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/tvScanMerchant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorOnHeroSecondary"
+                    android:textSize="14sp"
+                    tools:text="Restaurante El Corral" />
+
+                <TextView
+                    android:id="@+id/tvScanTotal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:textColor="@color/colorOnHero"
+                    android:textSize="36sp"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="22sp"
+                    app:autoSizeTextType="uniform"
+                    tools:text="$ 62.964,00" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvOtherAmounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="24dp"
+                android:paddingBottom="8dp"
+                android:text="@string/tvOtherAmounts"
+                android:textAppearance="@style/TextAppearance.SplitBill.Section" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cgAmounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
+
+            <Button
+                android:id="@+id/btnUseAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/btnUseAmount"
+                app:icon="@drawable/ic_check" />
+
+            <Button
+                android:id="@+id/btnRescan"
+                style="@style/Widget.SplitBill.Button.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/btnRescan" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

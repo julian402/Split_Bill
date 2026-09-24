@@ -58,10 +58,16 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- El icono de camara abre el escaner de facturas y llena el total -->
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilQuickTotal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/etQuickTotal"
+                        app:endIconContentDescription="@string/cdScanReceipt"
+                        app:endIconDrawable="@drawable/ic_camera"
+                        app:endIconMode="custom"
+                        app:helperText="@string/helperScanReceipt"
                         app:prefixText="@string/prefixCurrency">
 
                         <com.google.android.material.textfield.TextInputEditText

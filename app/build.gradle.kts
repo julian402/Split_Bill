@@ -83,6 +83,14 @@ dependencies {
     // Sincronizacion en segundo plano: Android ejecuta el SyncWorker cuando vuelve la red, aunque la app este cerrada
     implementation(libs.work.runtime)
 
+    // Escanear facturas: CameraX muestra la camara y toma la foto; ML Kit reconoce el texto en el
+    // celular, sin internet (el modelo va dentro del APK)
+    implementation(libs.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+    implementation(libs.mlkit.text.recognition)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

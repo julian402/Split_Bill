@@ -8,6 +8,11 @@
     <!-- Permisos peligrosos: se piden en el momento de usarlos con PermissionManager -->
     <!-- Agenda: agregar integrantes desde los contactos -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- Camara: escanear el total de una factura. No es obligatoria: sin camara se usa la galeria -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:name=".SplitBillApplication"
@@ -55,6 +60,10 @@
             android:exported="false"
             android:parentActivityName=".ui.group.MembersActivity"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.scan.ScanReceiptActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.expense.AddExpenseActivity"

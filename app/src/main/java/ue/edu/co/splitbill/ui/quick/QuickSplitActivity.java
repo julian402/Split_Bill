@@ -11,7 +11,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.material.textfield.TextInputLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.math.BigDecimal;
@@ -27,6 +32,7 @@ import ue.edu.co.splitbill.ui.BaseActivity;
 import ue.edu.co.splitbill.ui.SimpleTextWatcher;
 import ue.edu.co.splitbill.ui.adapter.QuickShareAdapter;
 import ue.edu.co.splitbill.ui.expense.AddExpenseActivity;
+import ue.edu.co.splitbill.ui.scan.ScanReceiptActivity;
 
 /**
  * Cuenta rapida: dividir una cuenta al momento, sin registrar integrantes ni quien pago.
@@ -47,6 +53,7 @@ public class QuickSplitActivity extends BaseActivity {
     private static final int DEFAULT_PEOPLE = 4;
     private static final String DEFAULT_TIP = "10";
 
+    private TextInputLayout tilQuickTotal;
     private EditText etQuickTotal;
     private EditText etTipPercentage;
     private TextView tvTotalWithTip;
@@ -61,6 +68,12 @@ public class QuickSplitActivity extends BaseActivity {
     private QuickShareAdapter quickShareAdapter;
 
     private Money totalWithTip;
+
+    /** Nombre del comercio de la factura escaneada: se usa como descripcion al guardar el gasto. */
+    private String scannedMerchant;
+
+    /** Abre el escaner y recibe el total que el usuario confirmo. */
+    private ActivityResultLauncher<Intent> scanLauncher;
 
     @Override
     protected int getLayoutResourceId() {
@@ -89,6 +102,7 @@ public class QuickSplitActivity extends BaseActivity {
         this.btnPlus.setOnClickListener(this::addPerson);
         this.btnCalculate.setOnClickListener(this::calculateSplit);
         this.btnSaveAsExpense.setOnClickListener(this::saveAsExpense);
+        this.tilQuickTotal.setEndIconOnClickListener(this::scanReceipt);
 
         //El total con propina se recalcula mientras el usuario escribe
         SimpleTextWatcher recalcular = new SimpleTextWatcher() {
@@ -113,6 +127,21 @@ public class QuickSplitActivity extends BaseActivity {
                 //no se usa
             }
         });
+    }
+
+    private void scanReceipt(View view) {
+        this.scanLauncher.launch(new Intent(this, ScanReceiptActivity.class));
+    }
+
+    /** El total escaneado queda en el campo; la propina y el reparto se recalculan solos. */
+    private void onReceiptScanned(ActivityResult result) {
+        if (result.getResultCode() != RESULT_OK || result.getData() == null) {
+            return;
+        }
+        long cents = result.getData().getLongExtra(ScanReceiptActivity.EXTRA_AMOUNT_CENTS, 0L);
+        this.scannedMerchant = result.getData().getStringExtra(ScanReceiptActivity.EXTRA_MERCHANT);
+        this.etQuickTotal.setText(Money.ofCents(cents).toBigDecimal().stripTrailingZeros().toPlainString());
+        showToast(R.string.msgAmountScanned);
     }
 
     private void addPerson(View view) {
@@ -200,7 +229,8 @@ public class QuickSplitActivity extends BaseActivity {
             return;
         }
         Intent intent = new Intent(this, AddExpenseActivity.class);
-        intent.putExtra(AddExpenseActivity.EXTRA_DESCRIPTION, getString(R.string.quickExpenseDescription));
+        intent.putExtra(AddExpenseActivity.EXTRA_DESCRIPTION, this.scannedMerchant != null
+                ? this.scannedMerchant : getString(R.string.quickExpenseDescription));
         intent.putExtra(AddExpenseActivity.EXTRA_AMOUNT_CENTS, this.totalWithTip.getCents());
         startActivity(intent);
     }
@@ -220,6 +250,7 @@ public class QuickSplitActivity extends BaseActivity {
 
     @Override
     protected void initObjects() {
+        this.tilQuickTotal = findViewById(R.id.tilQuickTotal);
         this.etQuickTotal = findViewById(R.id.etQuickTotal);
         this.etTipPercentage = findViewById(R.id.etTipPercentage);
         this.tvTotalWithTip = findViewById(R.id.tvTotalWithTip);
@@ -232,6 +263,8 @@ public class QuickSplitActivity extends BaseActivity {
         this.rvQuickShares = findViewById(R.id.rvQuickShares);
 
         this.etTipPercentage.setText(DEFAULT_TIP);
+        this.scanLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                this::onReceiptScanned);
 
         //Spinner de tipos de division: el mismo arreglo que usa la pantalla de gastos
         ArrayAdapter<CharSequence> splitTypeAdapter = ArrayAdapter.createFromResource(

@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.SplitBillApplication;
@@ -125,6 +126,19 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void showToast(int messageResourceId) {
         Toast.makeText(this, getString(messageResourceId), Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Pide confirmacion antes de una accion que no se puede deshacer desde la pantalla (borrar,
+     * cerrar sesion). Si el usuario acepta, se ejecuta la accion; si cancela, no pasa nada.
+     */
+    protected void confirm(String title, String message, int positiveButtonResourceId, final Runnable action) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setNegativeButton(R.string.btnCancel, null)
+                .setPositiveButton(positiveButtonResourceId, (dialog, which) -> action.run())
+                .show();
     }
 
     protected void showLoading() {

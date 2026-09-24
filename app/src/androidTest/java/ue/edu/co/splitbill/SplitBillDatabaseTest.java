@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import ue.edu.co.splitbill.dao.ExpenseListItem;
+import ue.edu.co.splitbill.dao.ShareListItem;
 import ue.edu.co.splitbill.dao.UserAmount;
 import ue.edu.co.splitbill.domain.Balance;
 import ue.edu.co.splitbill.domain.BalanceCalculator;
@@ -138,6 +139,26 @@ public class SplitBillDatabaseTest {
                 Money.ofCents(this.database.expenseDao().sumActiveCents(this.groupId)));
         //Las partes del gasto borrado tampoco cuentan en los saldos
         assertEquals(Money.of("80000"), sumar(this.database.balanceDao().sumOwedByUser(this.groupId)));
+    }
+
+    /** La pantalla de detalle muestra cada parte con el nombre del participante, de mayor a menor. */
+    @Test
+    public void elDetalleTraeLasPartesConElNombreDeCadaParticipante() {
+        String expenseId = insertExpense("Mercado", "40000", this.juan, SplitType.PERCENTAGE, porcentajes());
+
+        List<ShareListItem> shares = this.database.expenseShareDao().findByExpenseWithNames(expenseId);
+
+        assertEquals(4, shares.size());
+        assertEquals("Julian Corredor", shares.get(0).getNames());
+        assertEquals(Money.of("16000"), shares.get(0).getAmount());
+        assertEquals("Sofia Reyes", shares.get(3).getNames());
+        assertEquals(Money.of("4000"), shares.get(3).getAmount());
+        long total = 0;
+        for (ShareListItem share : shares) {
+            total += share.getAmountCents();
+        }
+        //las partes suman exactamente el gasto
+        assertEquals(Money.of("40000"), Money.ofCents(total));
     }
 
     /**

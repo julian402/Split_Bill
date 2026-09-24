@@ -230,6 +230,17 @@ public final class DatabaseContract {
                 "DELETE FROM expense_shares WHERE shr_expense_id = :expenseId";
 
         /**
+         * Partes de un gasto con el nombre de cada participante, para la pantalla de detalle.
+         * Primero las partes mas grandes; a igual monto, por nombre.
+         */
+        public static final String SELECT_BY_EXPENSE_WITH_NAMES =
+                "SELECT s.shr_user_id AS userId, u.use_names AS names, s.shr_amount_cents AS amountCents "
+                + "FROM expense_shares s "
+                + "INNER JOIN users u ON u.use_id = s.shr_user_id "
+                + "WHERE s.shr_expense_id = :expenseId "
+                + "ORDER BY s.shr_amount_cents DESC, u.use_names ASC";
+
+        /**
          * Cuanto le correspondia pagar a cada integrante: se recorren las partes de los gastos
          * activos del grupo y se agrupan por participante.
          * Es el segundo insumo de BalanceCalculator.

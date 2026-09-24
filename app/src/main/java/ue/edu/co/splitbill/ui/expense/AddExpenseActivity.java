@@ -26,6 +26,7 @@ import ue.edu.co.splitbill.model.ExpenseRepository;
 import ue.edu.co.splitbill.model.UserRepository;
 import ue.edu.co.splitbill.ui.BaseActivity;
 import ue.edu.co.splitbill.ui.adapter.ParticipantAdapter;
+import ue.edu.co.splitbill.ui.group.MainActivity;
 import ue.edu.co.splitbill.ui.group.MembersActivity;
 
 /**
@@ -44,6 +45,9 @@ public class AddExpenseActivity extends BaseActivity {
 
     /** Monto en centavos con el que llega el formulario ya lleno. */
     public static final String EXTRA_AMOUNT_CENTS = "extraAmountCents";
+
+    /** Un gasto no se puede repartir si no hay al menos dos integrantes. */
+    private static final int MIN_MEMBERS = 2;
 
     private EditText etDescription;
     private EditText etAmount;
@@ -133,10 +137,15 @@ public class AddExpenseActivity extends BaseActivity {
         this.userRepository.getActiveUsers(new UiCallback<List<User>>() {
             @Override
             protected void onData(List<User> data) {
-                if (data.isEmpty()) {
-                    //Sin integrantes no hay entre quienes repartir: se lleva al usuario a crearlos
+                if (data.size() < MIN_MEMBERS) {
+                    //No hay entre quienes repartir: se lleva al usuario a crear integrantes. Se le pasa
+                    //lo que traia este formulario (por ejemplo, el total de la cuenta rapida) para que,
+                    //al volver con el boton "Continuar con el gasto", no tenga que escribirlo otra vez.
                     showToast(R.string.msgNeedTwoMembers);
-                    startActivity(new Intent(AddExpenseActivity.this, MembersActivity.class));
+                    Intent intent = new Intent(AddExpenseActivity.this, MembersActivity.class);
+                    intent.putExtras(getIntent());
+                    intent.putExtra(MembersActivity.EXTRA_CONTINUE_TO_EXPENSE, true);
+                    startActivity(intent);
                     finish();
                     return;
                 }
@@ -168,9 +177,21 @@ public class AddExpenseActivity extends BaseActivity {
             @Override
             protected void onData(Expense data) {
                 showToast(R.string.msgExpenseSaved);
-                finish();
+                goToExpenseList();
             }
         });
+    }
+
+    /**
+     * Despues de guardar se vuelve a la lista de gastos, donde el gasto nuevo aparece de primero.
+     * CLEAR_TOP cierra lo que haya encima de MainActivity: si el gasto venia de la cuenta rapida, esa
+     * pantalla tambien se cierra y no queda la tentacion de guardarlo dos veces.
+     */
+    private void goToExpenseList() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
     }
 
     //metodo para capturar la data del activity y hacer validaciones

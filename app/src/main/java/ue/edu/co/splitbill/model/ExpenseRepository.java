@@ -12,6 +12,7 @@ import ue.edu.co.splitbill.domain.split.SplitRequest;
 import ue.edu.co.splitbill.domain.split.SplitStrategyFactory;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
+import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
 import ue.edu.co.splitbill.sync.SyncManager;
 
@@ -108,6 +109,27 @@ public class ExpenseRepository extends BaseRepository {
                     throw new IllegalArgumentException("No se encontro el gasto");
                 }
                 return expense;
+            }
+        }, callback);
+    }
+
+    /**
+     * Detalle de un gasto: el gasto, el nombre de quien pago y cada parte con el nombre del participante.
+     * Si el gasto ya no existe (por ejemplo, otro integrante lo borro y llego con la sincronizacion),
+     * se avisa con un mensaje para el usuario.
+     */
+    public void getExpenseDetail(final String expenseId, DataCallback<ExpenseDetail> callback) {
+        runAsync(new Callable<ExpenseDetail>() {
+            @Override
+            public ExpenseDetail call() {
+                Expense expense = database.expenseDao().findById(expenseId);
+                if (expense == null || !expense.isActive()) {
+                    throw new IllegalArgumentException("Este gasto ya no existe");
+                }
+                User payer = database.userDao().findById(expense.getPayerId());
+                String payerNames = payer == null ? "" : payer.getNames();
+                return new ExpenseDetail(expense, payerNames,
+                        database.expenseShareDao().findByExpenseWithNames(expenseId));
             }
         }, callback);
     }

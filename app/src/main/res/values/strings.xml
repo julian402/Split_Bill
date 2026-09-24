@@ -123,4 +123,21 @@
     </plurals>
     <string name="btnLogout">Cerrar sesión</string>
     <string name="btnCancel">Cancelar</string>
+
+    <!-- Detalle del gasto y confirmaciones -->
+    <string name="tvTitleExpenseDetail">Detalle del gasto</string>
+    <string name="tvSectionShares">Cómo se dividió</string>
+    <string name="tvDetailMeta">%1$s · %2$s</string>
+    <string name="tvPendingSync">Pendiente de sincronizar</string>
+    <string name="tvSharePaid">Pagó el gasto</string>
+    <string name="tvShareOwes">Le debe a %1$s</string>
+    <string name="tvShareNothing">No le toca nada</string>
+    <string name="btnDeleteExpense">Eliminar gasto</string>
+    <string name="btnDelete">Eliminar</string>
+    <string name="msgExpenseDeleted">Gasto eliminado</string>
+    <string name="dlgDeleteExpenseTitle">¿Eliminar «%1$s»?</string>
+    <string name="dlgDeleteExpenseMessage">Dejará de contar en el total y en la liquidación del grupo.</string>
+    <string name="dlgDeleteMemberTitle">¿Eliminar a %1$s?</string>
+    <string name="dlgDeleteMemberMessage">Sus gastos anteriores se conservan y siguen contando en los saldos.</string>
+    <string name="btnContinueExpense">Continuar con el gasto</string>
 </resources>

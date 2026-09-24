@@ -91,6 +91,19 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Solo aparece si el usuario llego aqui queriendo registrar un gasto y ya hay dos integrantes -->
+    <Button
+        android:id="@+id/btnContinueExpense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/btnContinueExpense"
+        android:visibility="gone"
+        app:icon="@drawable/ic_arrow_forward"
+        app:iconGravity="end" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

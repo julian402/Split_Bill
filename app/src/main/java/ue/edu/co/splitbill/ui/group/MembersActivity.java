@@ -1,5 +1,6 @@
 package ue.edu.co.splitbill.ui.group;
 
+import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +16,7 @@ import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.model.UserRepository;
 import ue.edu.co.splitbill.ui.BaseActivity;
 import ue.edu.co.splitbill.ui.adapter.MemberAdapter;
+import ue.edu.co.splitbill.ui.expense.AddExpenseActivity;
 
 /**
  * Pantalla de integrantes del grupo: registrar, listar y dar de baja.
@@ -25,10 +27,20 @@ import ue.edu.co.splitbill.ui.adapter.MemberAdapter;
  */
 public class MembersActivity extends BaseActivity implements MemberAdapter.OnMemberDeleteListener {
 
+    /**
+     * Llega en true cuando el usuario queria registrar un gasto y le faltaban integrantes. En ese caso,
+     * apenas haya dos o mas, aparece el boton "Continuar con el gasto" que lo devuelve al formulario.
+     */
+    public static final String EXTRA_CONTINUE_TO_EXPENSE = "extraContinueToExpense";
+
+    /** Un gasto no se puede repartir si no hay al menos dos integrantes. */
+    private static final int MIN_MEMBERS = 2;
+
     private EditText etMemberNames;
     private EditText etMemberPhone;
     private Button btnSaveMember;
     private Button btnClear;
+    private Button btnContinueExpense;
     private TextView tvEmptyMembers;
     private RecyclerView rvMembers;
 
@@ -45,6 +57,7 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
     protected void initListeners() {
         this.btnSaveMember.setOnClickListener(this::addMemberDB);
         this.btnClear.setOnClickListener(this::clearFieldsDB);
+        this.btnContinueExpense.setOnClickListener(this::continueToExpense);
     }
 
     @Override
@@ -81,12 +94,32 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
             protected void onData(List<User> data) {
                 memberAdapter.setMembers(data);
                 tvEmptyMembers.setVisibility(data.isEmpty() ? View.VISIBLE : View.GONE);
+                boolean canContinue = getIntent().getBooleanExtra(EXTRA_CONTINUE_TO_EXPENSE, false)
+                        && data.size() >= MIN_MEMBERS;
+                btnContinueExpense.setVisibility(canContinue ? View.VISIBLE : View.GONE);
             }
         });
     }
 
+    /** Vuelve al formulario del gasto con lo que el usuario ya traia (descripcion y monto). */
+    private void continueToExpense(View view) {
+        Intent intent = new Intent(this, AddExpenseActivity.class);
+        intent.putExtras(getIntent());
+        intent.removeExtra(EXTRA_CONTINUE_TO_EXPENSE);
+        startActivity(intent);
+        finish();
+    }
+
+    /** Un toque en la papelera no borra de una vez: primero se confirma. */
     @Override
-    public void onMemberDelete(User user) {
+    public void onMemberDelete(final User user) {
+        confirm(getString(R.string.dlgDeleteMemberTitle, user.getNames()),
+                getString(R.string.dlgDeleteMemberMessage),
+                R.string.btnDelete,
+                () -> deleteMemberDB(user));
+    }
+
+    private void deleteMemberDB(User user) {
         showLoading();
         this.userRepository.deleteUser(user.getId(), new UiCallback<Integer>() {
             @Override
@@ -113,6 +146,7 @@ public class MembersActivity extends BaseActivity implements MemberAdapter.OnMem
         this.etMemberPhone = findViewById(R.id.etMemberPhone);
         this.btnSaveMember = findViewById(R.id.btnSaveMember);
         this.btnClear = findViewById(R.id.btnClear);
+        this.btnContinueExpense = findViewById(R.id.btnContinueExpense);
         this.tvEmptyMembers = findViewById(R.id.tvEmptyMembers);
         this.rvMembers = findViewById(R.id.rvMembers);
 

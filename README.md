@@ -27,7 +27,7 @@ funciona igual sin conexión, y los cambios se suben solos cuando vuelve la red.
 | `minSdk` / `targetSdk` | 26 / 36 |
 | Persistencia | Room (capa sobre SQLite) |
 | Red | Retrofit 3 + Gson, token JWT cifrado con el Android Keystore |
-| Pruebas | 50 unitarias + 13 instrumentadas |
+| Pruebas | 50 unitarias + 14 instrumentadas |
 
 ## Pantallas
 
@@ -37,6 +37,7 @@ funciona igual sin conexión, y los cambios se suben solos cuando vuelve la red.
 | `RegisterActivity` | Crear cuenta (queda con la sesión iniciada) |
 | `MainActivity` | Total del grupo, lista de gastos, estado de la sincronización, sincronizar y cerrar sesión |
 | `MembersActivity` | Alta, listado y baja de integrantes |
+| `ExpenseDetailActivity` | Detalle de un gasto: quién pagó, cuándo, cómo se dividió y cuánto le toca a cada uno (con porcentaje si se dividió así). Desde aquí se puede eliminar |
 | `AddExpenseActivity` | Registrar un gasto: descripción, monto, pagador, tipo de división y participantes |
 | `SettlementActivity` | Saldo de cada integrante y transferencias mínimas para saldar |
 | `QuickSplitActivity` | **Cuenta rápida**: divide una cuenta al momento con propina, sin registrar integrantes ni pagador |

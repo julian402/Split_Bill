@@ -53,6 +53,11 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.expense.ExpenseDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.group.MainActivity" />
+
+        <activity
             android:name=".ui.settle.SettlementActivity"
             android:exported="false"
             android:parentActivityName=".ui.group.MainActivity" />

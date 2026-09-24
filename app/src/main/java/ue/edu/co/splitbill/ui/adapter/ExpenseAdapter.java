@@ -29,13 +29,21 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         void onExpenseDelete(ExpenseListItem expense);
     }
 
+    /** Aviso de que el usuario toco un gasto para ver su detalle. */
+    public interface OnExpenseClickListener {
+        void onExpenseClick(ExpenseListItem expense);
+    }
+
     private final List<ExpenseListItem> expenses = new ArrayList<>();
     private final String[] splitTypeLabels;
     private final OnExpenseDeleteListener deleteListener;
+    private final OnExpenseClickListener clickListener;
 
-    public ExpenseAdapter(String[] splitTypeLabels, OnExpenseDeleteListener deleteListener) {
+    public ExpenseAdapter(String[] splitTypeLabels, OnExpenseDeleteListener deleteListener,
+                          OnExpenseClickListener clickListener) {
         this.splitTypeLabels = splitTypeLabels;
         this.deleteListener = deleteListener;
+        this.clickListener = clickListener;
     }
 
     public void setExpenses(List<ExpenseListItem> expenses) {
@@ -88,6 +96,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             this.tvSplitType.setText(splitTypeLabels[expense.getSplitType().getPosition()]);
             this.tvAmount.setText(expense.getAmount().format());
             this.btnDeleteExpense.setOnClickListener(view -> deleteListener.onExpenseDelete(expense));
+            itemView.setOnClickListener(view -> clickListener.onExpenseClick(expense));
         }
     }
 }

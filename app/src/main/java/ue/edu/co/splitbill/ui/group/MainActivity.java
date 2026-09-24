@@ -8,8 +8,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import java.util.List;
 
 import ue.edu.co.splitbill.R;
@@ -25,6 +23,7 @@ import ue.edu.co.splitbill.sync.SyncResult;
 import ue.edu.co.splitbill.ui.BaseActivity;
 import ue.edu.co.splitbill.ui.adapter.ExpenseAdapter;
 import ue.edu.co.splitbill.ui.expense.AddExpenseActivity;
+import ue.edu.co.splitbill.ui.expense.ExpenseDetailActivity;
 import ue.edu.co.splitbill.ui.quick.QuickSplitActivity;
 import ue.edu.co.splitbill.ui.settle.SettlementActivity;
 
@@ -36,7 +35,7 @@ import ue.edu.co.splitbill.ui.settle.SettlementActivity;
  * cuando termina, para recargarla y mostrar el estado de la sincronizacion.
  */
 public class MainActivity extends BaseActivity
-        implements ExpenseAdapter.OnExpenseDeleteListener, SyncListener {
+        implements ExpenseAdapter.OnExpenseDeleteListener, ExpenseAdapter.OnExpenseClickListener, SyncListener {
 
     /** Un gasto no se puede repartir si no hay al menos dos integrantes. */
     private static final int MIN_MEMBERS = 2;
@@ -148,12 +147,7 @@ public class MainActivity extends BaseActivity
                 if (pending > 0) {
                     message += "\n\n" + getResources().getQuantityString(R.plurals.dlgLogoutPending, pending, pending);
                 }
-                new MaterialAlertDialogBuilder(MainActivity.this)
-                        .setTitle(R.string.dlgLogoutTitle)
-                        .setMessage(message)
-                        .setNegativeButton(R.string.btnCancel, null)
-                        .setPositiveButton(R.string.btnLogout, (dialog, which) -> logout())
-                        .show();
+                confirm(getString(R.string.dlgLogoutTitle), message, R.string.btnLogout, MainActivity.this::logout);
             }
         });
     }
@@ -189,11 +183,27 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void onExpenseDelete(ExpenseListItem expense) {
+    public void onExpenseClick(ExpenseListItem expense) {
+        Intent intent = new Intent(this, ExpenseDetailActivity.class);
+        intent.putExtra(ExpenseDetailActivity.EXTRA_EXPENSE_ID, expense.getExpenseId());
+        startActivity(intent);
+    }
+
+    /** Un toque en la papelera no borra de una vez: primero se confirma. */
+    @Override
+    public void onExpenseDelete(final ExpenseListItem expense) {
+        confirm(getString(R.string.dlgDeleteExpenseTitle, expense.getDescription()),
+                getString(R.string.dlgDeleteExpenseMessage),
+                R.string.btnDelete,
+                () -> deleteExpenseDB(expense));
+    }
+
+    private void deleteExpenseDB(ExpenseListItem expense) {
         showLoading();
         this.expenseRepository.deleteExpense(expense.getExpenseId(), new UiCallback<Integer>() {
             @Override
             protected void onData(Integer data) {
+                showToast(R.string.msgExpenseDeleted);
                 listExpensesDB();
                 loadTotalDB();
             }
@@ -206,8 +216,11 @@ public class MainActivity extends BaseActivity
             @Override
             protected void onData(Integer data) {
                 if (data < MIN_MEMBERS) {
+                    //se lleva al usuario a crearlos, y desde alli puede seguir con el gasto
                     showToast(R.string.msgNeedTwoMembers);
-                    openMembers(null);
+                    Intent intent = new Intent(MainActivity.this, MembersActivity.class);
+                    intent.putExtra(MembersActivity.EXTRA_CONTINUE_TO_EXPENSE, true);
+                    startActivity(intent);
                     return;
                 }
                 startActivity(new Intent(MainActivity.this, AddExpenseActivity.class));
@@ -250,7 +263,7 @@ public class MainActivity extends BaseActivity
         this.networkMonitor = getServiceLocator().getNetworkMonitor();
 
         this.expenseAdapter = new ExpenseAdapter(
-                getResources().getStringArray(R.array.splitTypes), this);
+                getResources().getStringArray(R.array.splitTypes), this, this);
         this.rvExpenses.setLayoutManager(new LinearLayoutManager(this));
         this.rvExpenses.setAdapter(this.expenseAdapter);
 

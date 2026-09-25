@@ -37,6 +37,42 @@
         android:visibility="gone"
         app:trackCornerRadius="4dp" />
 
+    <!-- Acceso a las cuentas rapidas guardadas, que no son de ningun grupo -->
+    <LinearLayout
+        android:id="@+id/cardSavedQuickSplits"
+        style="@style/Widget.SplitBill.FieldCard"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/bg_card"
+        android:foreground="?attr/selectableItemBackground">
+
+        <ImageView
+            style="@style/Widget.SplitBill.IconCircle"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_bolt" />
+
+        <LinearLayout style="@style/Widget.SplitBill.FieldTexts">
+
+            <TextView
+                style="@style/Widget.SplitBill.ActionCardTitle"
+                android:text="@string/tvTitleSavedQuickSplitsCard"
+                android:textColor="@color/colorTextPrimary" />
+
+            <TextView
+                android:id="@+id/tvSavedQuickCount"
+                style="@style/Widget.SplitBill.ActionCardSubtitle"
+                android:textColor="@color/colorTextSecondary"
+                tools:text="3 guardadas" />
+        </LinearLayout>
+
+        <ImageView
+            style="@style/Widget.SplitBill.FieldChevron"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_chevron_right" />
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvGroups"
         android:layout_width="match_parent"

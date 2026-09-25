@@ -78,6 +78,16 @@ public class QuickSplitRepository extends BaseRepository {
         }, callback);
     }
 
+    /** Cuantas hay guardadas: se muestra en la tarjeta de la pestana Grupos. */
+    public void countSavedQuickSplits(DataCallback<Integer> callback) {
+        runAsync(new Callable<Integer>() {
+            @Override
+            public Integer call() {
+                return database.quickSplitDao().countActive();
+            }
+        }, callback);
+    }
+
     public void getQuickSplitDetail(final String quickSplitId, DataCallback<QuickSplitDetail> callback) {
         runAsync(new Callable<QuickSplitDetail>() {
             @Override

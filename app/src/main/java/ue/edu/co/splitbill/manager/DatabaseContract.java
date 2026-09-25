@@ -418,6 +418,9 @@ public final class DatabaseContract {
         public static final String SELECT_BY_ID =
                 "SELECT * FROM quick_splits WHERE qsp_id = :quickSplitId";
 
+        public static final String COUNT_ACTIVE =
+                "SELECT COUNT(*) FROM quick_splits WHERE qsp_status = 1";
+
         /** Igual que en los gastos: el borrado queda en la cola de sincronizacion. */
         public static final String SOFT_DELETE =
                 "UPDATE quick_splits SET qsp_status = 0, qsp_sync_status = CASE "

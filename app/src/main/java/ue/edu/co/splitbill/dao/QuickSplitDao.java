@@ -27,6 +27,9 @@ public interface QuickSplitDao {
     @Query(DatabaseContract.QuickSplits.SELECT_ACTIVE)
     List<QuickSplitListItem> findActive();
 
+    @Query(DatabaseContract.QuickSplits.COUNT_ACTIVE)
+    int countActive();
+
     @Query(DatabaseContract.QuickSplits.SELECT_BY_ID)
     QuickSplit findById(String quickSplitId);
 

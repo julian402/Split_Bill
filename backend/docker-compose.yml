@@ -1,5 +1,7 @@
 # Base de datos de desarrollo. Se levanta con: docker compose up -d
 # Lee las credenciales del archivo .env (ver .env.example); si no existe usa las de desarrollo.
+name: splitbill
+
 services:
   postgres:
     image: postgres:17
@@ -20,3 +22,5 @@ services:
 
 volumes:
   splitbill-data:
+    # Nombre fijo: no cambia aunque cambie el nombre del proyecto o la carpeta
+    name: splitbill-data

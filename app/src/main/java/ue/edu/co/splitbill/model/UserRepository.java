@@ -12,6 +12,8 @@ import ue.edu.co.splitbill.manager.SplitBillDatabase;
 import ue.edu.co.splitbill.network.ApiClient;
 import ue.edu.co.splitbill.network.ApiMapper;
 import ue.edu.co.splitbill.network.ApiService;
+import ue.edu.co.splitbill.network.dto.LinkMemberRequest;
+import ue.edu.co.splitbill.network.dto.MemberRequest;
 import ue.edu.co.splitbill.network.dto.UpdateProfileRequest;
 import ue.edu.co.splitbill.network.dto.UserDto;
 import ue.edu.co.splitbill.session.SessionManager;
@@ -69,6 +71,54 @@ public class UserRepository extends BaseRepository {
     }
 
     /** Los datos de quien inicio sesion, para la pantalla de perfil. */
+    /**
+     * Invita al grupo actual a una persona que ya tiene cuenta, por su email. Necesita conexion: el
+     * servidor es quien sabe de quien es ese email. Antes se sube lo pendiente (el grupo puede ser
+     * nuevo y no estar todavia en el servidor) y despues se sincroniza, para traer a la persona con su
+     * nombre real. Desde ese momento el grupo le aparece tambien en su celular.
+     *
+     * @return la persona invitada, con su nombre
+     */
+    public void inviteByEmail(final String email, DataCallback<User> callback) {
+        runNetwork(new Callable<User>() {
+            @Override
+            public User call() throws IOException {
+                requireSynced();
+                UserDto dto = ApiClient.execute(api.addMember(sessionManager.getCurrentGroupId(),
+                        new MemberRequest(null, null, email.trim(), null)));
+                syncManager.syncNow();
+                return ApiMapper.toEntity(dto);
+            }
+        }, callback);
+    }
+
+    /**
+     * Vincula a un integrante que se agrego solo por nombre con la cuenta de su email: el servidor le
+     * pasa a la cuenta sus gastos y sus partes y lo retira del grupo. Al sincronizar, el celular trae
+     * los gastos con su nuevo dueno. Necesita conexion.
+     *
+     * @return la cuenta con la que quedo vinculado
+     */
+    public void linkMember(final String memberId, final String email, DataCallback<User> callback) {
+        runNetwork(new Callable<User>() {
+            @Override
+            public User call() throws IOException {
+                requireSynced();
+                UserDto dto = ApiClient.execute(api.linkMember(sessionManager.getCurrentGroupId(), memberId,
+                        new LinkMemberRequest(email.trim())));
+                syncManager.syncNow();
+                return ApiMapper.toEntity(dto);
+            }
+        }, callback);
+    }
+
+    /** Lo pendiente debe estar en el servidor antes de pedirle algo sobre el grupo. */
+    private void requireSynced() throws IOException {
+        if (!syncManager.syncNow().isSynced()) {
+            throw new IOException("No se pudo sincronizar antes de invitar");
+        }
+    }
+
     public void getCurrentUser(DataCallback<User> callback) {
         runAsync(new Callable<User>() {
             @Override

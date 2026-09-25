@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import ue.edu.co.splitbill.dto.GroupRequest;
 import ue.edu.co.splitbill.dto.GroupResponse;
+import ue.edu.co.splitbill.dto.LinkMemberRequest;
 import ue.edu.co.splitbill.dto.MemberRequest;
 import ue.edu.co.splitbill.dto.UserResponse;
 import ue.edu.co.splitbill.entity.DatabaseContract;
@@ -202,6 +203,42 @@ public class GroupService {
         if (userId.equals(memberId)) {
             throw new IllegalArgumentException("Ya eres tú");
         }
+        GroupMember membership = requireMemberWithoutAccount(groupId, memberId);
+        mergeInto(groupId, memberId, userId);
+        membership.setStatus(DatabaseContract.STATUS_INACTIVE);
+        return UserResponse.from(this.userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado")));
+    }
+
+    /**
+     * Vincular con una cuenta: cualquier integrante dice que la persona que agrego por nombre es la
+     * duena de una cuenta (la busca por su email). La cuenta entra al grupo (si no estaba) y se queda
+     * con los gastos y las partes del integrante sin cuenta, que queda retirado. Es "Soy yo", pero
+     * hecho por quien invita: asi la otra persona ve el grupo en su celular con todo su historial.
+     */
+    @Transactional
+    public UserResponse linkMember(UUID userId, UUID groupId, UUID memberId, LinkMemberRequest request) {
+        requireMembership(groupId, userId);
+        GroupMember membership = requireMemberWithoutAccount(groupId, memberId);
+        User account = this.userRepository.findByEmail(AuthService.normalizeEmail(request.email()))
+                .filter(User::isActive)
+                .filter(User::hasAccount)
+                .orElseThrow(() -> new NotFoundException("No existe una cuenta con ese email"));
+
+        GroupMemberId accountMembershipId = new GroupMemberId(groupId, account.getId());
+        Optional<GroupMember> accountMembership = this.groupMemberRepository.findById(accountMembershipId);
+        if (accountMembership.isEmpty()) {
+            this.groupMemberRepository.save(new GroupMember(groupId, account.getId()));
+        } else if (!accountMembership.get().isActive()) {
+            accountMembership.get().setStatus(DatabaseContract.STATUS_ACTIVE);
+        }
+        mergeInto(groupId, memberId, account.getId());
+        membership.setStatus(DatabaseContract.STATUS_INACTIVE);
+        return UserResponse.from(account);
+    }
+
+    /** El integrante debe estar activo en el grupo y no tener cuenta propia. */
+    private GroupMember requireMemberWithoutAccount(UUID groupId, UUID memberId) {
         GroupMember membership = this.groupMemberRepository.findById(new GroupMemberId(groupId, memberId))
                 .filter(GroupMember::isActive)
                 .orElseThrow(() -> new NotFoundException("La persona no es integrante del grupo"));
@@ -210,7 +247,15 @@ public class GroupService {
         if (member.hasAccount()) {
             throw new ConflictException("Esa persona ya tiene su propia cuenta");
         }
+        return membership;
+    }
 
+    /**
+     * Pasa a la cuenta (accountId) los gastos que pago el integrante (memberId) y sus partes. Si los
+     * dos tenian parte en el mismo gasto, se suman. Los totales y los saldos no cambian, solo de quien
+     * son.
+     */
+    private void mergeInto(UUID groupId, UUID memberId, UUID userId) {
         for (Expense expense : this.expenseRepository.findByGroupId(groupId)) {
             if (expense.getPayerId().equals(memberId)) {
                 expense.setPayerId(userId);
@@ -236,9 +281,6 @@ public class GroupService {
                 memberShare.setUserId(userId);
             }
         }
-        membership.setStatus(DatabaseContract.STATUS_INACTIVE);
-        return UserResponse.from(this.userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Usuario no encontrado")));
     }
 
     /**

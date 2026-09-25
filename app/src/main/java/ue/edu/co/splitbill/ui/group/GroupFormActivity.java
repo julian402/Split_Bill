@@ -2,6 +2,8 @@ package ue.edu.co.splitbill.ui.group;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +22,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.entity.Group;
@@ -40,8 +43,14 @@ import ue.edu.co.splitbill.ui.expense.AddExpenseActivity;
  *   guardan juntos en una transaccion y se abre el grupo.
  * - Editar (editIntent): el grupo actual. Cada integrante que se agrega o se quita se guarda de una
  *   vez, como en la entrega 1; el nombre solo lo puede cambiar quien creo el grupo.
+ *
+ * Grupos compartidos: "Invitar por email" agrega a una persona con su propia cuenta, y "Vincular con
+ * su cuenta" une a alguien que se habia agregado solo por nombre con la cuenta de su email. En los dos
+ * casos esa persona ve el grupo en su celular, con los mismos gastos y saldos. Necesitan conexion; en
+ * modo crear, las invitaciones se envian justo despues de guardar el grupo.
  */
-public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnMemberDeleteListener {
+public class GroupFormActivity extends BaseActivity
+        implements MemberAdapter.OnMemberDeleteListener, MemberAdapter.OnMemberLinkListener {
 
     /**
      * Llega en true cuando el usuario queria registrar un gasto y le faltaban integrantes. En ese caso,
@@ -65,6 +74,7 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
     private EditText etMemberNames;
     private EditText etMemberPhone;
     private Button btnSaveMember;
+    private Button btnInviteByEmail;
     private Button btnClaimMember;
     private RecyclerView rvMembers;
     private Button btnSaveGroup;
@@ -80,6 +90,8 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
 
     /** Modo crear: la gente que se va agregando, que se guarda junto con el grupo. */
     private final List<User> pendingMembers = new ArrayList<>();
+    /** Modo crear: emails de personas con cuenta, que se invitan apenas se guarda el grupo. */
+    private final List<String> pendingInvites = new ArrayList<>();
     /** Integrantes agregados por nombre (sin cuenta): entre ellos puede estar quien inicio sesion. */
     private final List<User> claimableMembers = new ArrayList<>();
     private int memberCount;
@@ -106,6 +118,7 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
         this.btnFocusMember.setOnClickListener(this::focusMemberForm);
         this.btnAddFromContacts.setOnClickListener(this::openContacts);
         this.btnSaveMember.setOnClickListener(this::addMemberDB);
+        this.btnInviteByEmail.setOnClickListener(this::askInviteEmail);
         this.btnClaimMember.setOnClickListener(this::pickMemberToClaim);
         this.btnSaveGroup.setOnClickListener(this::saveGroupDB);
 
@@ -130,7 +143,7 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
         if (this.editMode) {
             return typedMember;
         }
-        return typedMember || !this.pendingMembers.isEmpty()
+        return typedMember || !this.pendingMembers.isEmpty() || !this.pendingInvites.isEmpty()
                 || !this.etGroupName.getText().toString().trim().isEmpty();
     }
 
@@ -237,6 +250,10 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
         me.setId(this.groupRepository.getCurrentUserId());
         list.add(me);
         list.addAll(this.pendingMembers);
+        for (String email : this.pendingInvites) {
+            //todavia no se sabe su nombre: se muestra el email hasta que el servidor lo diga
+            list.add(new User(email, email, null));
+        }
         this.memberAdapter.setMembers(list, me.getId());
         showMemberCount(list.size());
     }
@@ -259,7 +276,9 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
     public void onMemberDelete(final User member) {
         if (!this.editMode) {
             //todavia no esta guardado: se quita de la lista sin preguntar
-            this.pendingMembers.remove(member);
+            if (!this.pendingMembers.remove(member)) {
+                this.pendingInvites.remove(member.getEmail());
+            }
             showPendingMembers();
             return;
         }
@@ -375,8 +394,7 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
                     @Override
                     protected void onData(Group data) {
                         showToast(getString(R.string.msgGroupCreated, data.getName()));
-                        startActivity(new Intent(GroupFormActivity.this, GroupDetailActivity.class));
-                        finish();
+                        sendPendingInvites(0);
                     }
 
                     @Override
@@ -385,6 +403,107 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
                         btnSaveGroup.setEnabled(true);
                     }
                 });
+    }
+
+    /**
+     * Modo crear: las invitaciones por email se envian una tras otra, ya con el grupo guardado. Si una
+     * falla (sin conexion, o nadie tiene ese email), se avisa y se sigue; se puede repetir desde
+     * Integrantes. Al terminar se abre el grupo.
+     */
+    private void sendPendingInvites(final int index) {
+        if (index >= this.pendingInvites.size()) {
+            startActivity(new Intent(this, GroupDetailActivity.class));
+            finish();
+            return;
+        }
+        final String email = this.pendingInvites.get(index);
+        showLoading();
+        this.userRepository.inviteByEmail(email, new UiCallback<User>() {
+            @Override
+            protected void onData(User data) {
+                showToast(getString(R.string.msgInviteDone, data.getNames()));
+                sendPendingInvites(index + 1);
+            }
+
+            @Override
+            public void onError(String message) {
+                hideLoading();
+                showToast(getString(R.string.msgInviteFailed, email, message));
+                sendPendingInvites(index + 1);
+            }
+        });
+    }
+
+    // ------------------------------------------------------------------ invitar y vincular por email
+
+    private void askInviteEmail(View view) {
+        askEmail(getString(R.string.dlgInviteTitle), getString(R.string.dlgInviteMessage), R.string.btnInvite,
+                this::inviteByEmail);
+    }
+
+    /** Modo editar: se invita de una vez. Modo crear: queda en la lista hasta guardar el grupo. */
+    private void inviteByEmail(String email) {
+        if (!this.editMode) {
+            if (this.pendingInvites.contains(email)) {
+                showToast(getString(R.string.msgInviteAlreadyInList, email));
+                return;
+            }
+            this.pendingInvites.add(email);
+            showPendingMembers();
+            showToast(getString(R.string.msgInvitePending, email));
+            return;
+        }
+        showLoading();
+        this.userRepository.inviteByEmail(email, new UiCallback<User>() {
+            @Override
+            protected void onData(User data) {
+                showToast(getString(R.string.msgInviteDone, data.getNames()));
+                listMembersDB();
+            }
+        });
+    }
+
+    @Override
+    public void onMemberLink(final User member) {
+        askEmail(getString(R.string.dlgLinkTitle, member.getNames()),
+                getString(R.string.dlgLinkMessage, member.getNames()), R.string.btnLink,
+                email -> linkMemberAPI(member, email));
+    }
+
+    private void linkMemberAPI(final User member, String email) {
+        showLoading();
+        this.userRepository.linkMember(member.getId(), email, new UiCallback<User>() {
+            @Override
+            protected void onData(User data) {
+                showToast(getString(R.string.msgLinkDone, data.getNames()));
+                listMembersDB();
+            }
+        });
+    }
+
+    /** Lo que se hace con el email, una vez validado. */
+    private interface OnEmailListener {
+        void onEmail(String email);
+    }
+
+    /** Dialogo con un campo de email; si no es valido, avisa y no hace nada. */
+    private void askEmail(String title, String message, int positiveButtonResourceId, final OnEmailListener listener) {
+        View content = LayoutInflater.from(this).inflate(R.layout.dialog_email, null);
+        final EditText etEmail = content.findViewById(R.id.etDialogEmail);
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setView(content)
+                .setNegativeButton(R.string.btnCancel, null)
+                .setPositiveButton(positiveButtonResourceId, (dialog, which) -> {
+                    String email = etEmail.getText().toString().trim().toLowerCase(Locale.ROOT);
+                    if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        showToast(R.string.msgInvalidEmail);
+                        return;
+                    }
+                    listener.onEmail(email);
+                })
+                .show();
     }
 
     // ------------------------------------------------------------------ "Soy yo"
@@ -456,6 +575,7 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
         this.etMemberNames = findViewById(R.id.etMemberNames);
         this.etMemberPhone = findViewById(R.id.etMemberPhone);
         this.btnSaveMember = findViewById(R.id.btnSaveMember);
+        this.btnInviteByEmail = findViewById(R.id.btnInviteByEmail);
         this.btnClaimMember = findViewById(R.id.btnClaimMember);
         this.rvMembers = findViewById(R.id.rvMembers);
         this.btnSaveGroup = findViewById(R.id.btnSaveGroup);
@@ -468,6 +588,10 @@ public class GroupFormActivity extends BaseActivity implements MemberAdapter.OnM
         this.contactsLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onContactsPicked);
         this.memberAdapter = new MemberAdapter(this, this.userRepository.getCurrentUserId());
+        if (this.editMode) {
+            //solo un grupo que ya existe tiene integrantes en el servidor para vincular
+            this.memberAdapter.setOnMemberLinkListener(this);
+        }
         this.rvMembers.setAdapter(this.memberAdapter);
         showMode();
     }

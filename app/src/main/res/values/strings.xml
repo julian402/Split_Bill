@@ -437,4 +437,30 @@
     <string name="msgQuickSplitDeleted">Cuenta eliminada</string>
     <string name="tvFromQuickSplit">Viene de una cuenta rápida entre %1$s: marca a esas personas.</string>
     <string name="msgQuickPeopleMismatch">La cuenta era entre %1$s: marcaste %2$s</string>
+
+    <!-- Grupos compartidos entre cuentas -->
+    <string name="btnInviteByEmail">Invitar por email (si ya tiene cuenta)</string>
+    <string name="dlgInviteTitle">Invitar por email</string>
+    <string name="dlgInviteMessage">La persona debe tener una cuenta en SplitBill. Verá este grupo en su celular, con todos sus gastos.</string>
+    <string name="hintMemberEmail">Email de su cuenta</string>
+    <string name="btnInvite">Invitar</string>
+    <string name="msgInviteDone">%1$s ya está en el grupo</string>
+    <string name="msgInvitePending">%1$s se invitará al guardar el grupo</string>
+    <string name="msgInvalidEmail">Escribe un email válido</string>
+    <string name="msgInviteAlreadyInList">%1$s ya está en la lista</string>
+    <string name="msgInviteFailed">No se pudo invitar a %1$s: %2$s</string>
+    <string name="tvHasAccount">Con cuenta · %1$s</string>
+    <string name="tvLinkAccount">Vincular cuenta</string>
+    <string name="dlgLinkTitle">Vincular a %1$s</string>
+    <string name="dlgLinkMessage">Escribe el email con el que %1$s se registró. Sus gastos pasan a esa cuenta y verá el grupo en su celular. Necesitas conexión.</string>
+    <string name="btnLink">Vincular</string>
+    <string name="msgLinkDone">Listo: %1$s ya está con su cuenta</string>
+
+    <!-- Acceso a las cuentas rapidas guardadas desde Grupos -->
+    <string name="tvTitleSavedQuickSplitsCard">Cuentas rápidas guardadas</string>
+    <plurals name="tvSavedQuickCount">
+        <item quantity="one">%d guardada, sin grupo</item>
+        <item quantity="other">%d guardadas, sin grupo</item>
+    </plurals>
+    <string name="tvSavedQuickNone">Aún no hay. Divide una cuenta con + → Cuenta rápida</string>
 </resources>

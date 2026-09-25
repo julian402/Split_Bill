@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import ue.edu.co.splitbill.dto.GroupRequest;
 import ue.edu.co.splitbill.dto.GroupResponse;
+import ue.edu.co.splitbill.dto.LinkMemberRequest;
 import ue.edu.co.splitbill.dto.MemberRequest;
 import ue.edu.co.splitbill.dto.UserResponse;
 import ue.edu.co.splitbill.security.CurrentUser;
@@ -96,6 +97,15 @@ public class GroupController {
     public UserResponse claimMember(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId,
                                     @PathVariable UUID memberId) {
         return this.groupService.claimMember(CurrentUser.id(jwt), groupId, memberId);
+    }
+
+    @PostMapping("/{groupId}/members/{memberId}/link")
+    @Operation(summary = "Vincular con una cuenta",
+            description = "Une a un integrante agregado por nombre con la cuenta de ese email: la cuenta entra "
+                    + "al grupo con sus gastos y partes, y el integrante sin cuenta queda retirado.")
+    public UserResponse linkMember(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId,
+                                   @PathVariable UUID memberId, @Valid @RequestBody LinkMemberRequest request) {
+        return this.groupService.linkMember(CurrentUser.id(jwt), groupId, memberId, request);
     }
 
     @DeleteMapping("/{groupId}/members/{userId}")

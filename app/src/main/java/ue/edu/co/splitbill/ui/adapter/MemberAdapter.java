@@ -29,14 +29,26 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberView
         void onMemberDelete(User user);
     }
 
+    /** Aviso de que el usuario quiere vincular a un integrante sin cuenta con la cuenta de su email. */
+    public interface OnMemberLinkListener {
+        void onMemberLink(User user);
+    }
+
     private final List<User> members = new ArrayList<>();
     private final OnMemberDeleteListener deleteListener;
+    /** Null mientras el grupo no exista en el servidor (modo crear): ahi no se puede vincular. */
+    private OnMemberLinkListener linkListener;
     private final String currentUserId;
     private String ownerId;
 
     public MemberAdapter(OnMemberDeleteListener deleteListener, String currentUserId) {
         this.deleteListener = deleteListener;
         this.currentUserId = currentUserId;
+    }
+
+    public void setOnMemberLinkListener(OnMemberLinkListener linkListener) {
+        this.linkListener = linkListener;
+        notifyDataSetChanged();
     }
 
     /** @param ownerId el dueno del grupo; null si aun no se sabe (se toma a la persona de la sesion) */
@@ -73,6 +85,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberView
         private final TextView tvMemberNames;
         private final TextView tvMemberPhone;
         private final TextView tvMemberRole;
+        private final TextView tvLinkAccount;
         private final ImageButton btnDeleteMember;
 
         MemberViewHolder(View itemView) {
@@ -81,6 +94,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberView
             this.tvMemberNames = itemView.findViewById(R.id.tvMemberNames);
             this.tvMemberPhone = itemView.findViewById(R.id.tvMemberPhone);
             this.tvMemberRole = itemView.findViewById(R.id.tvMemberRole);
+            this.tvLinkAccount = itemView.findViewById(R.id.tvLinkAccount);
             this.btnDeleteMember = itemView.findViewById(R.id.btnDeleteMember);
         }
 
@@ -93,8 +107,17 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberView
             this.tvMemberNames.setText(isMe
                     ? user.getNames() + " (" + context.getString(R.string.tvYou) + ")"
                     : user.getNames());
+            //con cuenta se muestra su email; sin cuenta, el telefono (si lo tiene)
+            boolean hasAccount = user.getEmail() != null && !user.getEmail().trim().isEmpty();
             boolean hasPhone = user.getPhone() != null && !user.getPhone().trim().isEmpty();
-            this.tvMemberPhone.setText(hasPhone ? user.getPhone() : context.getString(R.string.tvNoPhone));
+            if (hasAccount) {
+                this.tvMemberPhone.setText(context.getString(R.string.tvHasAccount, user.getEmail()));
+            } else {
+                this.tvMemberPhone.setText(hasPhone ? user.getPhone() : context.getString(R.string.tvNoPhone));
+            }
+            boolean canLink = linkListener != null && !hasAccount && !isMe;
+            this.tvLinkAccount.setVisibility(canLink ? View.VISIBLE : View.GONE);
+            this.tvLinkAccount.setOnClickListener(canLink ? view -> linkListener.onMemberLink(user) : null);
 
             boolean isOwner = user.getId().equals(ownerId);
             this.tvMemberRole.setText(isOwner ? R.string.tvRoleAdmin : R.string.tvRoleMember);

@@ -314,13 +314,23 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Una persona que ya tiene cuenta: entra con ella y ve el grupo en su celular -->
+            <Button
+                android:id="@+id/btnInviteByEmail"
+                style="@style/Widget.SplitBill.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="4dp"
+                android:text="@string/btnInviteByEmail"
+                app:icon="@drawable/ic_mail" />
+
             <Button
                 android:id="@+id/btnClaimMember"
                 style="@style/Widget.SplitBill.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:layout_marginTop="4dp"
                 android:text="@string/btnClaimMember"
                 android:visibility="gone"
                 app:icon="@drawable/ic_person"

@@ -220,6 +220,7 @@ La documentación completa está en Swagger (`/swagger-ui.html`) y en el
 - Montos en centavos.
 - Cada gasto lleva `category` (opcional al crearlo: si no llega, queda `OTHER`).
 - El perfil propio se cambia con `PUT /api/users/me` (nombre y teléfono).
+- **Grupos compartidos**: `POST /members` con `email` agrega a una persona con su cuenta; `POST /members/{id}/link` une a un integrante agregado por nombre con la cuenta de un email (sus gastos y partes pasan a la cuenta, igual que "Soy yo"). En la app las dos cosas necesitan conexión: `UserRepository` primero sincroniza lo pendiente (el grupo puede ser nuevo), llama al servidor y vuelve a sincronizar para traer a la persona y los gastos con su nuevo dueño.
 - Errores en formato **ProblemDetail**; la app muestra el campo `detail`.
 
 ## 9. Pruebas
@@ -229,7 +230,7 @@ La documentación completa está en Swagger (`/swagger-ui.html`) y en el
 | Unitarias (JVM) | 62 | `Money`, las tres estrategias, saldos, liquidación, escenario completo de la entrega 1, pagos que dejan todo en cero y categorías, `ReceiptParser`, `ApiMapper` (también cuentas rápidas) |
 | Instrumentadas | 27 | Consultas de Room (incluidas las del inicio y los pagos), migraciones 1→2, 2→3, 3→4 y 4→5, `SyncManager` contra `MockWebServer` (push, pull de todos los grupos, cuentas rápidas, rechazos, sin red, token vencido, incremental) |
 | Interfaz (Espresso) | 18 | Login; gasto sin monto; porcentajes que no suman 100; gasto válido en lista y total; editar desde el detalle; borrar con confirmación; grupo nuevo y cambiar de grupo; nuevo grupo con integrantes en el formulario; liquidación mínima; marcar todo como pagado; barra inferior; menú del botón +; gasto guardado en otro grupo; cuenta rápida guardada sin grupo; cuenta rápida → gasto de un grupo con las mismas personas; grupo con menos integrantes que la cuenta; gasto con distinta cantidad de personas que la cuenta |
-| Backend (integración) | 36 | Endpoints con MockMvc + PostgreSQL real (Testcontainers), incluidas categorías, pagos y cuentas rápidas |
+| Backend (integración) | 40 | Endpoints con MockMvc + PostgreSQL real (Testcontainers), incluidas categorías, pagos, cuentas rápidas y grupos compartidos entre dos cuentas |
 
 Las pruebas Espresso corren con `SplitBillTestRunner`, que arranca la app con:
 - Room en memoria.

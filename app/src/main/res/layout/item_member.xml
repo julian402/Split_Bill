@@ -50,8 +50,27 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:maxLines="1"
+                android:ellipsize="end"
+                android:singleLine="true"
                 android:textAppearance="@style/TextAppearance.SplitBill.ItemSubtitle"
                 tools:text="3111231234" />
+
+            <!-- Solo para integrantes sin cuenta: unirlo con la cuenta de su email -->
+            <TextView
+                android:id="@+id/tvLinkAccount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:minHeight="32dp"
+                android:text="@string/tvLinkAccount"
+                android:textAppearance="@style/TextAppearance.SplitBill.Link"
+                android:textSize="13sp"
+                android:visibility="gone"
+                app:drawableStartCompat="@drawable/ic_mail"
+                app:drawableTint="@color/colorPrimary"
+                tools:visibility="visible" />
         </LinearLayout>
 
         <TextView

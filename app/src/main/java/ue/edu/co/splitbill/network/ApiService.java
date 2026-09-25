@@ -12,6 +12,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import ue.edu.co.splitbill.network.dto.ExpenseDto;
 import ue.edu.co.splitbill.network.dto.GroupDto;
+import ue.edu.co.splitbill.network.dto.LinkMemberRequest;
 import ue.edu.co.splitbill.network.dto.LoginRequest;
 import ue.edu.co.splitbill.network.dto.MemberRequest;
 import ue.edu.co.splitbill.network.dto.QuickSplitDto;
@@ -57,6 +58,11 @@ public interface ApiService {
 
     @POST("api/groups/{groupId}/members/{memberId}/claim")
     Call<UserDto> claimMember(@Path("groupId") String groupId, @Path("memberId") String memberId);
+
+    /** Une a un integrante agregado por nombre con la cuenta del email: sus gastos pasan a esa cuenta. */
+    @POST("api/groups/{groupId}/members/{memberId}/link")
+    Call<UserDto> linkMember(@Path("groupId") String groupId, @Path("memberId") String memberId,
+                             @Body LinkMemberRequest request);
 
     @DELETE("api/groups/{groupId}/members/{userId}")
     Call<Void> removeMember(@Path("groupId") String groupId, @Path("userId") String userId);

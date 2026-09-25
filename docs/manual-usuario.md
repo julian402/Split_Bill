@@ -62,6 +62,9 @@ Siempre a mano, en la parte de abajo:
    - **Importar contactos**: la primera vez, Android te pide permiso para leer tus contactos. SplitBill
      solo los usa para esta lista y no sube tu agenda. Busca por nombre o teléfono, marca a varios y
      toca **Agregar**.
+   - **Invitar por email**: si la persona ya tiene cuenta en SplitBill, escribe el email con el que se
+     registró. Al guardar el grupo entra con su cuenta y **ve el grupo en su celular**, con los mismos
+     gastos y saldos. Necesitas conexión.
 3. Tú apareces como **Administrador**; los demás, como **Integrante**. La papelera quita a alguien de
    la lista. Con dos o más personas verás "Listo para empezar".
 4. **Guardar grupo**: se crea con toda su gente y entras en él.
@@ -70,6 +73,15 @@ Siempre a mano, en la parte de abajo:
 persona que agregas o quitas se guarda de una vez. Aquí también cambias el **nombre del grupo** (solo
 quien lo creó) y está **¿Ya estabas en la lista?**: si alguien te había agregado por nombre antes de
 que tuvieras cuenta, busca tu nombre y confirma. Tus gastos pasan a tu cuenta y quedas una sola vez.
+
+**Vincular cuenta**: si agregaste a alguien por nombre y después se creó una cuenta, toca **Vincular
+cuenta** debajo de su nombre y escribe su email. Sus gastos pasan a su cuenta, sin cambiar los saldos,
+y desde ese momento ve el grupo en su celular.
+
+**Un grupo compartido**: cuando todos entran con su cuenta, cada quien ve el grupo en su celular. Lo que
+uno registra (un gasto, un pago con **Pagado**) le aparece a los demás al sincronizar. Por ejemplo, si
+Diomar le paga a Julián y cualquiera de los dos lo marca como pagado, los dos ven a Diomar en **Saldo
+en cero**.
 
 Retirar a un integrante no borra sus gastos anteriores: siguen contando en los saldos.
 
@@ -170,7 +182,8 @@ Para dividir una cuenta en el momento, sin registrar integrantes: la cena, el ta
      que le tocó a cada persona.
    - **Salir sin guardar**.
 
-**Cuentas rápidas guardadas**: el botón del reloj, arriba en *Cuenta rápida*. Toca una para ver lo que
+**Cuentas rápidas guardadas**: en la pestaña **Grupos**, la tarjeta *Cuentas rápidas guardadas* (arriba
+de tus grupos), o el botón del reloj arriba en *Cuenta rápida*. Toca una para ver lo que
 le tocó a cada persona; desde ahí la puedes **Compartir** o **Eliminar**. Se guardan también en el
 servidor: las ves en cualquier celular donde inicies sesión.
 
@@ -182,4 +195,5 @@ servidor: las ves en cualquier celular donde inicies sesión.
 - Si otro integrante cambió algo, lo ves al sincronizar.
 - Si el servidor rechaza un cambio (por ejemplo, un gasto que alguien más ya borró), la app te lo
   avisa y deja la versión del servidor.
-- Lo único que necesita conexión: cambiar tu perfil y "¿Ya estabas en la lista?".
+- Lo único que necesita conexión: cambiar tu perfil, "¿Ya estabas en la lista?", invitar por email y
+  vincular una cuenta.

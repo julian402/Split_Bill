@@ -28,8 +28,9 @@ cuando vuelve la red.
 
 ## Características
 
-- **Grupos e integrantes**: crea varios grupos y agrega gente a mano o desde los contactos del
-  teléfono. Los integrantes no necesitan tener cuenta.
+- **Grupos compartidos**: crea varios grupos y agrega gente a mano, desde los contactos o por email.
+  Quien tiene cuenta ve el grupo en su propio celular, con los mismos gastos y saldos; quien no, puede
+  estar en el grupo solo con su nombre y vincular su cuenta después.
 - **Gastos**: tres formas de dividir (partes iguales, montos exactos o porcentajes), con categoría,
   fecha y una vista previa de cuánto le toca a cada uno mientras escribes.
 - **Liquidación mínima**: un algoritmo voraz reduce las deudas a un máximo de *n − 1* transferencias.
@@ -144,7 +145,7 @@ Para generar una clave segura: `openssl rand -base64 48`.
 |---|---|---|
 | Unitarias | 62 | Dinero, estrategias de división, saldos, liquidación, lectura de facturas y conversión con la API |
 | Instrumentadas | 45 | Consultas de Room, migraciones, sincronización contra un servidor simulado y 18 flujos de interfaz |
-| Backend | 36 | Todos los endpoints contra PostgreSQL real |
+| Backend | 40 | Todos los endpoints contra PostgreSQL real, incluido un grupo compartido entre dos cuentas |
 
 Antes de las pruebas instrumentadas, desactiva las animaciones del dispositivo (*Opciones de
 desarrollador → escalas de animación*). Estas pruebas usan una base de datos en memoria y un servidor

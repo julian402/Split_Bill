@@ -94,8 +94,9 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Boton + del centro: registra un gasto en el grupo actual. Borde blanco como en el diseno -->
+    <!-- Boton + del centro: abre el menu Gasto / Cuenta rapida. Borde blanco como en el diseno -->
     <FrameLayout
+        android:id="@+id/navAddRing"
         android:layout_width="76dp"
         android:layout_height="76dp"
         android:layout_gravity="top|center_horizontal"

@@ -40,7 +40,7 @@ Este documento explica cómo está construido SplitBill y por qué. Para instala
 | `sync` | `SyncManager`, `SyncWorker` + `SyncScheduler` (WorkManager), `NetworkMonitor` |
 | `permission` | `PermissionManager` |
 | `di` | `ServiceLocator`, `AppExecutors` |
-| `ui` | `BaseActivity` (con la barra inferior) y las pantallas (`home`, `group`, `expense`, `settle`, `feed`, `profile`, `quick`, `contacts`, `scan`, `auth`); ayudantes `Avatar`, `Categories`, `DateText`, `SyncStatusText` |
+| `ui` | `BaseActivity` (con la barra inferior) y `AddMenu` (el menú Gasto / Cuenta rápida del botón +) y las pantallas (`home`, `group`, `expense`, `settle`, `feed`, `profile`, `quick`, `contacts`, `scan`, `auth`); ayudantes `Avatar`, `Categories`, `DateText`, `SyncStatusText` |
 
 ### Convenciones del curso
 
@@ -224,7 +224,7 @@ La documentación completa está en Swagger (`/swagger-ui.html`) y en el
 |---|---|---|
 | Unitarias (JVM) | 61 | `Money`, las tres estrategias, saldos, liquidación, escenario completo de la entrega 1, pagos que dejan todo en cero y categorías, `ReceiptParser`, `ApiMapper` |
 | Instrumentadas | 24 | Consultas de Room (incluidas las del inicio y los pagos), migraciones 1→2, 2→3 y 3→4, `SyncManager` contra `MockWebServer` (push, pull de todos los grupos, rechazos, sin red, token vencido, incremental) |
-| Interfaz (Espresso) | 13 | Login; gasto sin monto; porcentajes que no suman 100; gasto válido en lista y total; editar desde el detalle; borrar con confirmación; grupo nuevo y cambiar de grupo; nuevo grupo con integrantes en el formulario; liquidación mínima; marcar todo como pagado; cuenta rápida → gasto; barra inferior |
+| Interfaz (Espresso) | 14 | Login; gasto sin monto; porcentajes que no suman 100; gasto válido en lista y total; editar desde el detalle; borrar con confirmación; grupo nuevo y cambiar de grupo; nuevo grupo con integrantes en el formulario; liquidación mínima; marcar todo como pagado; cuenta rápida → gasto; barra inferior; menú del botón + |
 | Backend (integración) | 32 | Endpoints con MockMvc + PostgreSQL real (Testcontainers), incluidas categorías y pagos |
 
 Las pruebas Espresso corren con `SplitBillTestRunner`, que arranca la app con:

@@ -39,13 +39,13 @@ Actividad, Perfil), un inicio con el resumen de **todos** los grupos, categoría
 | Persistencia | Room (capa sobre SQLite) |
 | Red | Retrofit 3 + Gson, token JWT cifrado con el Android Keystore |
 | Hardware | CameraX 1.6 + ML Kit Text Recognition (en el celular), contactos (`ContentResolver`) |
-| Pruebas | 61 unitarias + 37 instrumentadas (13 de interfaz con Espresso) · backend: 32 |
+| Pruebas | 61 unitarias + 38 instrumentadas (14 de interfaz con Espresso) · backend: 32 |
 
 ## Pantallas
 
 | Pantalla | Qué hace |
 |---|---|
-Las cuatro pestañas de la **barra inferior** (y el botón **+**, que registra un gasto en el grupo actual):
+Las cuatro pestañas de la **barra inferior**. El botón **+** del centro despliega un menú con **Gasto** (en el grupo actual) y **Cuenta rápida**:
 
 | Pantalla | Qué hace |
 |---|---|
@@ -322,11 +322,11 @@ Qué hace cada línea:
 2. En la app, **Crear cuenta** con tu nombre, email y una clave de al menos 8 caracteres. Llegas al
    **Inicio**, con "Mi grupo" creado.
 3. Recorrido sugerido para probar todo:
-   1. **Nuevo grupo**: *Crear grupo* (o la pestaña *Grupos* → *Nuevo grupo*) → nombre "Viaje" → agrega
+   1. **Nuevo grupo**: pestaña *Grupos* → *Nuevo grupo* → nombre "Viaje" → agrega
       2 integrantes a mano → *Guardar grupo*.
    2. **Contactos**: en el mismo formulario, *Importar contactos* → permitir → marca 2 o 3 → *Agregar*.
       Si usas el emulador, primero crea unos contactos en la app Contactos.
-   3. **Escanear factura**: botón **+** → ícono de cámara del monto.
+   3. **Escanear factura**: botón **+** → *Gasto* → ícono de cámara del monto.
       - En un celular real, toma la foto de una factura.
       - En el emulador la cámara muestra una sala virtual, así que usa **Galería**. Para tener una
         factura ahí, arrastra una imagen a la ventana del emulador, o usa
@@ -346,7 +346,7 @@ Qué hace cada línea:
 ```bash
 # App (desde la raíz del proyecto)
 ./gradlew :app:testDebugUnitTest            # 61 pruebas del dominio, sin emulador
-./gradlew :app:connectedDebugAndroidTest    # 37 pruebas con emulador: Room, migraciones, sincronización y Espresso
+./gradlew :app:connectedDebugAndroidTest    # 38 pruebas con emulador: Room, migraciones, sincronización y Espresso
 
 # Backend (desde backend/, con Docker abierto)
 ./mvnw test                                 # 32 pruebas contra un PostgreSQL temporal

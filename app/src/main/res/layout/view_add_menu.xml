@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Menu del boton + de la barra inferior: oscurece la pantalla y despliega dos opciones, "Gasto" y
+    "Cuenta rapida". BaseActivity lo agrega encima de la pantalla la primera vez que se toca el +.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/addMenu"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:clipChildren="false"
+    android:elevation="24dp"
+    android:focusable="true"
+    android:visibility="gone">
+
+    <!-- Fondo oscuro: tocarlo cierra el menu -->
+    <View
+        android:id="@+id/addMenuScrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorScrim" />
+
+    <!-- Las dos opciones; el margen de abajo se calcula para que queden encima del + -->
+    <LinearLayout
+        android:id="@+id/addMenuOptions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:baselineAligned="false"
+        android:clipChildren="false"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/btnMenuExpense"
+            style="@style/Widget.SplitBill.ActionCard"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_action_primary"
+            android:elevation="10dp">
+
+            <ImageView
+                style="@style/Widget.SplitBill.ActionCardIcon"
+                android:background="@drawable/bg_circle_white"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_receipt"
+                app:tint="@color/colorHeroStart" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Widget.SplitBill.ActionCardTitle"
+                    android:text="@string/btnMenuExpense"
+                    android:textColor="@color/colorOnHero" />
+
+                <TextView
+                    style="@style/Widget.SplitBill.ActionCardSubtitle"
+                    android:text="@string/tvMenuExpenseHint"
+                    android:textColor="@color/colorOnHeroSecondary" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnMenuQuickSplit"
+            style="@style/Widget.SplitBill.ActionCard"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_action_card"
+            android:elevation="10dp">
+
+            <ImageView
+                style="@style/Widget.SplitBill.ActionCardIcon"
+                android:background="@drawable/bg_icon_circle"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_bolt"
+                app:tint="@color/colorPrimary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Widget.SplitBill.ActionCardTitle"
+                    android:text="@string/btnQuickSplit"
+                    android:textColor="@color/colorTextPrimary" />
+
+                <TextView
+                    style="@style/Widget.SplitBill.ActionCardSubtitle"
+                    android:text="@string/tvQuickSplitHint"
+                    android:textColor="@color/colorTextSecondary" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Copia del + de la barra, encima del fondo oscuro: al abrir gira y queda como una X -->
+    <FrameLayout
+        android:id="@+id/addMenuClose"
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:background="@drawable/bg_circle_white"
+        android:elevation="18dp"
+        android:padding="6dp">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnAddMenuClose"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/cdCloseAddMenu"
+            android:src="@drawable/ic_add"
+            app:backgroundTint="@color/colorPrimary"
+            app:elevation="0dp"
+            app:fabCustomSize="64dp"
+            app:maxImageSize="32dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.SplitBill.Circle"
+            app:tint="@color/colorOnPrimary" />
+    </FrameLayout>
+</FrameLayout>

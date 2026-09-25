@@ -45,6 +45,7 @@ public class ExpenseFlowTest extends UiTestSupport {
     public void anExpenseWithoutAmountIsNotSaved() {
         try (ActivityScenario<GroupDetailActivity> ignored = ActivityScenario.launch(GroupDetailActivity.class)) {
             onView(withId(R.id.btnNavAdd)).perform(click());
+            onView(withId(R.id.btnMenuExpense)).perform(click());
             onView(withId(R.id.etDescription)).perform(replaceText("Cena"), closeSoftKeyboard());
             onView(withId(R.id.btnSaveExpense)).perform(click());
 
@@ -57,6 +58,7 @@ public class ExpenseFlowTest extends UiTestSupport {
     public void percentagesThatDoNotAddUpTo100AreNotSaved() {
         try (ActivityScenario<GroupDetailActivity> ignored = ActivityScenario.launch(GroupDetailActivity.class)) {
             onView(withId(R.id.btnNavAdd)).perform(click());
+            onView(withId(R.id.btnMenuExpense)).perform(click());
             onView(withId(R.id.etDescription)).perform(replaceText("Cena"));
             onView(withId(R.id.etAmount)).perform(replaceText("90000"), closeSoftKeyboard());
             onView(withId(R.id.spSplitType)).perform(click());
@@ -79,6 +81,7 @@ public class ExpenseFlowTest extends UiTestSupport {
     public void aValidExpenseShowsUpInTheListAndTheTotal() {
         try (ActivityScenario<GroupDetailActivity> ignored = ActivityScenario.launch(GroupDetailActivity.class)) {
             onView(withId(R.id.btnNavAdd)).perform(click());
+            onView(withId(R.id.btnMenuExpense)).perform(click());
             onView(withId(R.id.etDescription)).perform(replaceText("Cena"));
             onView(withId(R.id.etAmount)).perform(replaceText("90000"), closeSoftKeyboard());
             onView(withId(R.id.btnSaveExpense)).perform(click());

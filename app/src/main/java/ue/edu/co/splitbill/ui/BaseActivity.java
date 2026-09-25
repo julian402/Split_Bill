@@ -29,6 +29,7 @@ import ue.edu.co.splitbill.ui.group.GroupFormActivity;
 import ue.edu.co.splitbill.ui.group.GroupsActivity;
 import ue.edu.co.splitbill.ui.home.HomeActivity;
 import ue.edu.co.splitbill.ui.profile.ProfileActivity;
+import ue.edu.co.splitbill.ui.quick.QuickSplitActivity;
 
 /**
  * Base de todas las pantallas de la aplicacion.
@@ -45,7 +46,8 @@ import ue.edu.co.splitbill.ui.profile.ProfileActivity;
  * login. Las pantallas de login y registro lo desactivan sobrescribiendo requiresSession().
  *
  * Desde el rediseno maneja la barra inferior (Inicio, Grupos, +, Actividad, Perfil): la pantalla que
- * la incluye en su layout devuelve su pestana en getNavItem() y BaseActivity hace el resto.
+ * la incluye en su layout devuelve su pestana en getNavItem() y BaseActivity hace el resto. El + abre
+ * el menu con "Gasto" y "Cuenta rapida" (AddMenu).
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -54,6 +56,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /** Sin pestana marcada: la pantalla muestra la barra pero no es una de las cuatro principales. */
     protected static final int NAV_NONE = 0;
+
+    /** Menu del boton +; se crea solo si la pantalla tiene barra inferior. */
+    private AddMenu addMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +154,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         return NAV_NONE;
     }
 
-    /** Enlaza las cuatro pestanas y el boton + si el layout incluye view_bottom_nav. */
+    /** Enlaza las cuatro pestanas y el menu del boton + si el layout incluye view_bottom_nav. */
     private void initBottomNav() {
         if (findViewById(R.id.bottomNav) == null) {
             return;
@@ -158,7 +163,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         bindNavItem(R.id.navGroups, R.id.navGroupsIcon, R.id.navGroupsLabel, GroupsActivity.class);
         bindNavItem(R.id.navActivity, R.id.navActivityIcon, R.id.navActivityLabel, ActivityFeedActivity.class);
         bindNavItem(R.id.navProfile, R.id.navProfileIcon, R.id.navProfileLabel, ProfileActivity.class);
-        findViewById(R.id.btnNavAdd).setOnClickListener(this::openAddExpense);
+        this.addMenu = new AddMenu(this, findViewById(R.id.navAddRing), this::openAddExpense, this::openQuickSplit);
+        findViewById(R.id.btnNavAdd).setOnClickListener(this::openAddMenu);
+    }
+
+    private void openAddMenu(View view) {
+        this.addMenu.open();
     }
 
     private void bindNavItem(int itemId, int iconId, int labelId, final Class<?> target) {
@@ -192,7 +202,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * El boton + registra un gasto en el grupo actual. Antes se verifica que haya con quien
+     * "Gasto" en el menu del +: registra un gasto en el grupo actual. Antes se verifica que haya con quien
      * repartirlo; si no, se lleva a agregar integrantes y desde alli se sigue con el gasto.
      */
     protected void openAddExpense(View view) {
@@ -209,6 +219,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                 startActivity(new Intent(BaseActivity.this, AddExpenseActivity.class));
             }
         });
+    }
+
+    /** "Cuenta rapida" en el menu del +: no necesita integrantes registrados, se abre siempre. */
+    protected void openQuickSplit(View view) {
+        startActivity(new Intent(this, QuickSplitActivity.class));
     }
 
     private void goBack(View view) {

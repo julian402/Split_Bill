@@ -86,6 +86,12 @@ public class QuickSplitActivity extends BaseActivity {
         return R.layout.activity_quick_split;
     }
 
+    /** Ya se esta en la cuenta rapida: "Cuenta rapida" en el menu del + no abre otra. */
+    @Override
+    protected void openQuickSplit(View view) {
+        this.etQuickTotal.requestFocus();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

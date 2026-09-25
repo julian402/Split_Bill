@@ -21,6 +21,7 @@
     <color name="colorIconCircle">#FF262A45</color>
     <color name="colorSoftCard">#FF1F2240</color>
     <color name="colorShadow">#00000000</color>
+    <color name="colorScrim">#B3000000</color>
     <color name="colorHeroGlassSolid">#33FFFFFF</color>
 
     <color name="colorCreditor">#FF34D399</color>

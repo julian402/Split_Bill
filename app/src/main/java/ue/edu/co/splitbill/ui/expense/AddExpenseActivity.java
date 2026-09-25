@@ -157,7 +157,7 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
         return this.editingExpenseId != null;
     }
 
-    /** Ya se esta registrando un gasto: el boton + de la barra no abre otro formulario. */
+    /** Ya se esta registrando un gasto: "Gasto" en el menu del + no abre otro formulario. */
     @Override
     protected void openAddExpense(View view) {
         this.etAmount.requestFocus();

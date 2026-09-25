@@ -389,23 +389,6 @@
         <item name="autoSizeMaxTextSize">15sp</item>
     </style>
 
-    <!-- Pestanas del inicio (Inicio / Grupos / Cuenta rapida) -->
-    <style name="Widget.SplitBill.Segment" parent="">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:gravity">center</item>
-        <item name="android:drawablePadding">6dp</item>
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">6dp</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/colorTextSecondary</item>
-        <item name="android:foreground">?attr/selectableItemBackground</item>
-        <item name="drawableTint">@color/colorTextSecondary</item>
-    </style>
-
     <!-- Cada cifra de la franja del degradado del inicio -->
     <style name="Widget.SplitBill.HeroStat" parent="">
         <item name="android:layout_width">0dp</item>
@@ -440,7 +423,7 @@
         <item name="autoSizeMaxTextSize">15sp</item>
     </style>
 
-    <!-- Botones grandes del inicio: "Crear grupo" y "Cuenta rapida" -->
+    <!-- Opciones del menu del boton +: "Gasto" y "Cuenta rapida" -->
     <style name="Widget.SplitBill.ActionCard" parent="">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>

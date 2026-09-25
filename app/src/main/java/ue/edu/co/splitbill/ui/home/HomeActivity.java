@@ -29,7 +29,6 @@ import ue.edu.co.splitbill.ui.feed.ActivityFeedActivity;
 import ue.edu.co.splitbill.ui.group.GroupDetailActivity;
 import ue.edu.co.splitbill.ui.group.GroupFormActivity;
 import ue.edu.co.splitbill.ui.group.GroupsActivity;
-import ue.edu.co.splitbill.ui.quick.QuickSplitActivity;
 
 /**
  * Inicio: el resumen de TODOS los grupos de la persona. Es la primera pantalla despues del login.
@@ -45,15 +44,11 @@ public class HomeActivity extends BaseActivity
     private TextView tvSyncStatus;
     private ImageButton btnNotifications;
     private View vPendingDot;
-    private TextView segGroups;
-    private TextView segQuickSplit;
     private TextView tvHomeTotal;
     private TextView tvHomeCounts;
     private TextView tvMonthTotal;
     private TextView tvMyShare;
     private TextView tvMyBalance;
-    private View btnCreateGroup;
-    private View btnQuickSplit;
     private TextView tvSeeAllGroups;
     private TextView tvSeeAllActivity;
     private TextView tvEmptyActivity;
@@ -80,10 +75,6 @@ public class HomeActivity extends BaseActivity
     @Override
     protected void initListeners() {
         this.btnNotifications.setOnClickListener(this::openActivity);
-        this.segGroups.setOnClickListener(this::openGroups);
-        this.segQuickSplit.setOnClickListener(this::openQuickSplit);
-        this.btnCreateGroup.setOnClickListener(this::openCreateGroup);
-        this.btnQuickSplit.setOnClickListener(this::openQuickSplit);
         this.tvSeeAllGroups.setOnClickListener(this::openGroups);
         this.tvSeeAllActivity.setOnClickListener(this::openActivity);
     }
@@ -213,30 +204,17 @@ public class HomeActivity extends BaseActivity
         openTab(ActivityFeedActivity.class);
     }
 
-    /** La cuenta rapida no necesita integrantes registrados: se abre siempre. */
-    private void openQuickSplit(View view) {
-        startActivity(new Intent(this, QuickSplitActivity.class));
-    }
-
-    private void openCreateGroup(View view) {
-        startActivity(new Intent(this, GroupFormActivity.class));
-    }
-
     @Override
     protected void initObjects() {
         this.tvGreeting = findViewById(R.id.tvGreeting);
         this.tvSyncStatus = findViewById(R.id.tvSyncStatus);
         this.btnNotifications = findViewById(R.id.btnNotifications);
         this.vPendingDot = findViewById(R.id.vPendingDot);
-        this.segGroups = findViewById(R.id.segGroups);
-        this.segQuickSplit = findViewById(R.id.segQuickSplit);
         this.tvHomeTotal = findViewById(R.id.tvHomeTotal);
         this.tvHomeCounts = findViewById(R.id.tvHomeCounts);
         this.tvMonthTotal = findViewById(R.id.tvMonthTotal);
         this.tvMyShare = findViewById(R.id.tvMyShare);
         this.tvMyBalance = findViewById(R.id.tvMyBalance);
-        this.btnCreateGroup = findViewById(R.id.btnCreateGroup);
-        this.btnQuickSplit = findViewById(R.id.btnQuickSplit);
         this.tvSeeAllGroups = findViewById(R.id.tvSeeAllGroups);
         this.tvSeeAllActivity = findViewById(R.id.tvSeeAllActivity);
         this.tvEmptyActivity = findViewById(R.id.tvEmptyActivity);

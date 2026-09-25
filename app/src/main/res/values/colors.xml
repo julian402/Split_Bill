@@ -35,6 +35,7 @@
     <color name="colorIconCircle">#FFEEF0FF</color>
     <color name="colorSoftCard">#FFE9EBFE</color>
     <color name="colorShadow">#334F46E5</color>
+    <color name="colorScrim">#99111827</color>
 
     <!-- Colores de saldo -->
     <color name="colorCreditor">#FF059669</color>

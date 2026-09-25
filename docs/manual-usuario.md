@@ -26,7 +26,7 @@ Siempre a mano, en la parte de abajo:
 |---|---|
 | **Inicio** | El resumen de todos tus grupos |
 | **Grupos** | La lista de tus grupos |
-| **+** (el botón del centro) | Registrar un gasto en el grupo que tienes abierto |
+| **+** (el botón del centro) | Abre un menú con dos opciones: **Gasto** (en el grupo que tienes abierto) y **Cuenta rápida**. Toca fuera del menú o la **X** para cerrarlo |
 | **Actividad** | Todo lo que ha pasado, en todos los grupos |
 | **Perfil** | Tus datos, la sincronización y cerrar sesión |
 
@@ -34,13 +34,11 @@ Siempre a mano, en la parte de abajo:
 
 - Arriba, tu saludo y el estado de la sincronización. La **campana** lleva a la actividad; si tiene un
   punto rojo, hay cambios que todavía no se han subido.
-- Las pestañas **Inicio · Grupos · Cuenta rápida** son atajos.
 - La tarjeta morada suma **todos tus grupos**:
   - **Total gastado** y cuántos grupos y gastos tienes.
   - **Este mes**: lo gastado desde el día 1.
   - **Tu parte**: lo que te tocó a ti en esos gastos.
   - **Tu balance**: en verde, lo que te deben; en rojo, lo que debes.
-- **Crear grupo** y **Cuenta rápida**.
 - **Tus grupos**: cada tarjeta muestra quiénes están y tu saldo en ese grupo (**Te deben**, **Debes** o
   **Todos al día**). Tócala para entrar al grupo; los tres puntos abren sus integrantes y su nombre.
 - **Actividad reciente**: los últimos gastos de todos los grupos. Toca uno para ver su detalle.
@@ -56,7 +54,7 @@ Siempre a mano, en la parte de abajo:
 
 ## 5. Nuevo grupo e integrantes
 
-**Nuevo grupo** (desde *Crear grupo* en el inicio o *Nuevo grupo* en Grupos):
+**Nuevo grupo** (pestaña *Grupos* → *Nuevo grupo*):
 
 1. Escribe el **nombre del grupo** (por ejemplo "Viaje a Cartagena").
 2. Agrega a la gente:
@@ -80,7 +78,7 @@ te ofrece **Abrir ajustes** para activarlo a mano.
 
 ## 6. Registrar un gasto
 
-Toca **+** en la barra de abajo.
+Toca **+** en la barra de abajo y escoge **Gasto**.
 
 1. **Monto total**. El botón de cámara de la derecha abre el escáner de facturas.
 2. **Descripción** (la X la borra).
@@ -151,7 +149,8 @@ sincronización, y el botón ⟳ sincroniza a mano.
 
 ## 11. Cuenta rápida
 
-Para dividir una cuenta en el momento, sin registrar integrantes: la cena, el taxi.
+Para dividir una cuenta en el momento, sin registrar integrantes: la cena, el taxi. Se abre con **+** →
+**Cuenta rápida**.
 
 1. Escribe el total, o escanéalo con la cámara, y el % de propina.
 2. Con **−** y **+** ajusta cuántas personas son. Puedes ponerles nombre.

@@ -102,42 +102,6 @@
                 android:textSize="12sp"
                 tools:text="@string/tvSynced" />
 
-            <!-- Pestanas Inicio / Grupos / Cuenta rapida -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/bg_segmented"
-                android:elevation="2dp"
-                android:orientation="horizontal"
-                android:padding="5dp">
-
-                <TextView
-                    android:id="@+id/segHome"
-                    style="@style/Widget.SplitBill.Segment"
-                    android:background="@drawable/bg_segment_selected"
-                    android:text="@string/navHome"
-                    android:textColor="@color/colorOnPrimary"
-                    app:drawableStartCompat="@drawable/ic_home"
-                    app:drawableTint="@color/colorOnPrimary" />
-
-                <TextView
-                    android:id="@+id/segGroups"
-                    style="@style/Widget.SplitBill.Segment"
-                    android:layout_weight="0.9"
-                    android:text="@string/navGroups"
-                    app:drawableStartCompat="@drawable/ic_group" />
-
-                <TextView
-                    android:id="@+id/segQuickSplit"
-                    style="@style/Widget.SplitBill.Segment"
-                    android:layout_weight="1.3"
-                    android:text="@string/btnQuickSplit"
-                    app:drawableStartCompat="@drawable/ic_bolt" />
-            </LinearLayout>
-
             <!-- Tarjeta destacada con el resumen de todos los grupos -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -253,82 +217,6 @@
                             style="@style/Widget.SplitBill.HeroStatValue"
                             android:textColor="@color/colorOnHeroPositive"
                             tools:text="$ 283.344" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Crear grupo / Cuenta rapida -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:id="@+id/btnCreateGroup"
-                    style="@style/Widget.SplitBill.ActionCard"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_action_primary"
-                    android:elevation="4dp">
-
-                    <ImageView
-                        style="@style/Widget.SplitBill.ActionCardIcon"
-                        android:background="@drawable/bg_circle_white"
-                        android:contentDescription="@null"
-                        android:src="@drawable/ic_add"
-                        app:tint="@color/colorPrimary" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            style="@style/Widget.SplitBill.ActionCardTitle"
-                            android:text="@string/btnCreateGroup"
-                            android:textColor="@color/colorOnHero" />
-
-                        <TextView
-                            style="@style/Widget.SplitBill.ActionCardSubtitle"
-                            android:text="@string/tvCreateGroupHint"
-                            android:textColor="@color/colorOnHeroSecondary" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/btnQuickSplit"
-                    style="@style/Widget.SplitBill.ActionCard"
-                    android:layout_marginStart="6dp"
-                    android:background="@drawable/bg_action_soft">
-
-                    <ImageView
-                        style="@style/Widget.SplitBill.ActionCardIcon"
-                        android:background="@drawable/bg_circle_white"
-                        android:contentDescription="@null"
-                        android:src="@drawable/ic_bolt"
-                        app:tint="@color/colorPrimary" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            style="@style/Widget.SplitBill.ActionCardTitle"
-                            android:text="@string/btnQuickSplit"
-                            android:textColor="@color/colorPrimary" />
-
-                        <TextView
-                            style="@style/Widget.SplitBill.ActionCardSubtitle"
-                            android:text="@string/tvQuickSplitHint"
-                            android:textColor="@color/colorPrimary" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

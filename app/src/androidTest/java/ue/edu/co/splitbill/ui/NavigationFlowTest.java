@@ -6,6 +6,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.not;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -48,6 +49,21 @@ public class NavigationFlowTest extends UiTestSupport {
 
             onView(withId(R.id.navHome)).perform(click());
             onView(withId(R.id.tvGreeting)).check(matches(isDisplayed()));
+        }
+    }
+
+    /** El + despliega "Gasto" y "Cuenta rapida"; la X lo cierra y "Cuenta rapida" abre la calculadora. */
+    @Test
+    public void thePlusButtonOffersExpenseAndQuickSplit() {
+        try (ActivityScenario<HomeActivity> ignored = ActivityScenario.launch(HomeActivity.class)) {
+            onView(withId(R.id.btnNavAdd)).perform(click());
+            onView(withId(R.id.btnMenuExpense)).check(matches(isDisplayed()));
+            onView(withId(R.id.btnAddMenuClose)).perform(click());
+            onView(withId(R.id.btnMenuExpense)).check(matches(not(isDisplayed())));
+
+            onView(withId(R.id.btnNavAdd)).perform(click());
+            onView(withId(R.id.btnMenuQuickSplit)).perform(click());
+            onView(withId(R.id.etQuickTotal)).check(matches(isDisplayed()));
         }
     }
 }

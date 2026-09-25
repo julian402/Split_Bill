@@ -235,7 +235,10 @@
     <string name="navGroups">Grupos</string>
     <string name="navActivity">Actividad</string>
     <string name="navProfile">Perfil</string>
-    <string name="cdAddExpense">Agregar gasto</string>
+    <string name="cdAddExpense">Agregar un gasto o una cuenta rápida</string>
+    <string name="cdCloseAddMenu">Cerrar</string>
+    <string name="btnMenuExpense">Gasto</string>
+    <string name="tvMenuExpenseHint">Anótalo en tu grupo</string>
 
     <!-- Rediseno: inicio -->
     <string name="tvAppNameSpaced">Split Bill</string>
@@ -253,8 +256,6 @@
         <item quantity="one">%d gasto</item>
         <item quantity="other">%d gastos</item>
     </plurals>
-    <string name="btnCreateGroup">Crear grupo</string>
-    <string name="tvCreateGroupHint">Organiza y comparte</string>
     <string name="tvQuickSplitHint">Divide una cuenta al instante</string>
     <string name="tvSeeAll">Ver todos</string>
     <string name="tvSeeAllFem">Ver todas</string>

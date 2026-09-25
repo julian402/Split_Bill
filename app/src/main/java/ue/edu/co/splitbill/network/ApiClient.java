@@ -26,7 +26,11 @@ import ue.edu.co.splitbill.session.SessionManager;
 public final class ApiClient {
 
     private static final String TAG = "ApiClient";
-    private static final int TIMEOUT_SECONDS = 15;
+    /**
+     * Un servidor gratuito (Render) se duerme tras un rato sin uso y tarda hasta un minuto en
+     * despertar: se le da ese tiempo antes de dar la peticion por perdida.
+     */
+    private static final int TIMEOUT_SECONDS = 60;
 
     private ApiClient() {
         //impide crear objetos de esta clase

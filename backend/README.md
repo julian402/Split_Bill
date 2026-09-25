@@ -11,7 +11,7 @@ e inicia sesión y sincroniza sus datos.
 | Base de datos | PostgreSQL 17, esquema versionado con Flyway |
 | Autenticación | BCrypt para las contraseñas + JWT (HS256) |
 | Documentación | Swagger UI en `/swagger-ui.html` |
-| Pruebas | 45 de integración con MockMvc + Testcontainers (Postgres real) |
+| Pruebas | 46 de integración con MockMvc + Testcontainers (Postgres real) |
 
 ## Cómo levantarlo
 
@@ -120,11 +120,17 @@ El `Dockerfile` construye una imagen con el perfil `prod`. Variables requeridas:
 | `DB_USER` / `DB_PASSWORD` | credenciales de la base |
 | `JWT_SECRET` | mínimo 32 caracteres (`openssl rand -base64 48`) |
 | `PORT` | opcional; lo fijan plataformas como Render o Railway |
+| `DATABASE_URL` | alternativa a `DB_URL`: `postgresql://usuario:clave@servidor/base`, como la entrega Render. El contenedor la convierte a JDBC al arrancar |
 
 ```bash
 docker build -t splitbill-api .
 docker run -p 8080:8080 --env-file .env splitbill-api
 ```
 
-**Fuera de alcance en esta entrega:** la liquidación se sigue calculando en la app
-(`DebtSimplifier`); no hay refresh tokens, recuperación de contraseña ni invitaciones por correo.
+**Render:** el `render.yaml` de la raíz del repositorio crea este servicio y su PostgreSQL (ver
+"Despliegue en Render" en el README principal). `GET /api/health` responde `{"status":"UP"}` sin token:
+Render lo usa para saber que el despliegue arrancó. La imagen, con `-XX:MaxRAMPercentage=75`, usa unos
+300 MB de los 512 MB del plan gratuito.
+
+**Fuera de alcance:** la liquidación se sigue calculando en la app (`DebtSimplifier`); no hay refresh
+tokens, recuperación de contraseña ni notificaciones push.

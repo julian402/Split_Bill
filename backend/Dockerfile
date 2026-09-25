@@ -18,4 +18,7 @@ USER splitbill
 COPY --from=build /app/target/splitbill-api-*.jar app.jar
 ENV SPRING_PROFILES_ACTIVE=prod
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Render entrega la base como DATABASE_URL (postgresql://usuario:clave@servidor/base); Java necesita
+# jdbc:postgresql://servidor/base. Si llega, se arma DB_URL con lo que va despues de la @ (usuario y
+# clave llegan aparte, en DB_USER y DB_PASSWORD). Sin DATABASE_URL se usa DB_URL tal cual.
+ENTRYPOINT ["sh", "-c", "if [ -n \"$DATABASE_URL\" ]; then export DB_URL=\"jdbc:postgresql://${DATABASE_URL##*@}\"; fi; exec java -jar /app/app.jar"]

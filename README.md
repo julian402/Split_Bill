@@ -19,6 +19,7 @@ cuando vuelve la red.
 - [Puesta en marcha](#puesta-en-marcha)
 - [Configuración](#configuración)
 - [Pruebas](#pruebas)
+- [Despliegue en Render](#despliegue-en-render)
 - [Arquitectura](#arquitectura)
 - [Estructura del repositorio](#estructura-del-repositorio)
 - [Solución de problemas](#solución-de-problemas)
@@ -147,11 +148,45 @@ Para generar una clave segura: `openssl rand -base64 48`.
 |---|---|---|
 | Unitarias | 63 | Dinero, estrategias de división, saldos, liquidación, lectura de facturas y conversión con la API |
 | Instrumentadas | 49 | Consultas de Room, migraciones, sincronización contra un servidor simulado y 19 flujos de interfaz |
-| Backend | 45 | Todos los endpoints contra PostgreSQL real, incluidos un grupo compartido entre dos cuentas y su chat |
+| Backend | 46 | Todos los endpoints contra PostgreSQL real, incluidos un grupo compartido entre dos cuentas y su chat |
 
 Antes de las pruebas instrumentadas, desactiva las animaciones del dispositivo (*Opciones de
 desarrollador → escalas de animación*). Estas pruebas usan una base de datos en memoria y un servidor
 falso, así que no tocan tus datos, pero desinstalan la app al terminar.
+
+## Despliegue en Render
+
+El repositorio incluye un [`render.yaml`](render.yaml) que crea el backend y su base de datos en
+[Render](https://render.com) con el plan gratuito. Con el servidor en internet, cada persona usa la app
+desde su propio teléfono y todos comparten grupos, gastos, pagos y chat.
+
+1. En Render, entra a **Blueprints → New Blueprint Instance** y conecta este repositorio de GitHub.
+2. Render lee `render.yaml` y propone dos recursos: el servicio `splitbill-api` (Docker) y la base
+   `splitbill-db` (PostgreSQL 17). Toca **Apply**. La clave de los tokens (`JWT_SECRET`) la genera
+   Render y nunca queda en el repositorio.
+3. Espera a que el servicio diga **Live** (la primera compilación tarda unos minutos). Su dirección es
+   del tipo `https://splitbill-api.onrender.com`. Comprueba que responde en
+   `https://<tu-servicio>.onrender.com/api/health`.
+4. En `local.properties` de cada computador, apunta la app a esa dirección y quita
+   `splitbill.adbReversePort`:
+
+   ```properties
+   splitbill.apiBaseUrl=https://<tu-servicio>.onrender.com/
+   ```
+
+5. Sincroniza Gradle, instala la app y crea una cuenta. Para compartir un grupo, invita a la otra
+   persona por el email de su cuenta.
+
+Cada `git push` que cambie `backend/` vuelve a desplegar el servidor, y Flyway aplica las migraciones
+nuevas al arrancar.
+
+**Límites del plan gratuito:**
+
+- El servidor se duerme tras unos 15 minutos sin uso y tarda hasta un minuto en despertar. La app
+  espera ese tiempo; antes de una demostración conviene abrir `/api/health` para despertarlo.
+- La base de datos gratuita de Render vence al cabo de un tiempo (revisa las condiciones de su plan).
+  Para algo más duradero, cambia `DATABASE_URL`, `DB_USER` y `DB_PASSWORD` por los de otra base
+  PostgreSQL (Neon, Supabase…).
 
 ## Arquitectura
 
@@ -241,7 +276,8 @@ Split_Bill/
 
 ## Hoja de ruta
 
-- Desplegar el backend en un servicio público con HTTPS y generar una versión *release* que apunte a él.
+- Generar una versión *release* firmada que apunte al backend desplegado.
+- Notificaciones push (Firebase Cloud Messaging) para el chat y los gastos nuevos.
 
 ## Autores
 

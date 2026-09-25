@@ -103,4 +103,12 @@ class AuthControllerTest extends ApiTestSupport {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.info.title").value("SplitBill API"));
     }
+
+    /** Render revisa este endpoint para saber que el despliegue arranco: no debe pedir token. */
+    @Test
+    void healthDoesNotNeedAToken() throws Exception {
+        this.mockMvc.perform(get("/api/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
+    }
 }

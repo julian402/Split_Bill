@@ -233,7 +233,7 @@ La documentación completa está en Swagger (`/swagger-ui.html`) y en el
 | Unitarias (JVM) | 63 | `Money`, las tres estrategias, saldos, liquidación, escenario completo de la entrega 1, pagos que dejan todo en cero y categorías, `ReceiptParser`, `ApiMapper` (también cuentas rápidas y mensajes) |
 | Instrumentadas | 30 | Consultas de Room (incluidas las del inicio y los pagos), migraciones 1→2 a 5→6, `SyncManager` contra `MockWebServer` (push, pull de todos los grupos, cuentas rápidas, mensajes del chat, rechazos, sin red, token vencido, incremental) |
 | Interfaz (Espresso) | 19 | Login; gasto sin monto; porcentajes que no suman 100; gasto válido en lista y total; editar desde el detalle; borrar con confirmación; grupo nuevo y cambiar de grupo; nuevo grupo con integrantes en el formulario; liquidación mínima; marcar todo como pagado; barra inferior; menú del botón +; gasto guardado en otro grupo; cuenta rápida guardada sin grupo; cuenta rápida → gasto de un grupo con las mismas personas; grupo con menos integrantes que la cuenta; gasto con distinta cantidad de personas que la cuenta; chat sin conexión |
-| Backend (integración) | 45 | Endpoints con MockMvc + PostgreSQL real (Testcontainers), incluidas categorías, pagos, cuentas rápidas, grupos compartidos entre dos cuentas y el chat |
+| Backend (integración) | 46 | Endpoints con MockMvc + PostgreSQL real (Testcontainers), incluidas categorías, pagos, cuentas rápidas, grupos compartidos entre dos cuentas y el chat |
 
 Las pruebas Espresso corren con `SplitBillTestRunner`, que arranca la app con:
 - Room en memoria.

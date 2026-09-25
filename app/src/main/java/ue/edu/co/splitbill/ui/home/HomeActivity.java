@@ -29,6 +29,7 @@ import ue.edu.co.splitbill.ui.feed.ActivityFeedActivity;
 import ue.edu.co.splitbill.ui.group.GroupDetailActivity;
 import ue.edu.co.splitbill.ui.group.GroupFormActivity;
 import ue.edu.co.splitbill.ui.group.GroupsActivity;
+import ue.edu.co.splitbill.ui.quick.SavedQuickSplitsActivity;
 
 /**
  * Inicio: el resumen de TODOS los grupos de la persona. Es la primera pantalla despues del login.
@@ -50,6 +51,8 @@ public class HomeActivity extends BaseActivity
     private TextView tvMyShare;
     private TextView tvMyBalance;
     private TextView tvSeeAllGroups;
+    private View cardSavedQuickSplits;
+    private TextView tvSavedQuickCount;
     private TextView tvSeeAllActivity;
     private TextView tvEmptyActivity;
     private RecyclerView rvGroups;
@@ -76,6 +79,7 @@ public class HomeActivity extends BaseActivity
     protected void initListeners() {
         this.btnNotifications.setOnClickListener(this::openActivity);
         this.tvSeeAllGroups.setOnClickListener(this::openGroups);
+        this.cardSavedQuickSplits.setOnClickListener(this::openSavedQuickSplits);
         this.tvSeeAllActivity.setOnClickListener(this::openActivity);
     }
 
@@ -141,6 +145,22 @@ public class HomeActivity extends BaseActivity
                 showDashboard(data);
             }
         });
+        countSavedQuickSplitsDB();
+    }
+
+    /** "3 guardadas, sin grupo", o como crear la primera. */
+    private void countSavedQuickSplitsDB() {
+        getServiceLocator().getQuickSplitRepository().countSavedQuickSplits(new UiCallback<Integer>() {
+            @Override
+            protected void onData(Integer data) {
+                tvSavedQuickCount.setText(data == 0 ? getString(R.string.tvSavedQuickNone)
+                        : getResources().getQuantityString(R.plurals.tvSavedQuickCount, data, data));
+            }
+        });
+    }
+
+    private void openSavedQuickSplits(View view) {
+        startActivity(new Intent(this, SavedQuickSplitsActivity.class));
     }
 
     private void showDashboard(DashboardSummary summary) {
@@ -216,6 +236,8 @@ public class HomeActivity extends BaseActivity
         this.tvMyShare = findViewById(R.id.tvMyShare);
         this.tvMyBalance = findViewById(R.id.tvMyBalance);
         this.tvSeeAllGroups = findViewById(R.id.tvSeeAllGroups);
+        this.cardSavedQuickSplits = findViewById(R.id.cardSavedQuickSplits);
+        this.tvSavedQuickCount = findViewById(R.id.tvSavedQuickCount);
         this.tvSeeAllActivity = findViewById(R.id.tvSeeAllActivity);
         this.tvEmptyActivity = findViewById(R.id.tvEmptyActivity);
         this.rvGroups = findViewById(R.id.rvGroups);

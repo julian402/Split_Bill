@@ -3,7 +3,6 @@ package ue.edu.co.splitbill.ui.group;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,7 +16,6 @@ import ue.edu.co.splitbill.sync.SyncManager;
 import ue.edu.co.splitbill.sync.SyncResult;
 import ue.edu.co.splitbill.ui.BaseActivity;
 import ue.edu.co.splitbill.ui.adapter.GroupAdapter;
-import ue.edu.co.splitbill.ui.quick.SavedQuickSplitsActivity;
 
 /**
  * Pestana Grupos: todos los grupos de la persona, con su total y su saldo en cada uno.
@@ -27,8 +25,6 @@ import ue.edu.co.splitbill.ui.quick.SavedQuickSplitsActivity;
  */
 public class GroupsActivity extends BaseActivity implements GroupAdapter.OnGroupListener, SyncListener {
 
-    private View cardSavedQuickSplits;
-    private TextView tvSavedQuickCount;
     private RecyclerView rvGroups;
     private Button btnNewGroup;
 
@@ -49,14 +45,12 @@ public class GroupsActivity extends BaseActivity implements GroupAdapter.OnGroup
     @Override
     protected void initListeners() {
         this.btnNewGroup.setOnClickListener(this::openNewGroup);
-        this.cardSavedQuickSplits.setOnClickListener(this::openSavedQuickSplits);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         listGroupsDB();
-        countSavedQuickSplitsDB();
         //si otro integrante lo agrego a un grupo desde su celular, aparece al sincronizar
         this.syncManager.addListener(this);
         this.syncManager.requestSync();
@@ -77,23 +71,7 @@ public class GroupsActivity extends BaseActivity implements GroupAdapter.OnGroup
     public void onSyncFinished(SyncResult result) {
         if (isAlive()) {
             listGroupsDB();
-            countSavedQuickSplitsDB();
         }
-    }
-
-    /** "3 guardadas, sin grupo", o como crear la primera. */
-    private void countSavedQuickSplitsDB() {
-        getServiceLocator().getQuickSplitRepository().countSavedQuickSplits(new UiCallback<Integer>() {
-            @Override
-            protected void onData(Integer data) {
-                tvSavedQuickCount.setText(data == 0 ? getString(R.string.tvSavedQuickNone)
-                        : getResources().getQuantityString(R.plurals.tvSavedQuickCount, data, data));
-            }
-        });
-    }
-
-    private void openSavedQuickSplits(View view) {
-        startActivity(new Intent(this, SavedQuickSplitsActivity.class));
     }
 
     private void listGroupsDB() {
@@ -127,8 +105,6 @@ public class GroupsActivity extends BaseActivity implements GroupAdapter.OnGroup
 
     @Override
     protected void initObjects() {
-        this.cardSavedQuickSplits = findViewById(R.id.cardSavedQuickSplits);
-        this.tvSavedQuickCount = findViewById(R.id.tvSavedQuickCount);
         this.rvGroups = findViewById(R.id.rvGroups);
         this.btnNewGroup = findViewById(R.id.btnNewGroup);
 

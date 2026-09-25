@@ -17,6 +17,7 @@ import ue.edu.co.splitbill.domain.Money;
 import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
+import ue.edu.co.splitbill.entity.Message;
 import ue.edu.co.splitbill.entity.QuickSplit;
 import ue.edu.co.splitbill.entity.QuickSplitShare;
 import ue.edu.co.splitbill.entity.SyncStatus;
@@ -24,6 +25,7 @@ import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.network.dto.ExpenseDto;
 import ue.edu.co.splitbill.network.dto.MemberRequest;
+import ue.edu.co.splitbill.network.dto.MessageDto;
 import ue.edu.co.splitbill.network.dto.QuickSplitDto;
 import ue.edu.co.splitbill.network.dto.ShareDto;
 import ue.edu.co.splitbill.network.dto.UserDto;
@@ -151,5 +153,20 @@ public class ApiMapperTest {
         assertEquals(1, backShares.get(1).getPosition());
         assertEquals("Persona 2", backShares.get(1).getName());
         assertEquals(5_000_000L, backShares.get(1).getAmountCents());
+    }
+
+    /** Al escribir solo viajan el id, el texto y la hora; el servidor pone el grupo y el autor. */
+    @Test
+    public void aMessageTravelsWithItsIdTextAndTime() {
+        Message message = new Message(GROUP_ID, JULIAN, "Julian", "  Yo llevo el carbón  ");
+        message.setSentAt(new Date(1_790_000_000_000L));
+
+        MessageDto dto = ApiMapper.toDto(message);
+
+        assertEquals(message.getId(), dto.getId());
+        assertEquals("Yo llevo el carbón", dto.getText());
+        assertEquals("2026-09-21T14:13:20Z", dto.getSentAt());
+        assertNull(dto.getGroupId());
+        assertTrue(message.isPending());
     }
 }

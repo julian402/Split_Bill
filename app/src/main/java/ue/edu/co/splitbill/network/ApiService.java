@@ -15,6 +15,7 @@ import ue.edu.co.splitbill.network.dto.GroupDto;
 import ue.edu.co.splitbill.network.dto.LinkMemberRequest;
 import ue.edu.co.splitbill.network.dto.LoginRequest;
 import ue.edu.co.splitbill.network.dto.MemberRequest;
+import ue.edu.co.splitbill.network.dto.MessageDto;
 import ue.edu.co.splitbill.network.dto.QuickSplitDto;
 import ue.edu.co.splitbill.network.dto.RegisterRequest;
 import ue.edu.co.splitbill.network.dto.TokenResponse;
@@ -83,6 +84,16 @@ public interface ApiService {
 
     @DELETE("api/groups/{groupId}/expenses/{expenseId}")
     Call<Void> deleteExpense(@Path("groupId") String groupId, @Path("expenseId") String expenseId);
+
+    /**
+     * @param since si llega (ISO-8601), solo los mensajes que llegaron al servidor despues; si es null,
+     *              todo el chat
+     */
+    @GET("api/groups/{groupId}/messages")
+    Call<List<MessageDto>> getMessages(@Path("groupId") String groupId, @Query("since") String since);
+
+    @POST("api/groups/{groupId}/messages")
+    Call<MessageDto> sendMessage(@Path("groupId") String groupId, @Body MessageDto message);
 
     /** Las cuentas rapidas de quien inicio sesion. Son pocas: siempre llega la lista completa. */
     @GET("api/quick-splits")

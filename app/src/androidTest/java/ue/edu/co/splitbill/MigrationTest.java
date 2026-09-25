@@ -20,7 +20,7 @@ import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
 
 /**
- * Pruebas de las migraciones (1 -> 2, 2 -> 3, 3 -> 4 y 4 -> 5) sobre un archivo de base de datos real.
+ * Pruebas de las migraciones (1 -> 2, 2 -> 3, 3 -> 4, 4 -> 5 y 5 -> 6) sobre un archivo de base de datos real.
  *
  * Se crea la base con el esquema exacto de la entrega 1 (schemas/1.json), se le meten datos como los
  * que tendria un usuario, se ejecuta la migracion y Room verifica que el resultado sea identico al
@@ -148,5 +148,28 @@ public class MigrationTest {
             assertEquals(0, quickSplits.getInt(0));
         }
         version5.close();
+    }
+
+    /** 5 -> 6: nace la tabla del chat, vacia, y las cuentas rapidas guardadas siguen ahi. */
+    @Test
+    public void migrationFrom5To6AddsTheChatAndKeepsTheData() throws IOException {
+        SupportSQLiteDatabase version5 = helper.createDatabase(TEST_DB, 5);
+        version5.execSQL("INSERT INTO quick_splits (qsp_id, qsp_description, qsp_subtotal_cents, qsp_tip_percent, "
+                + "qsp_total_cents, qsp_split_type, qsp_date, qsp_status, qsp_sync_status) "
+                + "VALUES ('q-1', 'Cena', 10000000, '10', 11000000, 'EQUAL', 0, 1, 'SYNCED')");
+        version5.close();
+
+        SupportSQLiteDatabase version6 = helper.runMigrationsAndValidate(TEST_DB, 6, true,
+                SplitBillDatabase.MIGRATION_5_6);
+
+        try (Cursor quickSplits = version6.query("SELECT COUNT(*) FROM quick_splits")) {
+            assertTrue(quickSplits.moveToFirst());
+            assertEquals(1, quickSplits.getInt(0));
+        }
+        try (Cursor messages = version6.query("SELECT COUNT(*) FROM messages")) {
+            assertTrue(messages.moveToFirst());
+            assertEquals(0, messages.getInt(0));
+        }
+        version6.close();
     }
 }

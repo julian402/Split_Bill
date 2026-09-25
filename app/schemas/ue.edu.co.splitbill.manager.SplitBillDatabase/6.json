@@ -1,0 +1,580 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 6,
+    "identityHash": "b61980bc190e3579cca54c006094af8d",
+    "entities": [
+      {
+        "tableName": "users",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`use_id` TEXT NOT NULL, `use_names` TEXT, `use_email` TEXT, `use_phone` TEXT, `use_status` INTEGER NOT NULL, `use_sync_status` TEXT, PRIMARY KEY(`use_id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "use_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "names",
+            "columnName": "use_names",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "use_email",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "use_phone",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "use_status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "use_sync_status",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "use_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_users_use_names",
+            "unique": false,
+            "columnNames": [
+              "use_names"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_users_use_names` ON `${TABLE_NAME}` (`use_names`)"
+          }
+        ]
+      },
+      {
+        "tableName": "groups",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`grp_id` TEXT NOT NULL, `grp_name` TEXT, `grp_currency` TEXT, `grp_created_at` INTEGER, `grp_status` INTEGER NOT NULL, `grp_sync_status` TEXT, `grp_owner_id` TEXT, PRIMARY KEY(`grp_id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "grp_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "grp_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "currency",
+            "columnName": "grp_currency",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "grp_created_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "grp_status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "grp_sync_status",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ownerId",
+            "columnName": "grp_owner_id",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "grp_id"
+          ]
+        }
+      },
+      {
+        "tableName": "expenses",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`exp_id` TEXT NOT NULL, `exp_group_id` TEXT NOT NULL, `exp_payer_id` TEXT NOT NULL, `exp_description` TEXT, `exp_amount_cents` INTEGER NOT NULL, `exp_split_type` TEXT, `exp_date` INTEGER, `exp_category` TEXT NOT NULL DEFAULT 'OTHER', `exp_status` INTEGER NOT NULL, `exp_sync_status` TEXT, PRIMARY KEY(`exp_id`), FOREIGN KEY(`exp_group_id`) REFERENCES `groups`(`grp_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`exp_payer_id`) REFERENCES `users`(`use_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "exp_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupId",
+            "columnName": "exp_group_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payerId",
+            "columnName": "exp_payer_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "exp_description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "amountCents",
+            "columnName": "exp_amount_cents",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "splitType",
+            "columnName": "exp_split_type",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "exp_date",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "exp_category",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'OTHER'"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "exp_status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "exp_sync_status",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "exp_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_expenses_exp_group_id",
+            "unique": false,
+            "columnNames": [
+              "exp_group_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_expenses_exp_group_id` ON `${TABLE_NAME}` (`exp_group_id`)"
+          },
+          {
+            "name": "index_expenses_exp_payer_id",
+            "unique": false,
+            "columnNames": [
+              "exp_payer_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_expenses_exp_payer_id` ON `${TABLE_NAME}` (`exp_payer_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "groups",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "exp_group_id"
+            ],
+            "referencedColumns": [
+              "grp_id"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "exp_payer_id"
+            ],
+            "referencedColumns": [
+              "use_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "expense_shares",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shr_id` TEXT NOT NULL, `shr_expense_id` TEXT NOT NULL, `shr_user_id` TEXT NOT NULL, `shr_amount_cents` INTEGER NOT NULL, PRIMARY KEY(`shr_id`), FOREIGN KEY(`shr_expense_id`) REFERENCES `expenses`(`exp_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`shr_user_id`) REFERENCES `users`(`use_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "shr_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseId",
+            "columnName": "shr_expense_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "shr_user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amountCents",
+            "columnName": "shr_amount_cents",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "shr_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_expense_shares_shr_expense_id",
+            "unique": false,
+            "columnNames": [
+              "shr_expense_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_expense_shares_shr_expense_id` ON `${TABLE_NAME}` (`shr_expense_id`)"
+          },
+          {
+            "name": "index_expense_shares_shr_user_id",
+            "unique": false,
+            "columnNames": [
+              "shr_user_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_expense_shares_shr_user_id` ON `${TABLE_NAME}` (`shr_user_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "expenses",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shr_expense_id"
+            ],
+            "referencedColumns": [
+              "exp_id"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "shr_user_id"
+            ],
+            "referencedColumns": [
+              "use_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "group_members",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`gmb_group_id` TEXT NOT NULL, `gmb_user_id` TEXT NOT NULL, `gmb_status` INTEGER NOT NULL, `gmb_sync_status` TEXT, PRIMARY KEY(`gmb_group_id`, `gmb_user_id`), FOREIGN KEY(`gmb_group_id`) REFERENCES `groups`(`grp_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`gmb_user_id`) REFERENCES `users`(`use_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "groupId",
+            "columnName": "gmb_group_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "gmb_user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "gmb_status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "gmb_sync_status",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "gmb_group_id",
+            "gmb_user_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_group_members_gmb_user_id",
+            "unique": false,
+            "columnNames": [
+              "gmb_user_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_members_gmb_user_id` ON `${TABLE_NAME}` (`gmb_user_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "groups",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "gmb_group_id"
+            ],
+            "referencedColumns": [
+              "grp_id"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "gmb_user_id"
+            ],
+            "referencedColumns": [
+              "use_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "quick_splits",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`qsp_id` TEXT NOT NULL, `qsp_description` TEXT, `qsp_subtotal_cents` INTEGER NOT NULL, `qsp_tip_percent` TEXT, `qsp_total_cents` INTEGER NOT NULL, `qsp_split_type` TEXT, `qsp_date` INTEGER, `qsp_status` INTEGER NOT NULL, `qsp_sync_status` TEXT, PRIMARY KEY(`qsp_id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "qsp_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "qsp_description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "subtotalCents",
+            "columnName": "qsp_subtotal_cents",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipPercent",
+            "columnName": "qsp_tip_percent",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "totalCents",
+            "columnName": "qsp_total_cents",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "splitType",
+            "columnName": "qsp_split_type",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "qsp_date",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "qsp_status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "qsp_sync_status",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "qsp_id"
+          ]
+        }
+      },
+      {
+        "tableName": "quick_split_shares",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`qss_id` TEXT NOT NULL, `qss_quick_split_id` TEXT NOT NULL, `qss_position` INTEGER NOT NULL, `qss_name` TEXT, `qss_amount_cents` INTEGER NOT NULL, PRIMARY KEY(`qss_id`), FOREIGN KEY(`qss_quick_split_id`) REFERENCES `quick_splits`(`qsp_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "qss_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quickSplitId",
+            "columnName": "qss_quick_split_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "qss_position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "qss_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "amountCents",
+            "columnName": "qss_amount_cents",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "qss_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_quick_split_shares_qss_quick_split_id",
+            "unique": false,
+            "columnNames": [
+              "qss_quick_split_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_quick_split_shares_qss_quick_split_id` ON `${TABLE_NAME}` (`qss_quick_split_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "quick_splits",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "qss_quick_split_id"
+            ],
+            "referencedColumns": [
+              "qsp_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "messages",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`msg_id` TEXT NOT NULL, `msg_group_id` TEXT NOT NULL, `msg_sender_id` TEXT, `msg_sender_names` TEXT, `msg_text` TEXT, `msg_sent_at` INTEGER, `msg_sync_status` TEXT, PRIMARY KEY(`msg_id`), FOREIGN KEY(`msg_group_id`) REFERENCES `groups`(`grp_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "msg_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupId",
+            "columnName": "msg_group_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "senderId",
+            "columnName": "msg_sender_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "senderNames",
+            "columnName": "msg_sender_names",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "msg_text",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sentAt",
+            "columnName": "msg_sent_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "msg_sync_status",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "msg_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_messages_msg_group_id",
+            "unique": false,
+            "columnNames": [
+              "msg_group_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_messages_msg_group_id` ON `${TABLE_NAME}` (`msg_group_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "groups",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "msg_group_id"
+            ],
+            "referencedColumns": [
+              "grp_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b61980bc190e3579cca54c006094af8d')"
+    ]
+  }
+}

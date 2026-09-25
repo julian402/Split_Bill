@@ -19,8 +19,9 @@ public final class DatabaseContract {
      * Version 3 (entrega 4): tabla group_members, para que cada grupo tenga sus propios integrantes.
      * Version 4 (rediseno): expenses gana exp_category (comida, transporte... o PAYMENT).
      * Version 5: tablas quick_splits y quick_split_shares, las cuentas rapidas guardadas sin grupo.
+     * Version 6: tabla messages, el chat de cada grupo.
      */
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 6;
 
     /** Borrado logico: las filas no se eliminan, se marcan como inactivas. */
     public static final int STATUS_ACTIVE = 1;
@@ -467,6 +468,46 @@ public final class DatabaseContract {
                 "DELETE FROM quick_split_shares WHERE qss_quick_split_id = :quickSplitId";
 
         private QuickSplitShares() {
+            //impide crear objetos de esta clase
+        }
+    }
+
+    /** Chat de cada grupo (version 6). */
+    public static final class Messages {
+
+        public static final String TABLE_NAME = "messages";
+        public static final String COLUMN_ID = "msg_id";
+        public static final String COLUMN_GROUP_ID = "msg_group_id";
+        public static final String COLUMN_SENDER_ID = "msg_sender_id";
+        public static final String COLUMN_SENDER_NAMES = "msg_sender_names";
+        public static final String COLUMN_TEXT = "msg_text";
+        public static final String COLUMN_SENT_AT = "msg_sent_at";
+        public static final String COLUMN_SYNC_STATUS = "msg_sync_status";
+
+        public static final String SELECT_BY_ID =
+                "SELECT * FROM messages WHERE msg_id = :messageId";
+
+        /** El chat del grupo en el orden en que se escribio. */
+        public static final String SELECT_BY_GROUP =
+                "SELECT * FROM messages WHERE msg_group_id = :groupId ORDER BY msg_sent_at ASC";
+
+        /** El ultimo mensaje: la vista previa en la pantalla del grupo. */
+        public static final String SELECT_LAST =
+                "SELECT * FROM messages WHERE msg_group_id = :groupId ORDER BY msg_sent_at DESC LIMIT 1";
+
+        public static final String SELECT_PENDING =
+                "SELECT * FROM messages WHERE msg_sync_status <> " + SYNCED + " ORDER BY msg_sent_at ASC";
+
+        public static final String COUNT_PENDING =
+                "SELECT COUNT(*) FROM messages WHERE msg_sync_status <> " + SYNCED;
+
+        public static final String MARK_SYNCED =
+                "UPDATE messages SET msg_sync_status = " + SYNCED + " WHERE msg_id = :messageId";
+
+        public static final String DELETE_BY_ID =
+                "DELETE FROM messages WHERE msg_id = :messageId";
+
+        private Messages() {
             //impide crear objetos de esta clase
         }
     }

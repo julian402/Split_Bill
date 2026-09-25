@@ -33,6 +33,7 @@ import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.Message;
 import ue.edu.co.splitbill.entity.QuickSplit;
 import ue.edu.co.splitbill.entity.QuickSplitShare;
 import ue.edu.co.splitbill.entity.SyncStatus;
@@ -400,6 +401,54 @@ public class SyncManagerTest {
 
         assertEquals(SyncResult.State.SYNCED, result.getState());
         assertRequest("DELETE", "/api/quick-splits/" + cena.getId());
+        assertEquals(0, result.getPendingChanges());
+    }
+
+    /** Un mensaje escrito sin conexion se envia al grupo con su id y deja de estar pendiente. */
+    @Test
+    public void aMessageWrittenOfflineIsSentToItsGroup() throws Exception {
+        this.database.groupDao().markSynced(this.group.getId());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
+        this.database.expenseDao().markSynced(this.almuerzo.getId(), this.almuerzo.getStatus());
+        Message message = new Message(this.group.getId(), this.julian.getId(), this.julian.getNames(), "Yo llevo el carbón");
+        this.database.messageDao().insert(message);
+
+        enqueue(201, "{}");
+        enqueue(200, "[" + groupJson() + "]");
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+        enqueueNoQuickSplits();
+
+        SyncResult result = this.syncManager.syncNow();
+
+        assertEquals(SyncResult.State.SYNCED, result.getState());
+        RecordedRequest post = assertRequest("POST", "/api/groups/" + this.group.getId() + "/messages");
+        String body = post.getBody().readUtf8();
+        assertTrue(body.contains(message.getId()));
+        assertTrue(body.contains("Yo llevo el carbón"));
+        assertEquals(0, result.getPendingChanges());
+        assertTrue(!this.database.messageDao().findById(message.getId()).isPending());
+    }
+
+    /** Si el servidor rechaza el mensaje, se avisa y se quita del chat: no queda como si se hubiera enviado. */
+    @Test
+    public void aRejectedMessageIsRemovedFromTheChat() throws Exception {
+        this.database.groupDao().markSynced(this.group.getId());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
+        this.database.expenseDao().markSynced(this.almuerzo.getId(), this.almuerzo.getStatus());
+        Message message = new Message(this.group.getId(), this.julian.getId(), this.julian.getNames(), "Hola");
+        this.database.messageDao().insert(message);
+
+        enqueue(404, "{\"status\":404,\"detail\":\"Grupo no encontrado\"}");
+        enqueue(200, "[" + groupJson() + "]");
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+        enqueueNoQuickSplits();
+
+        SyncResult result = this.syncManager.syncNow();
+
+        assertEquals(Arrays.asList("Grupo no encontrado"), result.getRejectedMessages());
+        assertNull(this.database.messageDao().findById(message.getId()));
         assertEquals(0, result.getPendingChanges());
     }
 

@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import ue.edu.co.splitbill.R;
+import ue.edu.co.splitbill.ui.chat.ChatActivity;
+import ue.edu.co.splitbill.entity.Message;
 import ue.edu.co.splitbill.dao.ExpenseListItem;
 import ue.edu.co.splitbill.dao.GroupListItem;
 import ue.edu.co.splitbill.domain.Money;
@@ -47,6 +49,8 @@ public class GroupDetailActivity extends BaseActivity
     private ImageButton btnGroupSettings;
     private Button btnSettle;
     private Button btnMembers;
+    private View cardChat;
+    private TextView tvLastMessage;
 
     private ExpenseAdapter expenseAdapter;
     private ExpenseRepository expenseRepository;
@@ -71,6 +75,7 @@ public class GroupDetailActivity extends BaseActivity
     protected void initListeners() {
         this.btnSettle.setOnClickListener(this::openSettlement);
         this.btnMembers.setOnClickListener(this::openGroupSettings);
+        this.cardChat.setOnClickListener(this::openChat);
         this.btnGroupSettings.setOnClickListener(this::openGroupSettings);
         this.tvTitle.setOnClickListener(this::openGroups);
     }
@@ -83,6 +88,7 @@ public class GroupDetailActivity extends BaseActivity
         loadGroupDB();
         //Al volver de registrar un gasto la lista se refresca sola
         listExpensesDB();
+        loadLastMessageDB();
         this.syncManager.addListener(this);
         this.syncManager.requestSync();
     }
@@ -177,6 +183,27 @@ public class GroupDetailActivity extends BaseActivity
         openTab(GroupsActivity.class);
     }
 
+    /** "Diomar: ya pague" en la tarjeta del chat; si no hay mensajes, la invitacion a escribir. */
+    private void loadLastMessageDB() {
+        getServiceLocator().getChatRepository().getLastMessage(new UiCallback<Message>() {
+            @Override
+            protected void onData(Message data) {
+                if (data == null) {
+                    tvLastMessage.setText(R.string.tvChatCardHint);
+                    return;
+                }
+                boolean mine = data.getSenderId() != null
+                        && data.getSenderId().equals(getServiceLocator().getSessionManager().getUserId());
+                tvLastMessage.setText(getString(R.string.tvLastMessage,
+                        mine ? getString(R.string.tvYouShort) : data.getSenderNames(), data.getText()));
+            }
+        });
+    }
+
+    private void openChat(View view) {
+        startActivity(new Intent(this, ChatActivity.class));
+    }
+
     private void openSettlement(View view) {
         startActivity(new Intent(this, SettlementActivity.class));
     }
@@ -198,6 +225,8 @@ public class GroupDetailActivity extends BaseActivity
         this.btnGroupSettings = findViewById(R.id.btnGroupSettings);
         this.btnSettle = findViewById(R.id.btnSettle);
         this.btnMembers = findViewById(R.id.btnMembers);
+        this.cardChat = findViewById(R.id.cardChat);
+        this.tvLastMessage = findViewById(R.id.tvLastMessage);
 
         this.groupId = getServiceLocator().getSessionManager().getCurrentGroupId();
         this.expenseRepository = getServiceLocator().getExpenseRepository();

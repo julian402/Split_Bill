@@ -15,12 +15,14 @@ import ue.edu.co.splitbill.dao.ExpenseDao;
 import ue.edu.co.splitbill.dao.ExpenseShareDao;
 import ue.edu.co.splitbill.dao.GroupDao;
 import ue.edu.co.splitbill.dao.GroupMemberDao;
+import ue.edu.co.splitbill.dao.MessageDao;
 import ue.edu.co.splitbill.dao.QuickSplitDao;
 import ue.edu.co.splitbill.dao.UserDao;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.Message;
 import ue.edu.co.splitbill.entity.QuickSplit;
 import ue.edu.co.splitbill.entity.QuickSplitShare;
 import ue.edu.co.splitbill.entity.User;
@@ -38,7 +40,7 @@ import ue.edu.co.splitbill.entity.User;
  */
 @Database(
         entities = {User.class, Group.class, Expense.class, ExpenseShare.class, GroupMember.class,
-                QuickSplit.class, QuickSplitShare.class},
+                QuickSplit.class, QuickSplitShare.class, Message.class},
         version = DatabaseContract.DATABASE_VERSION,
         exportSchema = true)
 @TypeConverters({Converters.class})
@@ -59,6 +61,8 @@ public abstract class SplitBillDatabase extends RoomDatabase {
     public abstract GroupMemberDao groupMemberDao();
 
     public abstract QuickSplitDao quickSplitDao();
+
+    public abstract MessageDao messageDao();
 
     /**
      * Version 1 -> 2 (entrega 3): la tabla groups necesita saber si ya se subio al servidor y quien
@@ -141,6 +145,24 @@ public abstract class SplitBillDatabase extends RoomDatabase {
         }
     };
 
+    private static final String CREATE_MESSAGES =
+            "CREATE TABLE IF NOT EXISTS `messages` (`msg_id` TEXT NOT NULL, `msg_group_id` TEXT NOT NULL, "
+            + "`msg_sender_id` TEXT, `msg_sender_names` TEXT, `msg_text` TEXT, `msg_sent_at` INTEGER, "
+            + "`msg_sync_status` TEXT, PRIMARY KEY(`msg_id`), FOREIGN KEY(`msg_group_id`) "
+            + "REFERENCES `groups`(`grp_id`) ON UPDATE NO ACTION ON DELETE CASCADE )";
+
+    private static final String CREATE_MESSAGES_INDEX =
+            "CREATE INDEX IF NOT EXISTS `index_messages_msg_group_id` ON `messages` (`msg_group_id`)";
+
+    /** Version 5 -> 6: el chat de cada grupo. Tabla nueva: no toca ningun dato. */
+    public static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(CREATE_MESSAGES);
+            database.execSQL(CREATE_MESSAGES_INDEX);
+        }
+    };
+
     public static SplitBillDatabase getInstance(Context context) {
         if (instance == null) {
             synchronized (SplitBillDatabase.class) {
@@ -151,7 +173,7 @@ public abstract class SplitBillDatabase extends RoomDatabase {
                                     DatabaseContract.DATABASE_NAME)
                             //Sin fallbackToDestructiveMigration: perder datos del usuario al cambiar
                             //el esquema no es una opcion, las migraciones se escriben a mano
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                             .addCallback(CALLBACK)
                             .build();
                 }

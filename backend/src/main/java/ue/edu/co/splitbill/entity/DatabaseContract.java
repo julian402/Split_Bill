@@ -5,8 +5,8 @@ package ue.edu.co.splitbill.entity;
  *
  * Es el mismo patron que DatabaseContract de la app Android y usa los mismos nombres, de modo que un
  * gasto se llama igual en el celular y en el servidor. Las tablas las crea Flyway con el script
- * db/migration/V1__init_schema.sql; las entidades usan estas constantes en sus @Column. V2 agrega la categoria del gasto y V3 las
- * cuentas rapidas guardadas.
+ * db/migration/V1__init_schema.sql; las entidades usan estas constantes en sus @Column. V2 agrega la categoria del gasto, V3 las
+ * cuentas rapidas guardadas y V4 el chat de los grupos.
  *
  * La clase es final y su constructor es privado porque solo agrupa constantes.
  */
@@ -133,6 +133,22 @@ public final class DatabaseContract {
         public static final String COLUMN_AMOUNT_CENTS = "qss_amount_cents";
 
         private QuickSplitShares() {
+            //impide crear objetos de esta clase
+        }
+    }
+
+    /** Chat de cada grupo (V4). */
+    public static final class Messages {
+
+        public static final String TABLE_NAME = "messages";
+        public static final String COLUMN_ID = "msg_id";
+        public static final String COLUMN_GROUP_ID = "msg_group_id";
+        public static final String COLUMN_SENDER_ID = "msg_sender_id";
+        public static final String COLUMN_TEXT = "msg_text";
+        public static final String COLUMN_SENT_AT = "msg_sent_at";
+        public static final String COLUMN_CREATED_AT = "msg_created_at";
+
+        private Messages() {
             //impide crear objetos de esta clase
         }
     }

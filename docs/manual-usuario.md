@@ -41,6 +41,7 @@ Siempre a mano, en la parte de abajo:
   - **Tu balance**: en verde, lo que te deben; en rojo, lo que debes.
 - **Tus grupos**: cada tarjeta muestra quiénes están y tu saldo en ese grupo (**Te deben**, **Debes** o
   **Todos al día**). Tócala para entrar al grupo; los tres puntos abren sus integrantes y su nombre.
+- **Cuentas rápidas guardadas**: cuántas tienes; tócala para verlas.
 - **Actividad reciente**: los últimos gastos de todos los grupos. Toca uno para ver su detalle.
 
 ## 4. Un grupo
@@ -148,13 +149,25 @@ marcaste por error, ábrelo y toca **Eliminar**.
 
 Si todos están en cero, el grupo está a paz y salvo.
 
-## 9. Actividad
+## 9. Chat del grupo
+
+En la pantalla de un grupo, toca la tarjeta **Chat del grupo** (muestra el último mensaje). Ahí se
+escriben todos los integrantes que tienen cuenta: quién lleva qué, cuándo pagan, lo que sea.
+
+- Tus mensajes van a la derecha; los de los demás, a la izquierda con su nombre.
+- Sin conexión también puedes escribir: el mensaje dice **Enviando…** y sale solo cuando vuelve la red.
+- Mientras tienes el chat abierto, los mensajes nuevos aparecen cada pocos segundos. La app **no manda
+  notificaciones**: los mensajes de los demás los ves al entrar al chat.
+- Los integrantes agregados solo por nombre no pueden escribir; para eso necesitan su cuenta (ver
+  *Invitar por email* y *Vincular cuenta*).
+
+## 10. Actividad
 
 Todos los gastos y pagos de **todos** tus grupos, agrupados por día ("Hoy", "Ayer", "22 de sept.").
 Cada fila dice quién pagó y en qué grupo. Toca uno para ver su detalle. Arriba ves el estado de la
 sincronización, y el botón ⟳ sincroniza a mano.
 
-## 10. Perfil
+## 11. Perfil
 
 - Tu nombre, tu email y tu teléfono. Cambia el nombre o el teléfono y toca **Guardar cambios**: los
   demás integrantes verán tu nombre nuevo. Para esto necesitas conexión.
@@ -162,7 +175,7 @@ sincronización, y el botón ⟳ sincroniza a mano.
 - **Cerrar sesión**. Si hay cambios sin subir, la app te avisa antes, porque al cerrar sesión se borran
   los datos del celular.
 
-## 11. Cuenta rápida
+## 12. Cuenta rápida
 
 Para dividir una cuenta en el momento, sin registrar integrantes: la cena, el taxi. Se abre con **+** →
 **Cuenta rápida**.
@@ -182,14 +195,14 @@ Para dividir una cuenta en el momento, sin registrar integrantes: la cena, el ta
      que le tocó a cada persona.
    - **Salir sin guardar**.
 
-**Cuentas rápidas guardadas**: en la pestaña **Grupos**, la tarjeta *Cuentas rápidas guardadas* (arriba
-de tus grupos), o el botón del reloj arriba en *Cuenta rápida*. Toca una para ver lo que
+**Cuentas rápidas guardadas**: en el **Inicio**, la tarjeta *Cuentas rápidas guardadas* (debajo de
+*Tus grupos*), o el botón del reloj arriba en *Cuenta rápida*. Toca una para ver lo que
 le tocó a cada persona; desde ahí la puedes **Compartir** o **Eliminar**. Se guardan también en el
 servidor: las ves en cualquier celular donde inicies sesión.
 
-## 12. Sin conexión
+## 13. Sin conexión
 
-- Todo funciona igual: agregar, editar, borrar, crear grupos, marcar pagos.
+- Todo funciona igual: agregar, editar, borrar, crear grupos, marcar pagos, escribir en el chat.
 - Los cambios quedan "por subir" (la campana del inicio muestra un punto rojo) y se envían solos cuando
   vuelve la red, **aunque hayas cerrado la app**.
 - Si otro integrante cambió algo, lo ves al sincronizar.

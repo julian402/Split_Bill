@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.chat.ChatActivity">
+
+    <LinearLayout style="@style/Widget.SplitBill.ScreenHeader">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            style="@style/Widget.SplitBill.HeaderButton"
+            android:contentDescription="@string/cdBack"
+            android:src="@drawable/ic_arrow_back" />
+
+        <LinearLayout style="@style/Widget.SplitBill.ScreenHeaderTexts">
+
+            <TextView
+                android:id="@+id/tvChatTitle"
+                style="@style/Widget.SplitBill.ScreenHeaderTitle"
+                android:text="@string/tvTitleChat" />
+
+            <TextView
+                android:id="@+id/tvChatSubtitle"
+                style="@style/Widget.SplitBill.ScreenHeaderSubtitle"
+                tools:text="Viaje a Cartagena" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/tvEmptyChat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:drawablePadding="12dp"
+            android:padding="32dp"
+            android:text="@string/tvEmptyChat"
+            android:textAlignment="center"
+            android:textColor="@color/colorTextSecondary"
+            android:visibility="gone"
+            app:drawableTint="@color/colorStroke"
+            app:drawableTopCompat="@drawable/ic_chat" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMessages"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp"
+            tools:listitem="@layout/item_message" />
+    </FrameLayout>
+
+    <!-- Barra para escribir: el campo crece hasta 4 lineas y el boton envia -->
+    <LinearLayout
+        android:id="@+id/barCompose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bottom_nav"
+        android:elevation="12dp"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="10dp">
+
+        <EditText
+            android:id="@+id/etMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:autofillHints="@null"
+            android:background="@drawable/bg_input"
+            android:hint="@string/hintMessage"
+            android:importantForAutofill="no"
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLength="1000"
+            android:maxLines="4"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="10dp"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="15sp" />
+
+        <ImageButton
+            android:id="@+id/btnSend"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_send_button"
+            android:contentDescription="@string/cdSendMessage"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="center"
+            android:src="@drawable/ic_send"
+            app:tint="@color/colorOnPrimary" />
+    </LinearLayout>
+</LinearLayout>

@@ -37,6 +37,8 @@ cuando vuelve la red.
   Cada transferencia se puede compartir por WhatsApp y marcar como pagada.
 - **Escáner de facturas**: toma una foto o elige una de la galería y la app encuentra el total con
   reconocimiento de texto en el propio dispositivo (ML Kit). La foto no sale del celular.
+- **Chat del grupo**: los integrantes con cuenta se escriben dentro de cada grupo. Funciona sin
+  conexión: el mensaje sale cuando vuelve la red.
 - **Cuenta rápida**: divide una cuenta al instante, con propina, sin registrar a nadie. Después puedes
   pasarla a un grupo o guardarla por aparte.
 - **Inicio con resumen**: total gastado, gasto del mes, tu parte y tu balance en todos tus grupos.
@@ -143,9 +145,9 @@ Para generar una clave segura: `openssl rand -base64 48`.
 
 | Conjunto | Cantidad | Qué cubre |
 |---|---|---|
-| Unitarias | 62 | Dinero, estrategias de división, saldos, liquidación, lectura de facturas y conversión con la API |
-| Instrumentadas | 45 | Consultas de Room, migraciones, sincronización contra un servidor simulado y 18 flujos de interfaz |
-| Backend | 40 | Todos los endpoints contra PostgreSQL real, incluido un grupo compartido entre dos cuentas |
+| Unitarias | 63 | Dinero, estrategias de división, saldos, liquidación, lectura de facturas y conversión con la API |
+| Instrumentadas | 49 | Consultas de Room, migraciones, sincronización contra un servidor simulado y 19 flujos de interfaz |
+| Backend | 45 | Todos los endpoints contra PostgreSQL real, incluidos un grupo compartido entre dos cuentas y su chat |
 
 Antes de las pruebas instrumentadas, desactiva las animaciones del dispositivo (*Opciones de
 desarrollador → escalas de animación*). Estas pruebas usan una base de datos en memoria y un servidor

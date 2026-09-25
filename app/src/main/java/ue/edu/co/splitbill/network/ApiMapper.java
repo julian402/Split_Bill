@@ -12,6 +12,7 @@ import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.Message;
 import ue.edu.co.splitbill.entity.QuickSplit;
 import ue.edu.co.splitbill.entity.QuickSplitShare;
 import ue.edu.co.splitbill.entity.SyncStatus;
@@ -20,6 +21,7 @@ import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.network.dto.ExpenseDto;
 import ue.edu.co.splitbill.network.dto.GroupDto;
 import ue.edu.co.splitbill.network.dto.MemberRequest;
+import ue.edu.co.splitbill.network.dto.MessageDto;
 import ue.edu.co.splitbill.network.dto.QuickSplitDto;
 import ue.edu.co.splitbill.network.dto.ShareDto;
 import ue.edu.co.splitbill.network.dto.UserDto;
@@ -109,6 +111,23 @@ public final class ApiMapper {
     }
 
     /** Fecha en formato ISO-8601 en UTC, por ejemplo 2026-09-24T13:55:21.123Z. */
+    /** Lo que se manda al escribir: el servidor pone el grupo y a quien lo escribio (la sesion). */
+    public static MessageDto toDto(Message message) {
+        return new MessageDto(message.getId(), message.getText(), formatDate(message.getSentAt()));
+    }
+
+    public static Message toEntity(MessageDto dto) {
+        Message message = new Message();
+        message.setId(dto.getId());
+        message.setGroupId(dto.getGroupId());
+        message.setSenderId(dto.getSenderId());
+        message.setSenderNames(dto.getSenderNames());
+        message.setText(dto.getText());
+        message.setSentAt(parseDate(dto.getSentAt()));
+        message.setSyncStatus(SyncStatus.SYNCED);
+        return message;
+    }
+
     /** Cuenta rapida con sus partes, en el orden en que se escribieron. */
     public static QuickSplitDto toDto(QuickSplit quickSplit, List<QuickSplitShare> shares) {
         List<QuickSplitDto.Share> shareDtos = new ArrayList<>(shares.size());

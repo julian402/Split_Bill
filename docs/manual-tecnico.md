@@ -32,7 +32,7 @@ Este documento explica cómo está construido SplitBill y por qué. Para instala
 |---|---|
 | `domain` | `Money`, `SplitStrategy` (+ `EqualSplitStrategy`, `ExactAmountSplitStrategy`, `PercentageSplitStrategy`, `SplitStrategyFactory`), `BalanceCalculator`, `DebtSimplifier`, `ExpenseCategory`, `ReceiptParser` |
 | `entity` | Entidades de Room: `User`, `Group`, `GroupMember`, `Expense`, `ExpenseShare`, `SyncStatus` |
-| `manager` | `SplitBillDatabase` (versión 5, migraciones escritas a mano), `DatabaseContract` (todo el SQL), `Converters` |
+| `manager` | `SplitBillDatabase` (versión 6, migraciones escritas a mano), `DatabaseContract` (todo el SQL), `Converters` |
 | `dao` | `@Dao` y proyecciones (`ExpenseListItem`, `ActivityItem`, `GroupListItem`, `UserAmount`…) |
 | `model` | Repositorios sobre `BaseRepository` (`DashboardRepository` arma el inicio y la actividad de todos los grupos), más `ReceiptScanner` (ML Kit) |
 | `network` | `ApiService` (Retrofit), `ApiClient`, `AuthInterceptor`, `ApiMapper`, DTO |
@@ -83,6 +83,7 @@ columnas.
 | `expense_shares` | `shr_expense_id`, `shr_user_id`, `shr_amount_cents` | Parte de cada participante. Suman exactamente el monto |
 | `quick_splits` | `qsp_id`, `qsp_description`, `qsp_subtotal_cents`, `qsp_tip_percent`, `qsp_total_cents`, `qsp_split_type`, `qsp_date`, `qsp_status`, `qsp_sync_status` | Cuentas rápidas guardadas, sin grupo (v5). La propina va como texto para no perder decimales |
 | `quick_split_shares` | `qss_quick_split_id`, `qss_position`, `qss_name`, `qss_amount_cents` | Lo que le tocó a cada persona de la cuenta, por nombre y en orden |
+| `messages` | `msg_id`, `msg_group_id`, `msg_sender_id`, `msg_sender_names`, `msg_text`, `msg_sent_at`, `msg_sync_status` | Chat de cada grupo (v6). El nombre de quien escribe se guarda con el mensaje |
 
 - Las llaves son **UUID generados en el celular**. Una fila creada sin conexión ya tiene su id
   definitivo, y reenviarla no duplica nada, porque el servidor reconoce el id.
@@ -95,6 +96,7 @@ columnas.
     servidor es la migración Flyway `V2__expense_category.sql`.
   - `4→5`: tablas `quick_splits` y `quick_split_shares`, vacías; no toca ningún dato. En el servidor
     es `V3__quick_splits.sql`.
+  - `5→6`: tabla `messages`, el chat de cada grupo. En el servidor es `V4__messages.sql`.
 
   Se prueban con `MigrationTest`. No se usa `fallbackToDestructiveMigration`: perder los datos del
   usuario no es una opción.
@@ -220,6 +222,7 @@ La documentación completa está en Swagger (`/swagger-ui.html`) y en el
 - Montos en centavos.
 - Cada gasto lleva `category` (opcional al crearlo: si no llega, queda `OTHER`).
 - El perfil propio se cambia con `PUT /api/users/me` (nombre y teléfono).
+- **Chat**: `GET /api/groups/{id}/messages?since=` y `POST` para escribir. Escribir va por la bandeja de salida (`SyncManager.pushMessages`), así que funciona sin conexión. Leer no entra en la sincronización general: `ChatActivity` llama a `ChatRepository.refreshMessages` cada 5 s mientras está abierta, pidiendo solo lo que llegó desde la última vez (con la hora del servidor, como los gastos). No hay notificaciones push.
 - **Grupos compartidos**: `POST /members` con `email` agrega a una persona con su cuenta; `POST /members/{id}/link` une a un integrante agregado por nombre con la cuenta de un email (sus gastos y partes pasan a la cuenta, igual que "Soy yo"). En la app las dos cosas necesitan conexión: `UserRepository` primero sincroniza lo pendiente (el grupo puede ser nuevo), llama al servidor y vuelve a sincronizar para traer a la persona y los gastos con su nuevo dueño.
 - Errores en formato **ProblemDetail**; la app muestra el campo `detail`.
 
@@ -227,10 +230,10 @@ La documentación completa está en Swagger (`/swagger-ui.html`) y en el
 
 | Tipo | Cantidad | Qué cubren |
 |---|---|---|
-| Unitarias (JVM) | 62 | `Money`, las tres estrategias, saldos, liquidación, escenario completo de la entrega 1, pagos que dejan todo en cero y categorías, `ReceiptParser`, `ApiMapper` (también cuentas rápidas) |
-| Instrumentadas | 27 | Consultas de Room (incluidas las del inicio y los pagos), migraciones 1→2, 2→3, 3→4 y 4→5, `SyncManager` contra `MockWebServer` (push, pull de todos los grupos, cuentas rápidas, rechazos, sin red, token vencido, incremental) |
-| Interfaz (Espresso) | 18 | Login; gasto sin monto; porcentajes que no suman 100; gasto válido en lista y total; editar desde el detalle; borrar con confirmación; grupo nuevo y cambiar de grupo; nuevo grupo con integrantes en el formulario; liquidación mínima; marcar todo como pagado; barra inferior; menú del botón +; gasto guardado en otro grupo; cuenta rápida guardada sin grupo; cuenta rápida → gasto de un grupo con las mismas personas; grupo con menos integrantes que la cuenta; gasto con distinta cantidad de personas que la cuenta |
-| Backend (integración) | 40 | Endpoints con MockMvc + PostgreSQL real (Testcontainers), incluidas categorías, pagos, cuentas rápidas y grupos compartidos entre dos cuentas |
+| Unitarias (JVM) | 63 | `Money`, las tres estrategias, saldos, liquidación, escenario completo de la entrega 1, pagos que dejan todo en cero y categorías, `ReceiptParser`, `ApiMapper` (también cuentas rápidas y mensajes) |
+| Instrumentadas | 30 | Consultas de Room (incluidas las del inicio y los pagos), migraciones 1→2 a 5→6, `SyncManager` contra `MockWebServer` (push, pull de todos los grupos, cuentas rápidas, mensajes del chat, rechazos, sin red, token vencido, incremental) |
+| Interfaz (Espresso) | 19 | Login; gasto sin monto; porcentajes que no suman 100; gasto válido en lista y total; editar desde el detalle; borrar con confirmación; grupo nuevo y cambiar de grupo; nuevo grupo con integrantes en el formulario; liquidación mínima; marcar todo como pagado; barra inferior; menú del botón +; gasto guardado en otro grupo; cuenta rápida guardada sin grupo; cuenta rápida → gasto de un grupo con las mismas personas; grupo con menos integrantes que la cuenta; gasto con distinta cantidad de personas que la cuenta; chat sin conexión |
+| Backend (integración) | 45 | Endpoints con MockMvc + PostgreSQL real (Testcontainers), incluidas categorías, pagos, cuentas rápidas, grupos compartidos entre dos cuentas y el chat |
 
 Las pruebas Espresso corren con `SplitBillTestRunner`, que arranca la app con:
 - Room en memoria.

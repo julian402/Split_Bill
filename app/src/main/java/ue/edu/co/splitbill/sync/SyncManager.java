@@ -17,6 +17,7 @@ import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.Message;
 import ue.edu.co.splitbill.entity.QuickSplit;
 import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
@@ -43,7 +44,8 @@ import ue.edu.co.splitbill.session.SessionManager;
  *   2. Pull: trae la lista de grupos y lo que otros integrantes cambiaron en cada uno de ellos
  *      (primero el actual). Asi el inicio y la actividad muestran datos al dia de todos los grupos.
  *   Las cuentas rapidas guardadas no son de ningun grupo: se suben despues de los gastos y se traen
- *   al final, completas.
+ *   al final, completas. Los mensajes del chat que se escribieron sin conexion se envian aqui; los de
+ *   los demas los trae la pantalla del chat mientras esta abierta (ChatRepository).
  *
  * Reglas:
  * - Nunca se pisa un cambio local pendiente con lo que llega del servidor.
@@ -147,6 +149,7 @@ public class SyncManager {
             pushMembers(rejected);
             pushExpenses(rejected);
             pushQuickSplits(rejected);
+            pushMessages(rejected);
             pullGroups();
             pullAllGroups(groupId);
             pullQuickSplits();
@@ -166,7 +169,8 @@ public class SyncManager {
         return this.database.groupDao().countPending()
                 + this.database.groupMemberDao().countPending()
                 + this.database.expenseDao().countPending()
-                + this.database.quickSplitDao().countPending();
+                + this.database.quickSplitDao().countPending()
+                + this.database.messageDao().countPending();
     }
 
     // ------------------------------------------------------------------ push
@@ -243,6 +247,23 @@ public class SyncManager {
                 discardIfRejected(e, rejected);
             }
             this.database.quickSplitDao().markSynced(quickSplit.getId(), quickSplit.getStatus());
+        }
+    }
+
+    /**
+     * Los mensajes escritos sin conexion, en el orden en que se escribieron. Un mensaje que el servidor
+     * rechaza (por ejemplo, porque sacaron a la persona del grupo) se quita del chat: no se puede dejar
+     * ahi como si lo hubieran leido los demas.
+     */
+    private void pushMessages(List<String> rejected) throws IOException {
+        for (Message message : this.database.messageDao().findPending()) {
+            try {
+                ApiClient.execute(this.api.sendMessage(message.getGroupId(), ApiMapper.toDto(message)));
+                this.database.messageDao().markSynced(message.getId());
+            } catch (ApiException e) {
+                discardIfRejected(e, rejected);
+                this.database.messageDao().deleteById(message.getId());
+            }
         }
     }
 

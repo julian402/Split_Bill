@@ -11,7 +11,7 @@ e inicia sesión y sincroniza sus datos.
 | Base de datos | PostgreSQL 17, esquema versionado con Flyway |
 | Autenticación | BCrypt para las contraseñas + JWT (HS256) |
 | Documentación | Swagger UI en `/swagger-ui.html` |
-| Pruebas | 40 de integración con MockMvc + Testcontainers (Postgres real) |
+| Pruebas | 45 de integración con MockMvc + Testcontainers (Postgres real) |
 
 ## Cómo levantarlo
 
@@ -62,6 +62,7 @@ centavos**: $60.000 = `6000000`.
 | GET / PUT / DELETE | `/api/groups/{id}/expenses/{expenseId}` | Ver / editar / borrar gasto |
 | GET / POST | `/api/quick-splits` | Mis cuentas rápidas guardadas / guardar una (con el nombre y la parte de cada persona) |
 | DELETE | `/api/quick-splits/{id}` | Borrar una cuenta rápida (borrado lógico) |
+| GET / POST | `/api/groups/{id}/messages` | Chat del grupo (`?since=` trae solo lo que llegó después) / escribir un mensaje (el autor es quien inició sesión) |
 
 Cada gasto lleva `category` (`FOOD`, `GROCERIES`, `TRANSPORT`, `LODGING`, `ENTERTAINMENT`, `SERVICES`,
 `OTHER` o `PAYMENT`). Es opcional al crearlo: si no llega, queda `OTHER`. `PAYMENT` es un pago entre

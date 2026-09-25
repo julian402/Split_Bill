@@ -463,4 +463,14 @@
         <item quantity="other">%d guardadas, sin grupo</item>
     </plurals>
     <string name="tvSavedQuickNone">Aún no hay. Divide una cuenta con + → Cuenta rápida</string>
+
+    <!-- Chat del grupo -->
+    <string name="tvTitleChat">Chat del grupo</string>
+    <string name="tvEmptyChat">Todavía no hay mensajes. Escríbele al grupo: quién lleva qué, cuándo pagan…</string>
+    <string name="hintMessage">Escribe un mensaje</string>
+    <string name="cdSendMessage">Enviar mensaje</string>
+    <string name="tvMessageSending">%1$s · Enviando…</string>
+    <string name="tvChatCardHint">Escríbele a la gente del grupo</string>
+    <string name="tvLastMessage">%1$s: %2$s</string>
+    <string name="tvYouShort">Tú</string>
 </resources>

@@ -143,6 +143,43 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Chat del grupo, con el ultimo mensaje -->
+            <LinearLayout
+                android:id="@+id/cardChat"
+                style="@style/Widget.SplitBill.FieldCard"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_card"
+                android:foreground="?attr/selectableItemBackground">
+
+                <ImageView
+                    style="@style/Widget.SplitBill.IconCircle"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_chat" />
+
+                <LinearLayout style="@style/Widget.SplitBill.FieldTexts">
+
+                    <TextView
+                        style="@style/Widget.SplitBill.ActionCardTitle"
+                        android:text="@string/tvTitleChat"
+                        android:textColor="@color/colorTextPrimary" />
+
+                    <TextView
+                        android:id="@+id/tvLastMessage"
+                        style="@style/Widget.SplitBill.ActionCardSubtitle"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/tvChatCardHint"
+                        android:textColor="@color/colorTextSecondary" />
+                </LinearLayout>
+
+                <ImageView
+                    style="@style/Widget.SplitBill.FieldChevron"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_chevron_right" />
+            </LinearLayout>
+
             <LinearLayout style="@style/Widget.SplitBill.SectionHeader">
 
                 <TextView

@@ -15,11 +15,14 @@ import ue.edu.co.splitbill.dao.ExpenseDao;
 import ue.edu.co.splitbill.dao.ExpenseShareDao;
 import ue.edu.co.splitbill.dao.GroupDao;
 import ue.edu.co.splitbill.dao.GroupMemberDao;
+import ue.edu.co.splitbill.dao.QuickSplitDao;
 import ue.edu.co.splitbill.dao.UserDao;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.QuickSplit;
+import ue.edu.co.splitbill.entity.QuickSplitShare;
 import ue.edu.co.splitbill.entity.User;
 
 /**
@@ -34,7 +37,8 @@ import ue.edu.co.splitbill.entity.User;
  * generan bloqueos. Se usa doble verificacion con synchronized para que dos hilos no la abran a la vez.
  */
 @Database(
-        entities = {User.class, Group.class, Expense.class, ExpenseShare.class, GroupMember.class},
+        entities = {User.class, Group.class, Expense.class, ExpenseShare.class, GroupMember.class,
+                QuickSplit.class, QuickSplitShare.class},
         version = DatabaseContract.DATABASE_VERSION,
         exportSchema = true)
 @TypeConverters({Converters.class})
@@ -53,6 +57,8 @@ public abstract class SplitBillDatabase extends RoomDatabase {
     public abstract GroupDao groupDao();
 
     public abstract GroupMemberDao groupMemberDao();
+
+    public abstract QuickSplitDao quickSplitDao();
 
     /**
      * Version 1 -> 2 (entrega 3): la tabla groups necesita saber si ya se subio al servidor y quien
@@ -105,6 +111,36 @@ public abstract class SplitBillDatabase extends RoomDatabase {
         }
     };
 
+    private static final String CREATE_QUICK_SPLITS =
+            "CREATE TABLE IF NOT EXISTS `quick_splits` (`qsp_id` TEXT NOT NULL, `qsp_description` TEXT, "
+            + "`qsp_subtotal_cents` INTEGER NOT NULL, `qsp_tip_percent` TEXT, `qsp_total_cents` INTEGER NOT NULL, "
+            + "`qsp_split_type` TEXT, `qsp_date` INTEGER, `qsp_status` INTEGER NOT NULL, `qsp_sync_status` TEXT, "
+            + "PRIMARY KEY(`qsp_id`))";
+
+    private static final String CREATE_QUICK_SPLIT_SHARES =
+            "CREATE TABLE IF NOT EXISTS `quick_split_shares` (`qss_id` TEXT NOT NULL, "
+            + "`qss_quick_split_id` TEXT NOT NULL, `qss_position` INTEGER NOT NULL, `qss_name` TEXT, "
+            + "`qss_amount_cents` INTEGER NOT NULL, PRIMARY KEY(`qss_id`), "
+            + "FOREIGN KEY(`qss_quick_split_id`) REFERENCES `quick_splits`(`qsp_id`) "
+            + "ON UPDATE NO ACTION ON DELETE CASCADE )";
+
+    private static final String CREATE_QUICK_SPLIT_SHARES_INDEX =
+            "CREATE INDEX IF NOT EXISTS `index_quick_split_shares_qss_quick_split_id` "
+            + "ON `quick_split_shares` (`qss_quick_split_id`)";
+
+    /**
+     * Version 4 -> 5: cuentas rapidas guardadas. Son tablas nuevas, asi que no se toca ningun dato.
+     * El SQL es el mismo que Room genera para las entidades (app/schemas/.../5.json).
+     */
+    public static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(CREATE_QUICK_SPLITS);
+            database.execSQL(CREATE_QUICK_SPLIT_SHARES);
+            database.execSQL(CREATE_QUICK_SPLIT_SHARES_INDEX);
+        }
+    };
+
     public static SplitBillDatabase getInstance(Context context) {
         if (instance == null) {
             synchronized (SplitBillDatabase.class) {
@@ -115,7 +151,7 @@ public abstract class SplitBillDatabase extends RoomDatabase {
                                     DatabaseContract.DATABASE_NAME)
                             //Sin fallbackToDestructiveMigration: perder datos del usuario al cambiar
                             //el esquema no es una opcion, las migraciones se escriben a mano
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                             .addCallback(CALLBACK)
                             .build();
                 }

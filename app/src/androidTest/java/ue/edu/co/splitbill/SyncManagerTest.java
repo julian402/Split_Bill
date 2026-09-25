@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import okhttp3.mockwebserver.SocketPolicy;
 import ue.edu.co.splitbill.dao.GroupListItem;
+import ue.edu.co.splitbill.dao.QuickSplitListItem;
 import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.domain.Money;
 import ue.edu.co.splitbill.domain.SplitType;
@@ -31,6 +33,8 @@ import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.QuickSplit;
+import ue.edu.co.splitbill.entity.QuickSplitShare;
 import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
@@ -107,6 +111,7 @@ public class SyncManagerTest {
         enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+        enqueueNoQuickSplits();
 
         SyncResult result = this.syncManager.syncNow();
 
@@ -122,6 +127,7 @@ public class SyncManagerTest {
         assertRequest("GET", "/api/groups");
         assertRequest("GET", "/api/groups/" + this.group.getId() + "/members?includeRemoved=true");
         assertRequest("GET", "/api/groups/" + this.group.getId() + "/expenses");
+        assertRequest("GET", "/api/quick-splits");
     }
 
     @Test
@@ -154,6 +160,7 @@ public class SyncManagerTest {
         enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[]");
+        enqueueNoQuickSplits();
 
         SyncResult result = this.syncManager.syncNow();
 
@@ -176,6 +183,7 @@ public class SyncManagerTest {
         enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(taxi) + "]");
+        enqueueNoQuickSplits();
 
         SyncResult result = this.syncManager.syncNow();
 
@@ -198,6 +206,7 @@ public class SyncManagerTest {
         enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+        enqueueNoQuickSplits();
 
         SyncResult result = this.syncManager.syncNow();
 
@@ -218,6 +227,7 @@ public class SyncManagerTest {
         enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[]");
+        enqueueNoQuickSplits();
 
         SyncResult result = this.syncManager.syncNow();
 
@@ -242,10 +252,12 @@ public class SyncManagerTest {
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Date", "Thu, 24 Sep 2026 16:00:00 GMT")
                 .setBody("[" + expenseJson(this.almuerzo) + "]"));
+        enqueueNoQuickSplits();
         assertEquals(SyncResult.State.SYNCED, this.syncManager.syncNow().getState());
         this.server.takeRequest();
         this.server.takeRequest();
         assertEquals("/api/groups/" + this.group.getId() + "/expenses", this.server.takeRequest().getPath());
+        this.server.takeRequest();
 
         //segunda: solo lo que cambio desde esa hora (menos un minuto de margen)
         Expense taxi = new Expense(this.group.getId(), this.diomar.getId(), "Taxi", Money.ofCents(20_000L),
@@ -254,6 +266,7 @@ public class SyncManagerTest {
         enqueue(200, "[" + groupJson() + "]");
         enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
         enqueue(200, "[" + expenseJson(taxi) + "," + almuerzoBorrado + "]");
+        enqueueNoQuickSplits();
         assertEquals(SyncResult.State.SYNCED, this.syncManager.syncNow().getState());
         this.server.takeRequest();
         this.server.takeRequest();
@@ -287,11 +300,12 @@ public class SyncManagerTest {
         //el pull tambien recorre el otro grupo
         enqueue(200, "[" + userJson(sofia, true) + "]");
         enqueue(200, "[]");
+        enqueueNoQuickSplits();
 
         SyncResult result = this.syncManager.syncNow();
 
         assertEquals(SyncResult.State.SYNCED, result.getState());
-        assertEquals(6, this.server.getRequestCount());
+        assertEquals(7, this.server.getRequestCount());
         RecordedRequest add = assertRequest("POST", "/api/groups/" + casa.getId() + "/members");
         assertTrue(add.getBody().readUtf8().contains("310 222 3344"));
         assertEquals(0, result.getPendingChanges());
@@ -317,6 +331,7 @@ public class SyncManagerTest {
         //despues del grupo actual se trae el nuevo: integrantes y gastos
         enqueue(200, "[" + userJson(this.julian, true) + "]");
         enqueue(200, "[]");
+        enqueueNoQuickSplits();
 
         assertEquals(SyncResult.State.SYNCED, this.syncManager.syncNow().getState());
 
@@ -324,6 +339,68 @@ public class SyncManagerTest {
         assertEquals(2, groups.size());
         assertNotNull(this.database.groupDao().findById(nuevo.getId()));
         assertTrue(!this.database.groupDao().findById(viejo.getId()).isActive());
+    }
+
+    /**
+     * Una cuenta rapida guardada en el celular se sube con sus partes en orden. Otra que ya estaba
+     * sincronizada y el servidor ya no devuelve (se borro en otro celular) deja de mostrarse, y una que
+     * solo existe en el servidor aparece.
+     */
+    @Test
+    public void quickSplitsAreUploadedAndBroughtFromTheServer() throws Exception {
+        this.database.groupDao().markSynced(this.group.getId());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
+        this.database.expenseDao().markSynced(this.almuerzo.getId(), this.almuerzo.getStatus());
+        QuickSplit cena = insertQuickSplit("Cena", 11_000_000L, SyncStatus.PENDING_CREATE);
+        QuickSplit taxi = insertQuickSplit("Taxi", 3_000_000L, SyncStatus.SYNCED);
+
+        enqueue(201, "{}");
+        enqueue(200, "[" + groupJson() + "]");
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+        enqueue(200, "[{\"id\":\"" + cena.getId() + "\",\"description\":\"Cena\",\"subtotalCents\":10000000,"
+                + "\"tipPercent\":10,\"totalCents\":11000000,\"splitType\":\"EQUAL\","
+                + "\"date\":\"2026-09-24T16:00:00Z\",\"shares\":[{\"name\":\"Ana\",\"amountCents\":5500000},"
+                + "{\"name\":\"Persona 2\",\"amountCents\":5500000}]},"
+                + "{\"id\":\"b1f7c1d2-0000-4000-8000-000000000001\",\"description\":\"Almuerzo\","
+                + "\"subtotalCents\":2000000,\"tipPercent\":0,\"totalCents\":2000000,\"splitType\":\"EQUAL\","
+                + "\"date\":\"2026-09-23T16:00:00Z\",\"shares\":[{\"name\":\"Luis\",\"amountCents\":2000000}]}]");
+
+        SyncResult result = this.syncManager.syncNow();
+
+        assertEquals(SyncResult.State.SYNCED, result.getState());
+        assertEquals(0, result.getPendingChanges());
+        RecordedRequest post = assertRequest("POST", "/api/quick-splits");
+        String body = post.getBody().readUtf8();
+        assertTrue(body.contains(cena.getId()));
+        assertTrue(body.indexOf("\"Ana\"") < body.indexOf("\"Persona 2\""));
+        assertTrue(!this.database.quickSplitDao().findById(taxi.getId()).isActive());
+        List<QuickSplitListItem> saved = this.database.quickSplitDao().findActive();
+        assertEquals(2, saved.size());
+        assertEquals("Cena", saved.get(0).getDescription());
+        assertEquals(1, this.database.quickSplitDao().findShares("b1f7c1d2-0000-4000-8000-000000000001").size());
+    }
+
+    /** Borrar una cuenta rapida que ya estaba en el servidor manda el DELETE. */
+    @Test
+    public void aDeletedQuickSplitIsDeletedOnTheServer() throws Exception {
+        this.database.groupDao().markSynced(this.group.getId());
+        this.database.groupMemberDao().markSynced(this.group.getId(), this.diomar.getId(), 1);
+        this.database.expenseDao().markSynced(this.almuerzo.getId(), this.almuerzo.getStatus());
+        QuickSplit cena = insertQuickSplit("Cena", 11_000_000L, SyncStatus.SYNCED);
+        this.database.quickSplitDao().softDelete(cena.getId());
+
+        enqueue(204, "");
+        enqueue(200, "[" + groupJson() + "]");
+        enqueue(200, "[" + userJson(this.julian, true) + "," + userJson(this.diomar, true) + "]");
+        enqueue(200, "[" + expenseJson(this.almuerzo) + "]");
+        enqueueNoQuickSplits();
+
+        SyncResult result = this.syncManager.syncNow();
+
+        assertEquals(SyncResult.State.SYNCED, result.getState());
+        assertRequest("DELETE", "/api/quick-splits/" + cena.getId());
+        assertEquals(0, result.getPendingChanges());
     }
 
     @Test
@@ -355,6 +432,23 @@ public class SyncManagerTest {
         share.setUserId(userId);
         share.setAmountCents(cents);
         return share;
+    }
+
+    /** Cada sincronizacion termina trayendo las cuentas rapidas guardadas; en casi todas no hay. */
+    private void enqueueNoQuickSplits() {
+        enqueue(200, "[]");
+    }
+
+    /** Cuenta rapida de dos personas a partes iguales. */
+    private QuickSplit insertQuickSplit(String description, long totalCents, SyncStatus syncStatus) {
+        QuickSplit quickSplit = new QuickSplit(description, Money.ofCents(totalCents), BigDecimal.ZERO,
+                Money.ofCents(totalCents), SplitType.EQUAL);
+        quickSplit.setSyncStatus(syncStatus);
+        this.database.quickSplitDao().insert(quickSplit);
+        this.database.quickSplitDao().insertShares(Arrays.asList(
+                new QuickSplitShare(quickSplit.getId(), 0, "Ana", Money.ofCents(totalCents / 2)),
+                new QuickSplitShare(quickSplit.getId(), 1, "Persona 2", Money.ofCents(totalCents - totalCents / 2))));
+        return quickSplit;
     }
 
     private void enqueue(int code, String body) {

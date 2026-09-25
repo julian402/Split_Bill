@@ -42,6 +42,12 @@
                         style="@style/Widget.SplitBill.ScreenHeaderSubtitle"
                         android:text="@string/tvQuickSubtitle" />
                 </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnSavedQuickSplits"
+                    style="@style/Widget.SplitBill.HeaderButton"
+                    android:contentDescription="@string/cdSavedQuickSplits"
+                    android:src="@drawable/ic_history" />
             </LinearLayout>
 
             <!-- Total de la cuenta, grande. El boton de la derecha abre el escaner de facturas -->
@@ -295,14 +301,14 @@
     </androidx.core.widget.NestedScrollView>
 
     <Button
-        android:id="@+id/btnSaveAsExpense"
+        android:id="@+id/btnSaveQuickSplit"
         style="@style/Widget.SplitBill.Button.Big"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/btnSaveAsExpense"
+        android:text="@string/btnSaveQuickSplit"
         android:visibility="gone"
         app:icon="@drawable/ic_save"
         tools:visibility="visible" />

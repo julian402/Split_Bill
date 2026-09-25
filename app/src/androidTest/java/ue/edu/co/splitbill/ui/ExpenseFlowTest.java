@@ -25,6 +25,10 @@ import org.junit.runner.RunWith;
 
 import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.domain.Money;
+import ue.edu.co.splitbill.entity.Group;
+import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.SyncStatus;
+import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.ui.group.GroupDetailActivity;
 
 /**
@@ -124,6 +128,36 @@ public class ExpenseFlowTest extends UiTestSupport {
             onView(withText("Eliminar")).inRoot(isDialog()).perform(click());
             onView(withText("Almuerzo")).check(doesNotExist());
             onView(withId(R.id.tvEmptyExpenses)).check(matches(isDisplayed()));
+        }
+    }
+
+    /** Desde el + se puede guardar el gasto en otro grupo: se escoge en la tarjeta "Grupo". */
+    @Test
+    public void anExpenseCanBeSavedInAnotherGroup() {
+        Group trip = new Group("Viaje", "COP");
+        this.database.groupDao().insert(trip);
+        for (User user : new User[]{this.julian, this.diomar}) {
+            this.database.groupMemberDao().upsert(new GroupMember(trip.getId(), user.getId(), SyncStatus.SYNCED));
+        }
+        try (ActivityScenario<GroupDetailActivity> ignored = ActivityScenario.launch(GroupDetailActivity.class)) {
+            onView(withId(R.id.btnNavAdd)).perform(click());
+            onView(withId(R.id.btnMenuExpense)).perform(click());
+            onView(withId(R.id.tvExpenseGroup)).check(matches(withText("Mi grupo")));
+
+            onView(withId(R.id.etAmount)).perform(replaceText("40000"), closeSoftKeyboard());
+            onView(withId(R.id.rowGroup)).perform(click());
+            onView(withText("Viaje")).inRoot(isDialog()).perform(click());
+            onView(withId(R.id.tvExpenseGroup)).check(matches(withText("Viaje")));
+            //el monto se conserva y los participantes ya son los del otro grupo
+            onView(withId(R.id.etAmount)).check(matches(withText("40000")));
+            onView(withId(R.id.tvParticipantCount)).check(matches(withText("2 participantes")));
+
+            onView(withId(R.id.etDescription)).perform(replaceText("Peajes"), closeSoftKeyboard());
+            onView(withId(R.id.btnSaveExpense)).perform(click());
+
+            onView(withId(R.id.tvTitle)).check(matches(withText("Viaje")));
+            assertEquals(4_000_000L, this.database.expenseDao().sumActiveCents(trip.getId()));
+            assertEquals(0L, this.database.expenseDao().sumActiveCents(this.group.getId()));
         }
     }
 }

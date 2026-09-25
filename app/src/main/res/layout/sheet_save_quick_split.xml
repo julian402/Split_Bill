@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hoja de abajo de la cuenta rapida: en un grupo, en cuentas rapidas o salir sin guardar -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="@string/tvSaveQuickTitle"
+        android:textColor="@color/colorTextPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvSaveQuickSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="14sp"
+        tools:text="$ 110.000 entre 4 personas" />
+
+    <LinearLayout
+        android:id="@+id/optionSaveInGroup"
+        style="@style/Widget.SplitBill.FieldCard"
+        android:background="@drawable/bg_card"
+        android:foreground="?attr/selectableItemBackground">
+
+        <ImageView
+            style="@style/Widget.SplitBill.IconCircle"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_group" />
+
+        <LinearLayout style="@style/Widget.SplitBill.FieldTexts">
+
+            <TextView
+                style="@style/Widget.SplitBill.ActionCardTitle"
+                android:text="@string/btnSaveInGroup"
+                android:textColor="@color/colorTextPrimary" />
+
+            <TextView
+                style="@style/Widget.SplitBill.ActionCardSubtitle"
+                android:text="@string/tvSaveInGroupHint"
+                android:textColor="@color/colorTextSecondary" />
+        </LinearLayout>
+
+        <ImageView
+            style="@style/Widget.SplitBill.FieldChevron"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_chevron_right" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/optionSaveQuickSplit"
+        style="@style/Widget.SplitBill.FieldCard"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_card"
+        android:foreground="?attr/selectableItemBackground">
+
+        <ImageView
+            style="@style/Widget.SplitBill.IconCircle"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_bolt" />
+
+        <LinearLayout style="@style/Widget.SplitBill.FieldTexts">
+
+            <TextView
+                style="@style/Widget.SplitBill.ActionCardTitle"
+                android:text="@string/btnSaveInQuickSplits"
+                android:textColor="@color/colorTextPrimary" />
+
+            <TextView
+                style="@style/Widget.SplitBill.ActionCardSubtitle"
+                android:text="@string/tvSaveInQuickSplitsHint"
+                android:textColor="@color/colorTextSecondary" />
+        </LinearLayout>
+
+        <ImageView
+            style="@style/Widget.SplitBill.FieldChevron"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_chevron_right" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnDiscardQuickSplit"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/btnExitWithoutSaving"
+        android:textColor="@color/colorTextSecondary"
+        app:icon="@drawable/ic_close"
+        app:iconTint="@color/colorTextSecondary" />
+</LinearLayout>

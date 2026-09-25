@@ -10,6 +10,7 @@ import ue.edu.co.splitbill.model.ContactRepository;
 import ue.edu.co.splitbill.model.DashboardRepository;
 import ue.edu.co.splitbill.model.ExpenseRepository;
 import ue.edu.co.splitbill.model.GroupRepository;
+import ue.edu.co.splitbill.model.QuickSplitRepository;
 import ue.edu.co.splitbill.model.SessionRepository;
 import ue.edu.co.splitbill.model.SettlementRepository;
 import ue.edu.co.splitbill.model.UserRepository;
@@ -54,6 +55,7 @@ public class ServiceLocator {
     private ContactRepository contactRepository;
     private GroupRepository groupRepository;
     private DashboardRepository dashboardRepository;
+    private QuickSplitRepository quickSplitRepository;
 
     public ServiceLocator(Context context) {
         this(context, null, null, null, null);
@@ -176,5 +178,12 @@ public class ServiceLocator {
             this.dashboardRepository = new DashboardRepository(getDatabase(), getExecutors(), getSessionManager());
         }
         return this.dashboardRepository;
+    }
+
+    public synchronized QuickSplitRepository getQuickSplitRepository() {
+        if (this.quickSplitRepository == null) {
+            this.quickSplitRepository = new QuickSplitRepository(getDatabase(), getExecutors(), getSyncManager());
+        }
+        return this.quickSplitRepository;
     }
 }

@@ -1,5 +1,6 @@
 package ue.edu.co.splitbill.network;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,12 +12,15 @@ import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.QuickSplit;
+import ue.edu.co.splitbill.entity.QuickSplitShare;
 import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.network.dto.ExpenseDto;
 import ue.edu.co.splitbill.network.dto.GroupDto;
 import ue.edu.co.splitbill.network.dto.MemberRequest;
+import ue.edu.co.splitbill.network.dto.QuickSplitDto;
 import ue.edu.co.splitbill.network.dto.ShareDto;
 import ue.edu.co.splitbill.network.dto.UserDto;
 
@@ -105,6 +109,52 @@ public final class ApiMapper {
     }
 
     /** Fecha en formato ISO-8601 en UTC, por ejemplo 2026-09-24T13:55:21.123Z. */
+    /** Cuenta rapida con sus partes, en el orden en que se escribieron. */
+    public static QuickSplitDto toDto(QuickSplit quickSplit, List<QuickSplitShare> shares) {
+        List<QuickSplitDto.Share> shareDtos = new ArrayList<>(shares.size());
+        for (QuickSplitShare share : shares) {
+            shareDtos.add(new QuickSplitDto.Share(share.getName(), share.getAmountCents()));
+        }
+        QuickSplitDto dto = new QuickSplitDto();
+        dto.setId(quickSplit.getId());
+        dto.setDescription(quickSplit.getDescription());
+        dto.setSubtotalCents(quickSplit.getSubtotalCents());
+        dto.setTipPercent(new BigDecimal(quickSplit.getTipPercent()));
+        dto.setTotalCents(quickSplit.getTotalCents());
+        dto.setSplitType(quickSplit.getSplitType().name());
+        dto.setDate(formatDate(quickSplit.getDate()));
+        dto.setShares(shareDtos);
+        return dto;
+    }
+
+    public static QuickSplit toEntity(QuickSplitDto dto) {
+        QuickSplit quickSplit = new QuickSplit();
+        quickSplit.setId(dto.getId());
+        quickSplit.setDescription(dto.getDescription());
+        quickSplit.setSubtotalCents(dto.getSubtotalCents());
+        quickSplit.setTipPercent(dto.getTipPercent() == null ? "0"
+                : dto.getTipPercent().stripTrailingZeros().toPlainString());
+        quickSplit.setTotalCents(dto.getTotalCents());
+        quickSplit.setSplitType(SplitType.valueOf(dto.getSplitType()));
+        quickSplit.setDate(parseDate(dto.getDate()));
+        quickSplit.setSyncStatus(SyncStatus.SYNCED);
+        return quickSplit;
+    }
+
+    /** Las partes llegan en orden; su lugar en la lista es su posicion. */
+    public static List<QuickSplitShare> toQuickSplitShares(QuickSplitDto dto) {
+        List<QuickSplitShare> shares = new ArrayList<>(dto.getShares().size());
+        for (int i = 0; i < dto.getShares().size(); i++) {
+            QuickSplitShare share = new QuickSplitShare();
+            share.setQuickSplitId(dto.getId());
+            share.setPosition(i);
+            share.setName(dto.getShares().get(i).getName());
+            share.setAmountCents(dto.getShares().get(i).getAmountCents());
+            shares.add(share);
+        }
+        return shares;
+    }
+
     public static String formatDate(Date date) {
         return date == null ? null : Instant.ofEpochMilli(date.getTime()).toString();
     }

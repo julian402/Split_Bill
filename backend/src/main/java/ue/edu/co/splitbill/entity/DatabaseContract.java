@@ -5,7 +5,8 @@ package ue.edu.co.splitbill.entity;
  *
  * Es el mismo patron que DatabaseContract de la app Android y usa los mismos nombres, de modo que un
  * gasto se llama igual en el celular y en el servidor. Las tablas las crea Flyway con el script
- * db/migration/V1__init_schema.sql; las entidades usan estas constantes en sus @Column.
+ * db/migration/V1__init_schema.sql; las entidades usan estas constantes en sus @Column. V2 agrega la categoria del gasto y V3 las
+ * cuentas rapidas guardadas.
  *
  * La clase es final y su constructor es privado porque solo agrupa constantes.
  */
@@ -96,6 +97,42 @@ public final class DatabaseContract {
         public static final String COLUMN_AMOUNT_CENTS = "shr_amount_cents";
 
         private ExpenseShares() {
+            //impide crear objetos de esta clase
+        }
+    }
+
+    /** Cuentas rapidas guardadas (V3): de una sola persona, sin grupo. */
+    public static final class QuickSplits {
+
+        public static final String TABLE_NAME = "quick_splits";
+        public static final String COLUMN_ID = "qsp_id";
+        public static final String COLUMN_OWNER_ID = "qsp_owner_id";
+        public static final String COLUMN_DESCRIPTION = "qsp_description";
+        public static final String COLUMN_SUBTOTAL_CENTS = "qsp_subtotal_cents";
+        public static final String COLUMN_TIP_PERCENT = "qsp_tip_percent";
+        public static final String COLUMN_TOTAL_CENTS = "qsp_total_cents";
+        public static final String COLUMN_SPLIT_TYPE = "qsp_split_type";
+        public static final String COLUMN_DATE = "qsp_date";
+        public static final String COLUMN_STATUS = "qsp_status";
+        public static final String COLUMN_CREATED_AT = "qsp_created_at";
+        public static final String COLUMN_UPDATED_AT = "qsp_updated_at";
+
+        private QuickSplits() {
+            //impide crear objetos de esta clase
+        }
+    }
+
+    /** Lo que le toca a cada persona de una cuenta rapida, identificada por su nombre y su lugar. */
+    public static final class QuickSplitShares {
+
+        public static final String TABLE_NAME = "quick_split_shares";
+        public static final String COLUMN_ID = "qss_id";
+        public static final String COLUMN_QUICK_SPLIT_ID = "qss_quick_split_id";
+        public static final String COLUMN_POSITION = "qss_position";
+        public static final String COLUMN_NAME = "qss_name";
+        public static final String COLUMN_AMOUNT_CENTS = "qss_amount_cents";
+
+        private QuickSplitShares() {
             //impide crear objetos de esta clase
         }
     }

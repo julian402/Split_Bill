@@ -14,6 +14,7 @@ import ue.edu.co.splitbill.network.dto.ExpenseDto;
 import ue.edu.co.splitbill.network.dto.GroupDto;
 import ue.edu.co.splitbill.network.dto.LoginRequest;
 import ue.edu.co.splitbill.network.dto.MemberRequest;
+import ue.edu.co.splitbill.network.dto.QuickSplitDto;
 import ue.edu.co.splitbill.network.dto.RegisterRequest;
 import ue.edu.co.splitbill.network.dto.TokenResponse;
 import ue.edu.co.splitbill.network.dto.UpdateProfileRequest;
@@ -76,4 +77,14 @@ public interface ApiService {
 
     @DELETE("api/groups/{groupId}/expenses/{expenseId}")
     Call<Void> deleteExpense(@Path("groupId") String groupId, @Path("expenseId") String expenseId);
+
+    /** Las cuentas rapidas de quien inicio sesion. Son pocas: siempre llega la lista completa. */
+    @GET("api/quick-splits")
+    Call<List<QuickSplitDto>> getQuickSplits();
+
+    @POST("api/quick-splits")
+    Call<QuickSplitDto> createQuickSplit(@Body QuickSplitDto quickSplit);
+
+    @DELETE("api/quick-splits/{quickSplitId}")
+    Call<Void> deleteQuickSplit(@Path("quickSplitId") String quickSplitId);
 }

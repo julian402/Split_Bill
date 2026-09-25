@@ -54,6 +54,44 @@
                 android:visibility="gone"
                 app:trackCornerRadius="4dp" />
 
+            <!-- Grupo donde queda el gasto; tocarlo deja escoger otro. No aparece al editar -->
+            <LinearLayout
+                android:id="@+id/rowGroup"
+                style="@style/Widget.SplitBill.FieldCard"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card"
+                android:elevation="1dp"
+                android:foreground="?attr/selectableItemBackground">
+
+                <ImageView
+                    style="@style/Widget.SplitBill.IconCircle"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_group" />
+
+                <LinearLayout style="@style/Widget.SplitBill.FieldTexts">
+
+                    <TextView
+                        style="@style/Widget.SplitBill.FieldLabelText"
+                        android:text="@string/tvGroupLabel" />
+
+                    <TextView
+                        android:id="@+id/tvExpenseGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/colorTextPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:text="Viaje a Cartagena" />
+                </LinearLayout>
+
+                <ImageView
+                    style="@style/Widget.SplitBill.FieldChevron"
+                    android:contentDescription="@null" />
+            </LinearLayout>
+
             <!-- Monto total, grande. El boton de la derecha abre el escaner de facturas -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -267,6 +305,24 @@
                         android:text="@string/tvSelectAll"
                         android:textAppearance="@style/TextAppearance.SplitBill.Link" />
                 </LinearLayout>
+
+                <!-- Solo si viene de una cuenta rapida: cuantas personas hay que marcar -->
+                <TextView
+                    android:id="@+id/tvFromQuickSplit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:padding="10dp"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="13sp"
+                    android:visibility="gone"
+                    app:drawableStartCompat="@drawable/ic_bolt"
+                    app:drawableTint="@color/colorPrimary"
+                    tools:text="Viene de una cuenta rápida entre 4 personas: marca a esas personas."
+                    tools:visibility="visible" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvParticipants"

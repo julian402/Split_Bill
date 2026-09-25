@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -16,11 +17,14 @@ import ue.edu.co.splitbill.domain.Money;
 import ue.edu.co.splitbill.domain.SplitType;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.ExpenseShare;
+import ue.edu.co.splitbill.entity.QuickSplit;
+import ue.edu.co.splitbill.entity.QuickSplitShare;
 import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.network.dto.ExpenseDto;
 import ue.edu.co.splitbill.network.dto.MemberRequest;
+import ue.edu.co.splitbill.network.dto.QuickSplitDto;
 import ue.edu.co.splitbill.network.dto.ShareDto;
 import ue.edu.co.splitbill.network.dto.UserDto;
 
@@ -122,5 +126,30 @@ public class ApiMapperTest {
         share.setUserId(userId);
         share.setAmountCents(cents);
         return share;
+    }
+
+    /** La cuenta rapida conserva la propina con decimales y el orden de las personas, ida y vuelta. */
+    @Test
+    public void quickSplitKeepsTipAndOrderOfPeopleWhenGoingToTheServerAndBack() {
+        QuickSplit quickSplit = new QuickSplit("Cena", Money.ofCents(10_000_000L), new BigDecimal("12.50"),
+                Money.ofCents(11_250_000L), SplitType.EXACT);
+        List<QuickSplitShare> shares = Arrays.asList(
+                new QuickSplitShare(quickSplit.getId(), 0, "Ana", Money.ofCents(6_250_000L)),
+                new QuickSplitShare(quickSplit.getId(), 1, "Persona 2", Money.ofCents(5_000_000L)));
+
+        QuickSplitDto dto = ApiMapper.toDto(quickSplit, shares);
+        assertEquals(0, new BigDecimal("12.5").compareTo(dto.getTipPercent()));
+        assertEquals("EXACT", dto.getSplitType());
+        assertEquals("Ana", dto.getShares().get(0).getName());
+
+        QuickSplit back = ApiMapper.toEntity(dto);
+        List<QuickSplitShare> backShares = ApiMapper.toQuickSplitShares(dto);
+        assertEquals(quickSplit.getId(), back.getId());
+        assertEquals("12.5", back.getTipPercent());
+        assertEquals(11_250_000L, back.getTotalCents());
+        assertEquals(SyncStatus.SYNCED, back.getSyncStatus());
+        assertEquals(1, backShares.get(1).getPosition());
+        assertEquals("Persona 2", backShares.get(1).getName());
+        assertEquals(5_000_000L, backShares.get(1).getAmountCents());
     }
 }

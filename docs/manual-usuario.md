@@ -80,19 +80,22 @@ te ofrece **Abrir ajustes** para activarlo a mano.
 
 Toca **+** en la barra de abajo y escoge **Gasto**.
 
-1. **Monto total**. El botón de cámara de la derecha abre el escáner de facturas.
-2. **Descripción** (la X la borra).
-3. **Quién pagó** y **cómo se divide**:
+1. **Grupo**: arriba aparece el grupo que tienes abierto. Tócalo para guardar el gasto en otro de tus
+   grupos; lo que ya escribiste se conserva y la lista de participantes cambia a la gente de ese grupo.
+   Un grupo con menos de dos integrantes no se puede escoger.
+2. **Monto total**. El botón de cámara de la derecha abre el escáner de facturas.
+3. **Descripción** (la X la borra).
+4. **Quién pagó** y **cómo se divide**:
    - **Partes iguales** entre los participantes marcados.
    - **Montos exactos**: escribes cuánto le toca a cada uno. Deben sumar el total.
    - **Porcentajes**: deben sumar 100 %.
-4. **Participantes**: toca cada tarjeta para marcarla o desmarcarla. **Seleccionar todos** marca (o
+5. **Participantes**: toca cada tarjeta para marcarla o desmarcarla. **Seleccionar todos** marca (o
    desmarca) a todos.
-5. **Fecha** (hoy, por defecto; no se puede escoger una fecha futura) y **Categoría**: comida,
+6. **Fecha** (hoy, por defecto; no se puede escoger una fecha futura) y **Categoría**: comida,
    mercado, transporte, hospedaje, entretenimiento, servicios u otro.
-6. La tarjeta **División estimada** te muestra, mientras escribes, cuánto paga cada uno (o cuánto
+7. La tarjeta **División estimada** te muestra, mientras escribes, cuánto paga cada uno (o cuánto
    llevas asignado con montos o porcentajes).
-7. **Guardar gasto**.
+8. **Guardar gasto**: quedas en el grupo donde se guardó.
 
 Si el grupo tiene menos de dos integrantes, la app te lleva primero a agregarlos, y desde ahí sigues
 con el gasto. Si sales con cambios sin guardar, la app te pregunta antes de descartarlos.
@@ -155,8 +158,21 @@ Para dividir una cuenta en el momento, sin registrar integrantes: la cena, el ta
 1. Escribe el total, o escanéalo con la cámara, y el % de propina.
 2. Con **−** y **+** ajusta cuántas personas son. Puedes ponerles nombre.
 3. Escoge cómo se divide y toca **Calcular**.
-4. Si quieres que quede en el grupo, **Guardar como gasto del grupo** abre el formulario con el total
-   (propina incluida) y la descripción ya llenos.
+4. **Guardar cuenta** te da tres opciones:
+   - **En un grupo**: escoges el grupo y se abre el formulario del gasto con el total (propina
+     incluida) y la descripción ya llenos. Ahí marcas quién pagó. Las reglas:
+     - Solo puedes escoger un grupo que tenga **al menos tantos integrantes** como personas tiene la
+       cuenta: una cuenta entre 5 no cabe en un grupo de 3.
+     - Si el grupo tiene justo esa cantidad de gente, quedan todos marcados. Si tiene más, se marcan
+       los que se llaman igual que en la cuenta, y tú marcas el resto.
+     - El gasto se guarda solo si marcas **la misma cantidad de personas** que tenía la cuenta.
+   - **En cuentas rápidas**: le pones un nombre ("Cena del viernes") y se guarda sin grupo, con lo
+     que le tocó a cada persona.
+   - **Salir sin guardar**.
+
+**Cuentas rápidas guardadas**: el botón del reloj, arriba en *Cuenta rápida*. Toca una para ver lo que
+le tocó a cada persona; desde ahí la puedes **Compartir** o **Eliminar**. Se guardan también en el
+servidor: las ves en cualquier celular donde inicies sesión.
 
 ## 12. Sin conexión
 

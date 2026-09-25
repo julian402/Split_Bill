@@ -26,7 +26,6 @@ import ue.edu.co.splitbill.R;
 import ue.edu.co.splitbill.domain.Money;
 import ue.edu.co.splitbill.ui.group.GroupDetailActivity;
 import ue.edu.co.splitbill.ui.group.GroupFormActivity;
-import ue.edu.co.splitbill.ui.quick.QuickSplitActivity;
 
 /** Varios grupos, liquidacion con transferencias minimas y cuenta rapida. */
 @RunWith(AndroidJUnit4.class)
@@ -114,22 +113,6 @@ public class GroupAndSettlementFlowTest extends UiTestSupport {
 
             onView(withId(R.id.tvTitle)).check(matches(withText("Apartamento")));
             assertEquals(3, this.database.groupMemberDao().countActive(this.sessionManager.getCurrentGroupId()));
-        }
-    }
-
-    /** 100.000 con 10 % de propina entre 4: 27.500 cada uno; se puede pasar al formulario de gastos. */
-    @Test
-    public void quickSplitDividesWithTipAndCanBecomeAnExpense() {
-        try (ActivityScenario<QuickSplitActivity> ignored = ActivityScenario.launch(QuickSplitActivity.class)) {
-            onView(withId(R.id.etQuickTotal)).perform(replaceText("100000"));
-            onView(withId(R.id.btnCalculate)).perform(click());
-
-            onView(withId(R.id.rvQuickShares)).check(matches(hasDescendant(
-                    withText(Money.ofCents(2_750_000L).format()))));
-
-            onView(withId(R.id.btnSaveAsExpense)).perform(click());
-            onView(withId(R.id.etAmount)).check(matches(withText("110000")));
-            onView(withId(R.id.etDescription)).check(matches(withText("Cuenta rápida")));
         }
     }
 }

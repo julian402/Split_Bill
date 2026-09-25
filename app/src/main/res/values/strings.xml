@@ -49,7 +49,7 @@
     <string name="btnCalculate">Calcular</string>
     <string name="tvQuickResultLabel">Le corresponde a cada uno</string>
     <string name="tvQuickTotalSection">La cuenta</string>
-    <string name="btnSaveAsExpense">Guardar como gasto del grupo</string>
+    <string name="btnSaveQuickSplit">Guardar cuenta</string>
     <string name="hintPersonName">Persona %1$d</string>
     <string name="msgCalculateFirst">Primero calcula la división</string>
     <string name="msgMinPeople">Debe ser al menos una persona</string>
@@ -366,6 +366,9 @@
 
     <!-- Rediseno: formulario de gasto -->
     <string name="tvAddExpenseSubtitle">En %1$s</string>
+    <string name="tvGroupLabel">Grupo</string>
+    <string name="dlgPickGroupTitle">¿En qué grupo lo guardas?</string>
+    <string name="msgGroupNeedsMembers">«%1$s» necesita al menos dos integrantes. Agrégalos desde Grupos.</string>
     <string name="prefixCurrencySpaced">$\u0020</string>
     <string name="hintAmountZero">0</string>
     <string name="hintDescription">Ej. Gasolina</string>
@@ -401,4 +404,37 @@
         <item>Servicios</item>
         <item>Otro</item>
     </string-array>
+
+    <!-- Cuentas rapidas guardadas -->
+    <string name="tvSaveQuickTitle">¿Qué hacemos con esta cuenta?</string>
+    <string name="tvSaveQuickSummary">%1$s entre %2$s</string>
+    <plurals name="tvPersonCount">
+        <item quantity="one">%d persona</item>
+        <item quantity="other">%d personas</item>
+    </plurals>
+    <string name="btnSaveInGroup">En un grupo</string>
+    <string name="tvSaveInGroupHint">Regístrala como gasto: escoges el grupo, quién pagó y quiénes participaron</string>
+    <string name="btnSaveInQuickSplits">En cuentas rápidas</string>
+    <string name="tvSaveInQuickSplitsHint">Guárdala sin grupo para consultarla después</string>
+    <string name="btnExitWithoutSaving">Salir sin guardar</string>
+    <string name="hintQuickSplitName">Nombre de la cuenta</string>
+    <string name="dlgQuickSplitNameTitle">Guardar en cuentas rápidas</string>
+    <string name="msgQuickSplitSaved">Cuenta «%1$s» guardada</string>
+    <string name="msgGroupTooSmallForQuick">La cuenta es entre %1$s y «%2$s» solo tiene %3$s</string>
+    <string name="msgNoGroupFitsQuick">Ningún grupo tiene %1$s o más</string>
+    <string name="cdSavedQuickSplits">Cuentas rápidas guardadas</string>
+    <string name="tvTitleSavedQuickSplits">Cuentas rápidas</string>
+    <string name="tvSavedQuickSplitsSubtitle">Guardadas, sin grupo</string>
+    <string name="tvEmptyQuickSplits">Aún no tienes cuentas rápidas guardadas. Divide una cuenta y toca «Guardar cuenta».</string>
+    <string name="tvQuickSplitInfo">%1$s · %2$s</string>
+    <string name="tvQuickSplitTipLine">Cuenta %1$s + propina %2$s %% = %3$s</string>
+    <string name="tvQuickSplitShareLine">• %1$s: %2$s</string>
+    <string name="shareQuickSplitText">Cuenta rápida «%1$s» (%2$s):
+%3$s</string>
+    <string name="btnClose">Cerrar</string>
+    <string name="dlgDeleteQuickSplitTitle">¿Eliminar la cuenta?</string>
+    <string name="dlgDeleteQuickSplitMessage">«%1$s» se borra de tus cuentas rápidas.</string>
+    <string name="msgQuickSplitDeleted">Cuenta eliminada</string>
+    <string name="tvFromQuickSplit">Viene de una cuenta rápida entre %1$s: marca a esas personas.</string>
+    <string name="msgQuickPeopleMismatch">La cuenta era entre %1$s: marcaste %2$s</string>
 </resources>

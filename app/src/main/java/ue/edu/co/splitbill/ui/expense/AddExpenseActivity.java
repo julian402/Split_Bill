@@ -23,19 +23,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
 import ue.edu.co.splitbill.R;
+import ue.edu.co.splitbill.dao.GroupListItem;
 import ue.edu.co.splitbill.dao.ShareListItem;
 import ue.edu.co.splitbill.domain.ExpenseCategory;
 import ue.edu.co.splitbill.domain.Money;
@@ -48,6 +52,7 @@ import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.model.ExpenseDetail;
 import ue.edu.co.splitbill.model.ExpenseRepository;
+import ue.edu.co.splitbill.model.GroupRepository;
 import ue.edu.co.splitbill.model.UserRepository;
 import ue.edu.co.splitbill.ui.BaseActivity;
 import ue.edu.co.splitbill.ui.Categories;
@@ -70,7 +75,16 @@ import ue.edu.co.splitbill.ui.scan.ScanReceiptActivity;
  * La "Division estimada" usa la misma fabrica mientras el usuario escribe, para mostrar cuanto le
  * toca a cada uno antes de guardar.
  *
+ * Un gasto nuevo queda en el grupo actual, pero la tarjeta "Grupo" deja escoger otro: al cambiarlo se
+ * cargan sus integrantes y se conserva lo que ya se habia escrito (monto, descripcion, fecha).
+ *
+ * Si viene de una cuenta rapida (EXTRA_QUICK_NAMES), el gasto debe quedar entre la misma cantidad de
+ * personas que la cuenta: se marcan de una vez los integrantes cuyo nombre coincide (o todos, si el
+ * grupo tiene justo esa cantidad), no se puede escoger un grupo con menos integrantes y no se guarda
+ * si los participantes marcados no son tantos como las personas de la cuenta.
+ *
  * Si llega EXTRA_EXPENSE_ID, la pantalla abre en modo edicion: el mismo formulario, lleno con el gasto.
+ * Un gasto que ya existe no cambia de grupo, asi que en ese modo no aparece la tarjeta "Grupo".
  * En los dos modos, si el usuario intenta salir con cambios sin guardar, se le pregunta antes.
  */
 public class AddExpenseActivity extends BaseActivity implements ParticipantAdapter.OnParticipantsChangedListener {
@@ -80,6 +94,15 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
 
     /** Monto en centavos con el que llega el formulario ya lleno. */
     public static final String EXTRA_AMOUNT_CENTS = "extraAmountCents";
+
+    /** Nombres de las personas de la cuenta rapida, en orden. */
+    public static final String EXTRA_QUICK_NAMES = "extraQuickNames";
+
+    /** Lo que le toco a cada persona de la cuenta rapida, en centavos y en el mismo orden. */
+    public static final String EXTRA_QUICK_AMOUNTS = "extraQuickAmounts";
+
+    /** Como se dividio la cuenta rapida (nombre de SplitType). */
+    public static final String EXTRA_QUICK_SPLIT_TYPE = "extraQuickSplitType";
 
     /** Id del gasto a editar. Si no llega, la pantalla registra un gasto nuevo. */
     public static final String EXTRA_EXPENSE_ID = "extraEditExpenseId";
@@ -92,6 +115,8 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
 
     private TextView tvFormTitle;
     private TextView tvFormSubtitle;
+    private View rowGroup;
+    private TextView tvExpenseGroup;
     private EditText etDescription;
     private ImageButton btnClearDescription;
     private EditText etAmount;
@@ -101,6 +126,7 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
     private Spinner spPayer;
     private Spinner spSplitType;
     private TextView tvSelectAll;
+    private TextView tvFromQuickSplit;
     private RecyclerView rvParticipants;
     private View rowDate;
     private TextView tvExpenseDate;
@@ -116,9 +142,18 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
     private ArrayAdapter<User> payerAdapter;
     private ExpenseRepository expenseRepository;
     private UserRepository userRepository;
+    private GroupRepository groupRepository;
     private String groupId;
     private String editingExpenseId;
     private Date expenseDate;
+
+    /** Personas de la cuenta rapida de la que viene el gasto; vacia si no viene de una. */
+    private List<String> quickNames = new ArrayList<>();
+    private long[] quickAmounts;
+    private SplitType quickSplitType;
+
+    /** Hay que marcar a las personas de la cuenta rapida cuando lleguen los integrantes. */
+    private boolean applyQuickSelection;
 
     private Expense expense;
     private SplitRequest splitRequest;
@@ -150,11 +185,16 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
             setExpenseDate(new Date(savedInstanceState.getLong(KEY_DATE, System.currentTimeMillis())));
         } else if (!isEditing()) {
             prefillFromIntent();
+            this.applyQuickSelection = isFromQuickSplit();
         }
     }
 
     private boolean isEditing() {
         return this.editingExpenseId != null;
+    }
+
+    private boolean isFromQuickSplit() {
+        return !this.quickNames.isEmpty();
     }
 
     /** Ya se esta registrando un gasto: "Gasto" en el menu del + no abre otro formulario. */
@@ -190,6 +230,7 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
     @Override
     protected void initListeners() {
         this.btnSaveExpense.setOnClickListener(this::saveExpenseDB);
+        this.rowGroup.setOnClickListener(this::pickGroupDB);
         this.btnScanReceipt.setOnClickListener(this::scanReceipt);
         this.btnClearDescription.setOnClickListener(this::clearDescription);
         this.rowPayer.setOnClickListener(view -> this.spPayer.performClick());
@@ -310,14 +351,71 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
         listMembersDB();
     }
 
-    /** "En Viaje a Cartagena": deja claro en que grupo queda el gasto. */
+    /** Deja claro en que grupo queda el gasto: en la tarjeta "Grupo" o, al editar, "En Viaje a Cartagena". */
     private void loadGroupNameDB() {
-        getServiceLocator().getGroupRepository().getCurrentGroup(new UiCallback<Group>() {
+        this.groupRepository.getCurrentGroup(new UiCallback<Group>() {
             @Override
             protected void onData(Group data) {
+                tvExpenseGroup.setText(data.getName());
                 tvFormSubtitle.setText(getString(R.string.tvAddExpenseSubtitle, data.getName()));
             }
         });
+    }
+
+    /** Lista los grupos para escoger en cual queda el gasto; el actual aparece marcado. */
+    private void pickGroupDB(View view) {
+        this.groupRepository.getGroups(new UiCallback<List<GroupListItem>>() {
+            @Override
+            protected void onData(List<GroupListItem> data) {
+                showGroupPicker(data);
+            }
+        });
+    }
+
+    private void showGroupPicker(final List<GroupListItem> groups) {
+        String[] names = new String[groups.size()];
+        int checked = -1;
+        for (int i = 0; i < groups.size(); i++) {
+            names[i] = groups.get(i).getName();
+            if (groups.get(i).getGroupId().equals(this.groupId)) {
+                checked = i;
+            }
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dlgPickGroupTitle)
+                .setSingleChoiceItems(names, checked, (dialog, which) -> {
+                    dialog.dismiss();
+                    changeGroup(groups.get(which));
+                })
+                .setNegativeButton(R.string.btnCancel, null)
+                .show();
+    }
+
+    /**
+     * Pasa el gasto a otro grupo: se vuelve el grupo actual (para que al guardar se abra ese grupo) y
+     * se cargan sus integrantes. Monto, descripcion, fecha y categoria no se tocan; el pagador y los
+     * participantes si, porque son de otro grupo. Un grupo sin con quien repartir no se puede escoger.
+     */
+    private void changeGroup(GroupListItem group) {
+        if (group.getGroupId().equals(this.groupId)) {
+            return;
+        }
+        if (group.getMemberCount() < MIN_MEMBERS) {
+            showToast(getString(R.string.msgGroupNeedsMembers, group.getName()));
+            return;
+        }
+        if (group.getMemberCount() < this.quickNames.size()) {
+            showToast(getString(R.string.msgGroupTooSmallForQuick, quickPeopleText(), group.getName(),
+                    getResources().getQuantityString(R.plurals.tvGroupMembers, group.getMemberCount(),
+                            group.getMemberCount())));
+            return;
+        }
+        this.groupRepository.switchGroup(group.getGroupId());
+        this.applyQuickSelection = isFromQuickSplit();
+        this.groupId = group.getGroupId();
+        this.tvExpenseGroup.setText(group.getName());
+        this.tvFormSubtitle.setText(getString(R.string.tvAddExpenseSubtitle, group.getName()));
+        listMembersDB();
     }
 
     private void listMembersDB() {
@@ -340,6 +438,10 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
                 payerAdapter.clear();
                 payerAdapter.addAll(data);
                 participantAdapter.setParticipants(data);
+                if (applyQuickSelection) {
+                    selectQuickSplitPeople(data);
+                    applyQuickSelection = false;
+                }
 
                 //Si venimos de girar el celular, se devuelve lo marcado y lo digitado
                 if (pendingParticipantState != null) {
@@ -354,6 +456,46 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
                 }
             }
         });
+    }
+
+    /**
+     * Marca a las personas de la cuenta rapida. Si el grupo tiene justo esa cantidad de integrantes,
+     * son todos; si tiene mas, los que se llaman igual (sin importar mayusculas) y el resto lo marca
+     * el usuario. Si la cuenta no se dividio en partes iguales, se pasa como montos exactos: cada
+     * integrante reconocido queda con lo que le toco en la cuenta.
+     */
+    private void selectQuickSplitPeople(List<User> members) {
+        Map<String, Integer> positionByName = new LinkedHashMap<>();
+        for (int i = 0; i < this.quickNames.size(); i++) {
+            positionByName.put(normalize(this.quickNames.get(i)), i);
+        }
+        boolean everybody = members.size() == this.quickNames.size();
+        Set<String> ids = new LinkedHashSet<>();
+        Map<String, String> values = new LinkedHashMap<>();
+        for (User member : members) {
+            Integer position = positionByName.remove(normalize(member.getNames()));
+            if (position != null || everybody) {
+                ids.add(member.getId());
+            }
+            if (position != null && this.quickAmounts != null && position < this.quickAmounts.length) {
+                values.put(member.getId(), toPlainAmount(this.quickAmounts[position]));
+            }
+        }
+        SplitType splitType = this.quickSplitType == SplitType.EQUAL ? SplitType.EQUAL : SplitType.EXACT;
+        this.spSplitType.setSelection(splitType.getPosition());
+        this.participantLayout.setSpanCount(splitType == SplitType.EQUAL ? GRID_COLUMNS : 1);
+        this.participantAdapter.setSplitType(splitType);
+        this.participantAdapter.preload(ids, splitType == SplitType.EQUAL ? new LinkedHashMap<String, String>() : values);
+    }
+
+    private static String normalize(String name) {
+        return name == null ? "" : name.trim().toLowerCase(Locale.ROOT);
+    }
+
+    /** "4 personas". */
+    private String quickPeopleText() {
+        return getResources().getQuantityString(R.plurals.tvPersonCount, this.quickNames.size(),
+                this.quickNames.size());
     }
 
     /** Modo edicion: trae el gasto y sus partes y llena el formulario con ellos. */
@@ -538,7 +680,7 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
     }
 
     private String takeSnapshot() {
-        return this.etDescription.getText().toString() + '|' + this.etAmount.getText().toString() + '|'
+        return this.groupId + '|' + this.etDescription.getText().toString() + '|' + this.etAmount.getText().toString() + '|'
                 + this.spPayer.getSelectedItemPosition() + '|' + this.spSplitType.getSelectedItemPosition()
                 + '|' + this.spCategory.getSelectedItemPosition() + '|' + DateText.daysBetween(this.expenseDate, new Date())
                 + '|' + this.participantAdapter.snapshot();
@@ -565,6 +707,12 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
         if (participantIds.isEmpty()) {
             throw new IllegalArgumentException(getString(R.string.msgNeedOneParticipant));
         }
+        //la cuenta rapida era entre cierta cantidad de personas: el gasto debe quedar entre las mismas
+        if (isFromQuickSplit() && participantIds.size() != this.quickNames.size()) {
+            throw new IllegalArgumentException(getString(R.string.msgQuickPeopleMismatch, quickPeopleText(),
+                    getResources().getQuantityString(R.plurals.tvPersonCount, participantIds.size(),
+                            participantIds.size())));
+        }
         Map<String, BigDecimal> values = this.participantAdapter.getTypedValues();
 
         this.expense = new Expense(this.groupId, payer.getId(), description, amount, splitType);
@@ -581,6 +729,8 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
     protected void initObjects() {
         this.tvFormTitle = findViewById(R.id.tvFormTitle);
         this.tvFormSubtitle = findViewById(R.id.tvFormSubtitle);
+        this.rowGroup = findViewById(R.id.rowGroup);
+        this.tvExpenseGroup = findViewById(R.id.tvExpenseGroup);
         this.etDescription = findViewById(R.id.etDescription);
         this.btnClearDescription = findViewById(R.id.btnClearDescription);
         this.etAmount = findViewById(R.id.etAmount);
@@ -590,6 +740,7 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
         this.spPayer = findViewById(R.id.spPayer);
         this.spSplitType = findViewById(R.id.spSplitType);
         this.tvSelectAll = findViewById(R.id.tvSelectAll);
+        this.tvFromQuickSplit = findViewById(R.id.tvFromQuickSplit);
         this.rvParticipants = findViewById(R.id.rvParticipants);
         this.rowDate = findViewById(R.id.rowDate);
         this.tvExpenseDate = findViewById(R.id.tvExpenseDate);
@@ -602,14 +753,28 @@ public class AddExpenseActivity extends BaseActivity implements ParticipantAdapt
 
         this.groupId = getServiceLocator().getSessionManager().getCurrentGroupId();
         this.editingExpenseId = getIntent().getStringExtra(EXTRA_EXPENSE_ID);
+        ArrayList<String> names = getIntent().getStringArrayListExtra(EXTRA_QUICK_NAMES);
+        if (names != null && !isEditing()) {
+            this.quickNames = names;
+            this.quickAmounts = getIntent().getLongArrayExtra(EXTRA_QUICK_AMOUNTS);
+            String splitTypeName = getIntent().getStringExtra(EXTRA_QUICK_SPLIT_TYPE);
+            this.quickSplitType = splitTypeName == null ? SplitType.EQUAL : SplitType.valueOf(splitTypeName);
+            this.tvFromQuickSplit.setText(getString(R.string.tvFromQuickSplit, quickPeopleText()));
+            this.tvFromQuickSplit.setVisibility(View.VISIBLE);
+        }
         this.expenseRepository = getServiceLocator().getExpenseRepository();
         this.userRepository = getServiceLocator().getUserRepository();
+        this.groupRepository = getServiceLocator().getGroupRepository();
         this.scanLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 this::onReceiptScanned);
 
         if (isEditing()) {
             this.tvFormTitle.setText(R.string.tvTitleEditExpense);
             this.btnSaveExpense.setText(R.string.btnSaveChanges);
+            this.rowGroup.setVisibility(View.GONE);
+        } else {
+            //el grupo ya se ve en su tarjeta
+            this.tvFormSubtitle.setVisibility(View.GONE);
         }
 
         //Spinner de pagadores: se apoya en el toString() de User, que devuelve el nombre

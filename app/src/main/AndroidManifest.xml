@@ -107,6 +107,10 @@
             android:exported="false"
             android:parentActivityName=".ui.group.GroupDetailActivity"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.quick.SavedQuickSplitsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.quick.QuickSplitActivity" />
     </application>
 
 </manifest>

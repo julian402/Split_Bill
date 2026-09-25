@@ -20,7 +20,7 @@ import ue.edu.co.splitbill.manager.DatabaseContract;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
 
 /**
- * Pruebas de las migraciones (1 -> 2, 2 -> 3 y 3 -> 4) sobre un archivo de base de datos real.
+ * Pruebas de las migraciones (1 -> 2, 2 -> 3, 3 -> 4 y 4 -> 5) sobre un archivo de base de datos real.
  *
  * Se crea la base con el esquema exacto de la entrega 1 (schemas/1.json), se le meten datos como los
  * que tendria un usuario, se ejecuta la migracion y Room verifica que el resultado sea identico al
@@ -121,5 +121,32 @@ public class MigrationTest {
             assertEquals("OTHER", expense.getString(1));
         }
         version4.close();
+    }
+
+    /** 4 -> 5: nacen las tablas de cuentas rapidas, vacias, y los gastos siguen ahi. */
+    @Test
+    public void migrationFrom4To5AddsTheQuickSplitTablesAndKeepsTheExpenses() throws IOException {
+        SupportSQLiteDatabase version4 = helper.createDatabase(TEST_DB, 4);
+        version4.execSQL("INSERT INTO `groups` (grp_id, grp_name, grp_currency, grp_created_at, grp_status, "
+                + "grp_sync_status) VALUES ('g-1', 'Paseo', 'COP', 0, 1, 'SYNCED')");
+        version4.execSQL("INSERT INTO users (use_id, use_names, use_status, use_sync_status) "
+                + "VALUES ('u-1', 'Julian', 1, 'SYNCED')");
+        version4.execSQL("INSERT INTO expenses (exp_id, exp_group_id, exp_payer_id, exp_description, "
+                + "exp_amount_cents, exp_split_type, exp_date, exp_category, exp_status, exp_sync_status) "
+                + "VALUES ('e-1', 'g-1', 'u-1', 'Almuerzo', 6000000, 'EQUAL', 0, 'FOOD', 1, 'SYNCED')");
+        version4.close();
+
+        SupportSQLiteDatabase version5 = helper.runMigrationsAndValidate(TEST_DB, 5, true,
+                SplitBillDatabase.MIGRATION_4_5);
+
+        try (Cursor expenses = version5.query("SELECT COUNT(*) FROM expenses")) {
+            assertTrue(expenses.moveToFirst());
+            assertEquals(1, expenses.getInt(0));
+        }
+        try (Cursor quickSplits = version5.query("SELECT COUNT(*) FROM quick_splits")) {
+            assertTrue(quickSplits.moveToFirst());
+            assertEquals(0, quickSplits.getInt(0));
+        }
+        version5.close();
     }
 }

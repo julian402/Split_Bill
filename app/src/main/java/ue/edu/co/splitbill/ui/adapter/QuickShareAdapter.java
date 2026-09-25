@@ -122,6 +122,16 @@ public class QuickShareAdapter extends RecyclerView.Adapter<QuickShareAdapter.Qu
         notifyDataSetChanged();
     }
 
+    /** El nombre de cada persona, en orden; "Persona N" si no se escribio. Es el que se guarda. */
+    public List<String> getDisplayNames() {
+        List<String> displayNames = new ArrayList<>(this.peopleCount);
+        for (int i = 0; i < this.peopleCount; i++) {
+            String name = this.names.get(participantId(i));
+            displayNames.add(name == null || name.trim().isEmpty() ? "Persona " + (i + 1) : name.trim());
+        }
+        return displayNames;
+    }
+
     /** Nombre digitado para una persona, o uno generico si el usuario no lo cambio. */
     private String nameOrDefault(String participantId, int position) {
         String name = this.names.get(participantId);

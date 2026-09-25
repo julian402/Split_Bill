@@ -17,6 +17,7 @@ import ue.edu.co.splitbill.di.AppExecutors;
 import ue.edu.co.splitbill.entity.Expense;
 import ue.edu.co.splitbill.entity.Group;
 import ue.edu.co.splitbill.entity.GroupMember;
+import ue.edu.co.splitbill.entity.QuickSplit;
 import ue.edu.co.splitbill.entity.SyncStatus;
 import ue.edu.co.splitbill.entity.User;
 import ue.edu.co.splitbill.manager.SplitBillDatabase;
@@ -26,6 +27,7 @@ import ue.edu.co.splitbill.network.ApiMapper;
 import ue.edu.co.splitbill.network.ApiService;
 import ue.edu.co.splitbill.network.dto.ExpenseDto;
 import ue.edu.co.splitbill.network.dto.GroupDto;
+import ue.edu.co.splitbill.network.dto.QuickSplitDto;
 import ue.edu.co.splitbill.network.dto.UserDto;
 import ue.edu.co.splitbill.session.SessionManager;
 
@@ -40,6 +42,8 @@ import ue.edu.co.splitbill.session.SessionManager;
  *      integrantes, luego gastos).
  *   2. Pull: trae la lista de grupos y lo que otros integrantes cambiaron en cada uno de ellos
  *      (primero el actual). Asi el inicio y la actividad muestran datos al dia de todos los grupos.
+ *   Las cuentas rapidas guardadas no son de ningun grupo: se suben despues de los gastos y se traen
+ *   al final, completas.
  *
  * Reglas:
  * - Nunca se pisa un cambio local pendiente con lo que llega del servidor.
@@ -142,8 +146,10 @@ public class SyncManager {
             pushGroups(rejected);
             pushMembers(rejected);
             pushExpenses(rejected);
+            pushQuickSplits(rejected);
             pullGroups();
             pullAllGroups(groupId);
+            pullQuickSplits();
             return new SyncResult(SyncResult.State.SYNCED, countPending(), rejected);
         } catch (IOException e) {
             Log.e(TAG, "ERROR AL SINCRONIZAR: SIN CONEXION CON EL SERVIDOR", e);
@@ -159,7 +165,8 @@ public class SyncManager {
     public int countPending() {
         return this.database.groupDao().countPending()
                 + this.database.groupMemberDao().countPending()
-                + this.database.expenseDao().countPending();
+                + this.database.expenseDao().countPending()
+                + this.database.quickSplitDao().countPending();
     }
 
     // ------------------------------------------------------------------ push
@@ -217,6 +224,25 @@ public class SyncManager {
                 discardIfRejected(e, rejected);
             }
             this.database.expenseDao().markSynced(expense.getId(), expense.getStatus());
+        }
+    }
+
+    /** Las cuentas rapidas no se editan: se crean o se borran. */
+    private void pushQuickSplits(List<String> rejected) throws IOException {
+        for (QuickSplit quickSplit : this.database.quickSplitDao().findPending()) {
+            try {
+                if (quickSplit.getSyncStatus() == SyncStatus.PENDING_CREATE) {
+                    QuickSplitDto dto = ApiMapper.toDto(quickSplit,
+                            this.database.quickSplitDao().findShares(quickSplit.getId()));
+                    ApiClient.execute(this.api.createQuickSplit(dto));
+                }
+                if (!quickSplit.isActive()) {
+                    deleteIgnoringNotFound(this.api.deleteQuickSplit(quickSplit.getId()));
+                }
+            } catch (ApiException e) {
+                discardIfRejected(e, rejected);
+            }
+            this.database.quickSplitDao().markSynced(quickSplit.getId(), quickSplit.getStatus());
         }
     }
 
@@ -348,6 +374,35 @@ public class SyncManager {
         if (serverDate != null) {
             this.sessionManager.setLastPull(groupId, serverDate.getTime() - PULL_SAFETY_MARGIN_MS);
         }
+    }
+
+    /**
+     * Trae las cuentas rapidas guardadas (por ejemplo, las que se guardaron en otro celular). Llega la
+     * lista completa: las que faltan se borraron en otro lado. Una con cambios sin subir no se toca.
+     */
+    private void pullQuickSplits() throws IOException {
+        final List<QuickSplitDto> quickSplits = ApiClient.execute(this.api.getQuickSplits());
+        this.database.runInTransaction(new Runnable() {
+            @Override
+            public void run() {
+                Set<String> serverIds = new HashSet<>();
+                for (QuickSplitDto dto : quickSplits) {
+                    serverIds.add(dto.getId());
+                    QuickSplit local = database.quickSplitDao().findById(dto.getId());
+                    if (local != null && local.getSyncStatus() != SyncStatus.SYNCED) {
+                        continue;
+                    }
+                    database.quickSplitDao().upsert(ApiMapper.toEntity(dto));
+                    database.quickSplitDao().deleteShares(dto.getId());
+                    database.quickSplitDao().insertShares(ApiMapper.toQuickSplitShares(dto));
+                }
+                for (String quickSplitId : database.quickSplitDao().findSyncedActiveIds()) {
+                    if (!serverIds.contains(quickSplitId)) {
+                        database.quickSplitDao().markDeletedByServer(quickSplitId);
+                    }
+                }
+            }
+        });
     }
 
     // ------------------------------------------------------------------ avisos a la pantalla

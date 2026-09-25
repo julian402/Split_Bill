@@ -18,8 +18,9 @@ public final class DatabaseContract {
      * Version 2 (entrega 3): la tabla groups gana grp_sync_status y grp_owner_id.
      * Version 3 (entrega 4): tabla group_members, para que cada grupo tenga sus propios integrantes.
      * Version 4 (rediseno): expenses gana exp_category (comida, transporte... o PAYMENT).
+     * Version 5: tablas quick_splits y quick_split_shares, las cuentas rapidas guardadas sin grupo.
      */
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
 
     /** Borrado logico: las filas no se eliminan, se marcan como inactivas. */
     public static final int STATUS_ACTIVE = 1;
@@ -385,6 +386,84 @@ public final class DatabaseContract {
                 + "AND s.shr_user_id <> e.exp_payer_id AND s.shr_amount_cents > 0";
 
         private ExpenseShares() {
+            //impide crear objetos de esta clase
+        }
+    }
+
+    /**
+     * Cuentas rapidas guardadas (version 5): una cuenta dividida al momento, sin grupo ni integrantes.
+     * Son de quien inicio sesion y se sincronizan como los gastos.
+     */
+    public static final class QuickSplits {
+
+        public static final String TABLE_NAME = "quick_splits";
+        public static final String COLUMN_ID = "qsp_id";
+        public static final String COLUMN_DESCRIPTION = "qsp_description";
+        public static final String COLUMN_SUBTOTAL_CENTS = "qsp_subtotal_cents";
+        /** Porcentaje de propina como texto ("10", "12.5"): asi no pierde decimales. */
+        public static final String COLUMN_TIP_PERCENT = "qsp_tip_percent";
+        public static final String COLUMN_TOTAL_CENTS = "qsp_total_cents";
+        public static final String COLUMN_SPLIT_TYPE = "qsp_split_type";
+        public static final String COLUMN_DATE = "qsp_date";
+        public static final String COLUMN_STATUS = "qsp_status";
+        public static final String COLUMN_SYNC_STATUS = "qsp_sync_status";
+
+        /** Las guardadas, la mas reciente primero, con cuantas personas tiene cada una. */
+        public static final String SELECT_ACTIVE =
+                "SELECT q.qsp_id AS quickSplitId, q.qsp_description AS description, "
+                + "q.qsp_total_cents AS totalCents, q.qsp_date AS date, "
+                + "(SELECT COUNT(*) FROM quick_split_shares s WHERE s.qss_quick_split_id = q.qsp_id) AS peopleCount "
+                + "FROM quick_splits q WHERE q.qsp_status = 1 ORDER BY q.qsp_date DESC";
+
+        public static final String SELECT_BY_ID =
+                "SELECT * FROM quick_splits WHERE qsp_id = :quickSplitId";
+
+        /** Igual que en los gastos: el borrado queda en la cola de sincronizacion. */
+        public static final String SOFT_DELETE =
+                "UPDATE quick_splits SET qsp_status = 0, qsp_sync_status = CASE "
+                + "WHEN qsp_sync_status = " + PENDING_CREATE + " THEN " + PENDING_CREATE
+                + " ELSE " + PENDING_DELETE + " END WHERE qsp_id = :quickSplitId";
+
+        public static final String SELECT_PENDING =
+                "SELECT * FROM quick_splits WHERE qsp_sync_status <> " + SYNCED;
+
+        public static final String COUNT_PENDING =
+                "SELECT COUNT(*) FROM quick_splits WHERE qsp_sync_status <> " + SYNCED;
+
+        /** Solo si no la borraron mientras se subia. */
+        public static final String MARK_SYNCED =
+                "UPDATE quick_splits SET qsp_sync_status = " + SYNCED
+                + " WHERE qsp_id = :quickSplitId AND qsp_status = :status";
+
+        public static final String SELECT_SYNCED_ACTIVE_IDS =
+                "SELECT qsp_id FROM quick_splits WHERE qsp_status = 1 AND qsp_sync_status = " + SYNCED;
+
+        /** Se borro desde otro celular: aqui tambien deja de mostrarse. */
+        public static final String MARK_DELETED_BY_SERVER =
+                "UPDATE quick_splits SET qsp_status = 0 WHERE qsp_id = :quickSplitId AND qsp_sync_status = " + SYNCED;
+
+        private QuickSplits() {
+            //impide crear objetos de esta clase
+        }
+    }
+
+    /** Lo que le toca a cada persona de una cuenta rapida: su nombre, su lugar y cuanto. */
+    public static final class QuickSplitShares {
+
+        public static final String TABLE_NAME = "quick_split_shares";
+        public static final String COLUMN_ID = "qss_id";
+        public static final String COLUMN_QUICK_SPLIT_ID = "qss_quick_split_id";
+        public static final String COLUMN_POSITION = "qss_position";
+        public static final String COLUMN_NAME = "qss_name";
+        public static final String COLUMN_AMOUNT_CENTS = "qss_amount_cents";
+
+        public static final String SELECT_BY_QUICK_SPLIT =
+                "SELECT * FROM quick_split_shares WHERE qss_quick_split_id = :quickSplitId ORDER BY qss_position ASC";
+
+        public static final String DELETE_BY_QUICK_SPLIT =
+                "DELETE FROM quick_split_shares WHERE qss_quick_split_id = :quickSplitId";
+
+        private QuickSplitShares() {
             //impide crear objetos de esta clase
         }
     }
